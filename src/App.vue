@@ -34,7 +34,10 @@
 <div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
 <div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
 <div :style="{ width: '100%' }">selected : {{ selected }}</div>
-<Datatable 
+
+<!-- <ul><li v-for="header in headers" :key="header.property" debug>{{ header.property }}</li></ul> -->
+
+<Datatable v-if="true"
 	tableStyle="text-align: rightt; max-height: 400px;"
 
 	identifiant="tabSimple"
@@ -70,8 +73,11 @@
 <script setup lang="ts">
 import { ref } from "vue"
 
+import useDebug from "./composables/useDebug"
+const { debugTime } = useDebug()
+
 // import Datatable from "./components/datatable.vue"
-import { Datatable, DatatableColumn, DatatableSelection } from "./components"
+import { Datatable, DatatableCell, DatatableColumn, DatatableRow, DatatableSelection } from "./components"
 
 const debug = ref(true)
 const dense = ref(false)
@@ -144,6 +150,46 @@ const items = ref<Array<Item>>([
 	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, },
 ])
 
+
+
+
+
+function addCol(){
+	let name = 'Col-'+Math.random().toString(36).substring(2,7)
+	headers.value.push({ property: name, footer: { text: average }, footerStyle: { textAlign: 'center', } })
+	items.value.forEach(item => {
+		item[name] = Math.round(Math.random()*100)
+	});
+}
+function update1stCol() {
+	const index = 1
+	if(headers.value?.[index]) {
+		headers.value[index].dividerRight = !headers.value?.[index]?.dividerRight
+		headers.value[index].dividerLeft = !headers.value?.[index]?.dividerLeft
+	}
+}
+function removeCol() {
+	headers.value.pop()
+}
+function addRow(){
+	let item: DatatableRow = {}
+	headers.value.forEach(header => {
+		if (header.property == "name") item.name = 'Test-'+Math.random().toString(36).substring(2,7) 
+		else if(header.property) {
+			// console.log(header.property, item[header.property], item[header.property]?.constructor)
+			item[header.property] = Math.round(Math.random()*1000)/10
+		}
+	})
+	items.value.push(item as unknown as Item)
+}
+function update1stRow() {
+	const index = 0
+	if(items.value?.[index])
+		items.value[index].dairy = !items.value?.[index]?.dairy
+}
+function removeRow() {
+	items.value.pop()
+}
 function displaying(event) {
 	// console.log(`Displaying ${event.length} rows :`, event?.length)
 }

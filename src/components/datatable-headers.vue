@@ -3,8 +3,8 @@
         <slot :name="slotPrefix" v-bind="table">
             <tr>
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
-                    <template v-if="table" >
-                    <slot v-for="column in headers" :key="table.generateKey(component, column)"
+                    <!-- <template v-if="table" > -->
+                    <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
                         :name="`${slotPrefix}-${column.id}`" v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'table-cell-divider-left': column.dividerLeft, 'table-cell-divider-right': column.dividerRight }]"
@@ -13,6 +13,8 @@
                         <DatatableCell 
                             header 
                         
+                            :id="table.generateKey(component, column)"
+
                             :value="table.format(column, displaying, slotPrefix)"
                             v-bind="column[slotPrefix]"
 
@@ -34,7 +36,7 @@
                         >
                         </DatatableCell>
                     </slot>
-                    </template>
+                    <!-- </template> -->
                 </slot>
             </tr>
         </slot>
@@ -42,7 +44,7 @@
 </template>
         
 <script setup lang='ts'>
-import { computed } from '@vue/reactivity';
+import { computed, onMounted, watch } from 'vue';
 import DatatableCell from "./datatable-cell.vue"
 import { DatatableColumn, DatatableRow, DatatableSelection } from './types';
 
@@ -70,9 +72,20 @@ const slotPrefix = computed(() => {
     return props.is === "head" ? "header" : props.is === "foot" ? "footer" : "unknown"
 })
 
-console.groupCollapsed(`${component.value.toUpperCase()} ${props.identifiant} :`)
-console.table(props.table, ["value"])
-console.groupEnd()
+// console.groupCollapsed(`${component.value.toUpperCase()} ${props.identifiant} :`)
+// console.table(props.table, ["value"])
+// console.groupEnd()
+
+// #region  ###     GENERIC       ###
+if(props.debug) {
+    onMounted(() => {
+        console.log("onMounted headers", component.value, props.identifiant)
+    })
+    watch(props.identifiant, () => {
+        console.log("watch headers", component.value, props.identifiant)
+    }, { immediate: true, deep: true })
+}
+// #endregion  ###     GENERIC       ###
 </script>
         
 <style></style>
