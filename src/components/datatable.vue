@@ -48,7 +48,6 @@
         <slot name="top"></slot>
     </div>
 
-
     <div style="overflow: auto; width: 100%;" :style="tableStyle" :class="tableClass">
         <slot >
             <table style="table-layout: auto; min-width: 100%;" :class="{ 'dense': dense, 'divider': !notDivided, ...tableClass }" :style="tableStyle">
@@ -77,8 +76,102 @@
                         </td>
                     </tr>
                 </template>
-
-                
+                <tbody>
+                    <slot name="body" v-bind="getThis">
+                        <template v-if="getRows.length">
+                            <template v-for="row in getRows" :key="getId(row)">
+                                <tr>
+                                    <slot :name="`row-${getId(row)}`" :row="row" :whatPropId="whatPropId"
+                                        :displaying="getRows" :columns="getColumns" :format="format" :expand="expanse">
+                                        <slot :name="`rows`" :row="row" :whatPropId="whatPropId" :displaying="getRows"
+                                            :columns="getColumns" :format="format" :expand="expanse">
+                                            <template v-for="column in getColumns" :key="generateKey(row, column)">
+                                                <slot :name="`cell-${column.id}-row-${getId(row)}`" :row="row"
+                                                    :whatPropId="whatPropId" :displaying="getRows" :column="column"
+                                                    :columns="getColumns" :format="format" :expand="expanse"
+                                                    :expandable="!!column.expansion"
+                                                    :expanded="getExpandedValue(column, row)"
+                                                    :value="format(column, row)">
+                                                    <slot :name="`cell-${column.id}`" :row="row"
+                                                        :whatPropId="whatPropId" :displaying="getRows" :column="column"
+                                                        :columns="getColumns" :format="format" :expand="expanse"
+                                                        :expandable="!!column.expansion"
+                                                        :expanded="getExpandedValue(column, row)"
+                                                        :value="format(column, row)">
+                                                        <DatatableCell :value="format(column, row)" v-bind="column.body"
+                                                            :class="[column.bodyClass, { 'table-cell-divider-left': column.dividerLeft, 'table-cell-divider-right': column.dividerRight }]"
+                                                            :style="{ ...column.bodyStyle, ...getSticky(column) }"
+                                                            :selectable="!!column.selection"
+                                                            :selected="getSelect(column)?.includes(getId(row))"
+                                                            @update:selected="select(column, row, $event)"
+                                                            :expandable="!!column.expansion"
+                                                            :expanded="getExpandedValue(column, row)"
+                                                            @update:expanded="expanse($event, column, row)"
+                                                            :debug="debug" />
+                                                    </slot>
+                                                </slot>
+                                            </template>
+                                        </slot>
+                                    </slot>
+                                </tr>
+                                <tr v-for="({ expansion, column, length }, i) in Object
+                                    .entries(getExpanded)
+                                    .map(([key, val]) => val[getId(row)] ? { expansion: key, column: getColumns.find(col => col.id == key), row: val } : null)
+                                    .filter(kv => !!kv)
+                                    .map((kv, _, arr) => { kv.length = arr.length; return kv })"
+                                    :key="`${getId(row)}-expansion-${expansion}`" :class="{
+                                        'table-expansion-row': !hasExpansion(expansion),
+                                        'table-expansion-nested-row': hasExpansion(expansion),
+                                    }">
+                                    <slot :name="`row-${getId(row)}-expansion-${expansion}`" :row="row"
+                                        :whatPropId="whatPropId" :expanse="expanse" :displaying="getRows"
+                                        :column="column" :columns="getColumns">
+                                        <slot :name="`rows-expansion-${expansion}`" :row="row" :whatPropId="whatPropId"
+                                            :expanse="expanse" :displaying="getRows" :column="column"
+                                            :columns="getColumns">
+                                            <slot :name="`rows-expansions`" :row="row" :whatPropId="whatPropId"
+                                                :expanse="expanse" :displaying="getRows" :column="column"
+                                                :columns="getColumns">
+                                                <td v-if="hasExpansion(expansion)" :colspan="getColumns.length" :class="{
+                                                    'table-expansion-first-row': i == 0 && length > 1,
+                                                    'table-expansion-last-row': i == (length - 1) && length > 1,
+                                                    'table-expansion-only-row': length == 1,
+                                                }" :style="{ ...getSticky(column) }">
+                                                    <span v-show="debug" class="text-caption">{{ debugTime() }}</span>
+                                                    <Datatable nested class="table-nested"
+                                                        :identifiant="`${identifiant}_${expansion}-${getId(row)}`"
+                                                        :columns="column.expansion.columns"
+                                                        :rows="format(column, row, 'expansion')" :dense="dense"
+                                                        :dark="dark" :loading="loading" :debug="debug" />
+                                                </td>
+                                                <DatatableCell v-else :colspan="getColumns.length" :class="{
+                                                    'table-expansion-first-row': i == 0 && length > 1,
+                                                    'table-expansion-last-row': i == (length - 1) && length > 1,
+                                                    'table-expansion-only-row': length == 1,
+                                                }" :style="{ ...getSticky(column) }"
+                                                    :value="format(getColumns.find(col => col.id == expansion), row, 'expansion')"
+                                                    :debug="debug" />
+                                            </slot>
+                                        </slot>
+                                    </slot>
+                                </tr>
+                            </template>
+                        </template>
+                        <template v-else>
+                            <tr class="table-empty-row">
+                                <slot name="no-data" :filter="filter" :loading="loading" :columns="getColumns"
+                                    :displaying="getRows">
+                                    <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
+                                        {{ filter ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
+                                        <client-only>
+                                            <span v-show="debug" class="text-caption">{{ debugTime() }}</span>
+                                        </client-only>
+                                    </td>
+                                </slot>
+                            </tr>
+                        </template>
+                    </slot>
+                </tbody>
                 <DatatableHeaders v-if="displayFooter" is="foot" 
                     :identifiant="identifiant" 
                     :style="{ ...getSticky('tfoot') }" 
@@ -111,7 +204,7 @@
 //#region   Imports
 import { computed, ref, watch, isRef, isReactive, toRaw, unref } from "vue";
 import { merge, cloneDeep } from "../utils/object"
-import { DatatableHeaders, ClassProps, DatatableColumn, DatatableDraggable, DatatableExpansion, DatatableFilter, DatatableGroup, DatatablePagination, DatatablePropertyId, DatatableResizable, DatatableRow, DatatableSelection, DatatableSort, DatatableSticky, StyleProps } from ".";
+import { DatatableHeaders, DatatableCell, ClassProps, DatatableColumn, DatatableDraggable, DatatableExpansion, DatatableFilter, DatatableGroup, DatatablePagination, DatatablePropertyId, DatatableResizable, DatatableRow, DatatableSelection, DatatableSort, DatatableSticky, StyleProps } from ".";
 import useDebug from "../composables/useDebug"
 // #endregion
 
@@ -314,8 +407,8 @@ function format(column: DatatableColumn, rowOrRows: DatatableRow | DatatableRow[
         case "expansion":
             // if (position == "expansion")  console.log(column, rowOrRows, position, formating)
             // console.log(`${props.identifiant} format :`, position, data)
-            args.push(rowOrRows[formating?.property ?? column?.property])
-            args.push(rowOrRows)
+            args.push(data[formating?.property ?? column?.property])
+            args.push(data)
             break;
         default:
             // if (position == "footer")  console.log(column, rowOrRows, position, formating)
@@ -324,7 +417,7 @@ function format(column: DatatableColumn, rowOrRows: DatatableRow | DatatableRow[
             args.push(data)
     }
 
-    console.log(`${props.identifiant} format :`, column.id, position, args, formating?.text(...args))
+    // console.log(`${props.identifiant} format :`, column.id, position, args, formating?.text(...args))
     return formating?.text(...args)
 }
 //#endregion    ###     CELLS       ###
@@ -823,15 +916,15 @@ table {
     tbody {
         .table-expansion-row {
             .table-expansion-only-row {
-                box-shadow: inset 0 4px 8px -5px rgb(50 50 50 / 75%), inset 0 -4px 8px -5px rgb(50 50 50 / 75%);
+                box-shadow: inset 0 1px 6px -5px rgb(50 50 50 / 75%), inset 0 -1px 6px -5px rgb(50 50 50 / 75%);
             }
 
             .table-expansion-first-row {
-                box-shadow: inset 0 4px 8px -5px rgb(50 50 50 / 75%);
+                box-shadow: inset 0 1px 6px -5px rgb(50 50 50 / 75%);
             }
 
             .table-expansion-last-row {
-                box-shadow: inset 0 -4px 8px -5px rgb(50 50 50 / 75%);
+                box-shadow: inset 0 -1px 6px -5px rgb(50 50 50 / 75%);
             }
         }
 
@@ -1016,5 +1109,6 @@ table {
         right: 0%;
         width: 0%;
     }
-}</style>
+}
+</style>
     

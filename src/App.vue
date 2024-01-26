@@ -88,11 +88,16 @@ const tabNested = ref(true)
 const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat' }])
 const search = ref("")
 const filters = ref(null)
-const selected = ref<DatatableSelection>(["Eclair", "Donut"])
-const expanded = ref({ 'calories': ['Honeycomb'], 'fat': ['KitKat'] })
+const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
+const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 
 const headers = ref<Partial<DatatableColumn>[]>([
-	{ id:"id_selection", selection: { single: false, global: true }, header: { cols: "auto", justify: "center" }, body: { cols: "auto", justify: "center" }, dividerLeft: false, dividerRight: false, footer : { cols: "auto", justify: "start", displayExpanse: true, displaySelect: true, displaySort:false }, expansion: { global: true }, sticky: { position: "left", zIndex: 2 }, },
+	{ id:"id_selection", selection: { single: false, global: true }, 
+		body: { cols: "auto", justify: "center" }, dividerLeft: false, dividerRight: false, 
+		header: { cols: "auto", justify: "center" }, 
+		footer : { cols: "auto", justify: "end", displayExpanse: true, displaySelect: true, displaySort: false }, 
+		expansion: { global: true }, sticky: { position: "left", zIndex: 2 }, 
+	},
 	{
 		property: 'name',
 		header: { text: 'Dessert (100g serving)', },
@@ -118,22 +123,20 @@ function average(vals) {
 }
 function countBy(array, iteratee = val => val) {
   return array.reduce((acc, value) => {
-    const key = iteratee(value);
-    if (!acc[key]) {
-      acc[key] = 0;
-    }
-    acc[key]++;
-    return acc;
+    const key = iteratee(value)
+    if (!acc[key]) acc[key] = 0
+    acc[key]++
+    return acc
   }, {});
 }
 
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: number | undefined }
 const items = ref<Array<Item>>([
 	{ name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
-	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false },
 	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true },
-	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
+	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false },
 	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, },
+	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
 	{ name: 'Jelly bean', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, iron: 0, category: 'Candy', dairy: false, },
 	{ name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, iron: 0.01, category: 'Ice cream', dairy: true },
 	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true },

@@ -79,9 +79,9 @@ export class DatatableColumn {
     dividerRight: boolean = false // pour ajouter une barre de séparation avec la colonne de droite
 
     sticky: "right" | "left" | null | { 
-        position: "right" | "left" | null | undefined, 
-        zIndex: number | undefined, 
-        distance: number | string | undefined 
+        position?: "right" | "left" | null, 
+        zIndex?: number | undefined, 
+        distance?: number | string  
     } = null // la position ("right" ou "left") pour mettre une position sticky null sinon
 }
 //#endregion
