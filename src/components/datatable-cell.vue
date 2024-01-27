@@ -58,6 +58,7 @@
             </div>
         </div>
         <!-- <client-only><span v-show="debug" class="text-caption">{{ debugTime() }}</span></client-only> -->
+        <RerenderChecker v-if="debug" :id="id" />
     </component>
 </template>
 
@@ -65,6 +66,7 @@
 // #region Imports
 import { computed, onMounted, onUpdated, watch } from 'vue'
 import { DatatableCell, DatatableColumnCellOptions } from './types'
+import RerenderChecker from "./rerender-checker.vue"
 // #endregion Imports
 
 // #region  ###     Props       ###
@@ -123,17 +125,17 @@ const component = computed(() => props.header ? 'th' : 'td')
 // #endregion  ###    COMPONENT     ###
 
 // #region  ###     GENERIC       ###
-if(props.debug) {
-    onMounted(() => {
-        console.log("onMounted cell", props.id)
-    })
-    onUpdated(() => {
-        console.log("onUpdated cell", props.id)
-    })
-    // watch(props.value, () => {
-    //     console.log("watch cell", props.id)
-    // }, { immediate: true, deep: true })
-}
+// if(props.debug) {
+//     onMounted(() => {
+//         console.log("onMounted cell", props.id)
+//     })
+//     onUpdated(() => {
+//         console.log("onUpdated cell", props.id)
+//     })
+//     watch(props.value, () => {
+//         console.log("watch cell", props.id)
+//     }, { immediate: true, deep: true })
+// }
 // #endregion  ###     GENERIC       ###
 
 </script>

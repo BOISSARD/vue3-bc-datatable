@@ -40,6 +40,7 @@
                 </slot>
             </tr>
         </slot>
+        <RerenderChecker v-if="table.debug" :id="table.generateKey(component, 'tr')" ></RerenderChecker>
     </component>
 </template>
         
@@ -47,6 +48,7 @@
 import { computed, onMounted, watch } from 'vue';
 import DatatableCell from "./datatable-cell.vue"
 import { DatatableColumn, DatatableRow, DatatableSelection } from './types';
+import RerenderChecker from "./rerender-checker.vue"
 
 const props = defineProps<{
     is?: "head" | "foot",

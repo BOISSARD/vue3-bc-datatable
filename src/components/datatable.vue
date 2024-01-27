@@ -184,7 +184,8 @@
                                                     :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
                                                     :style="{ ...getSticky(column) }"
                                                 >
-                                                    <!-- <span v-show="debug" class="text-caption">{{ debugTime() }}</span> -->
+                                                    <!-- <span v-show="debug" class="text-caption">{{ debugTime() }}</span> -->                                                    
+                                                    <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'table-nested')" ></RerenderChecker>
                                                     <Datatable 
                                                         nested 
                                                         class="table-nested"
@@ -227,6 +228,7 @@
                                         <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
                                             {{ filter ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
                                             <!-- <client-only><span v-show="debug" class="text-caption">{{ debugTime() }}</span></client-only> -->
+                                            <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}`,'messages')" />
                                         </td>
                                     </slot>
                                 </tr>
@@ -888,7 +890,7 @@ function generateKey(row: DatatableRow, column: DatatableColumn) {
     // console.log(`${this.identifiant}`,"id", id)
     id = id.replace(" ", "_");
     // console.log(`${this.identifiant}`,`${id}-${column.id}`, row, this.whatPropId)
-    return `${id}-${column.id}`;
+    return `${id}-${typeof column === "string" ? column : column.id}`;
 }
 //#endregion    ###     GENERIC       ### */
 
