@@ -5,7 +5,7 @@ export type ID = string
 
 export type DatatablePropertyId = string | { propId: ID, [key: string]: DatatablePropertyId }
 
-export type StyleProps = string | { [style: string]: string }
+export type StyleProps = string | { [style: string]: string } | StyleSheet
 export type ClassProps = string | Array<string> | { [classname: string]: boolean }
 //#endregion
 

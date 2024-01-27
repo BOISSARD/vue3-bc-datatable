@@ -18,30 +18,64 @@
 	:loading="loading"
 />
 
+
+	<template v-if="tabSimple || tabSloted">
+	<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', marginBottom: '15px' }">
+		<div :style="{ flex: '0 0 auto' }"> <button @click="addCol" >Add Col</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="update1stCol" >Update 2nd col</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="removeCol" >Remove last col</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="addRow" >Add Row</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="update1stRow" >Update 1st row</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="removeRow" >Remove last row</button> </div>
+		<div :style="{ flex: '1 0 auto' }"> <label>Search : </label><input type="text" v-model="search" > </div>
+		<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="multiSort"><label>Multi sort</label> </div>
+	</div>
+	<div :style="{ width: '100%' }">expanded : {{ expanded }}</div>
+	<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
+	<div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
+	<div :style="{ width: '100%' }">selected : {{ selected }}</div>
+	</template>
+
 <h2>Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
 <div v-if="tabSimple">
-<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', marginBottom: '15px' }">
-	<div :style="{ flex: '0 0 auto' }"> <button @click="addCol" >Add Col</button> </div>
-	<div :style="{ flex: '0 0 auto' }"> <button @click="update1stCol" >Update 2nd col</button> </div>
-	<div :style="{ flex: '0 0 auto' }"> <button @click="removeCol" >Remove last col</button> </div>
-	<div :style="{ flex: '0 0 auto' }"> <button @click="addRow" >Add Row</button> </div>
-	<div :style="{ flex: '0 0 auto' }"> <button @click="update1stRow" >Update 1st row</button> </div>
-	<div :style="{ flex: '0 0 auto' }"> <button @click="removeRow" >Remove last row</button> </div>
-	<div :style="{ flex: '1 0 auto' }"> <label>Search : </label><input type="text" v-model="search" > </div>
-	<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="multiSort"><label>Multi sort</label> </div>
+	<Datatable v-if="true"
+		tableStyle="text-align: rightt; max-height: 400px;"
+
+		identifiant="tabSimple"
+		title="Tableau Simple"
+		
+		:columns="headers"
+		:rows="empty ? [] : items"
+		propId="name"
+		@displaying="displaying"
+		
+		displayFooter
+		:dense="dense"
+		:dark="dark"
+		:loading="loading"
+		:stick="{ header: true, footer: true }"
+		
+		:debug="debug"
+
+		:multiSort="multiSort"
+		v-model:sort="sorted"
+		
+		v-model:select="selected"
+
+		:search="search"
+		v-model:filter="filters"
+		
+		v-model:expand="expanded"
+	/>
 </div>
-<div :style="{ width: '100%' }">expanded : {{ expanded }}</div>
-<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
-<div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
-<div :style="{ width: '100%' }">selected : {{ selected }}</div>
 
-<!-- <ul><li v-for="header in headers" :key="header.property" debug>{{ header.property }}</li></ul> -->
-
+<h2>Sloted datatable <input type="checkbox" v-model="tabSloted"></h2>
+<div v-if="tabSloted">
 <Datatable v-if="true"
 	tableStyle="text-align: rightt; max-height: 400px;"
 
-	identifiant="tabSimple"
-	title="Tableau Simple"
+	identifiant="tabSloted"
+	title="Tableau Avec Slots"
 	
 	:columns="headers"
 	:rows="empty ? [] : items"
@@ -51,6 +85,7 @@
 	displayFooter
 	:dense="dense"
 	:dark="dark"
+	notDivided
 	:loading="loading"
 	:stick="{ header: true, footer: true }"
 	
@@ -65,7 +100,62 @@
 	v-model:filter="filters"
 	
 	v-model:expand="expanded"
-/>
+>
+
+	<template #title="{ title, rows, displaying }">
+		<h3 :style="{ margin: '10px 25px', fontSize: '1.8rem', fontFamily: 'cursive' }">{{ title }} <span style="font-size: 1.1rem; padding-left: 20px">({{ displaying.length }}/{{ rows.length }} lignes affichées)</span></h3>
+	</template>
+	<template #top>
+		<v-text-field
+			v-model="search"
+			append-icon="mdi-magnify"
+			label="Search"
+			single-line
+			clearable
+		/>
+	</template>
+	<!-- <template #progress="{ dense: densed, dark: darken }" class="px-1">
+		<v-progress-linear color="primary" :height="densed ? 3 : 6" :dark="darken" indeterminate rounded striped />
+	</template> -->
+	<template #progress="{ dense: densed, dark: darken }" class="px-1">
+		<div style="width: 100%; text-align: center;" class="divider">Loading...</div>
+	</template>
+
+	<!-- <template #default="{ columns, displaying }">{{ columns }}<br>{{ displaying }}</template> -->
+	
+<!-- #region ColGroups -->
+	<!-- <template #colgroups="{ columns }">
+		<colgroup span="2" style="background-color: rgba(200, 0, 0, 0.3);">
+			<col width="300px">
+		</colgroup>
+		<col v-for="col of columns.slice(1)" :key="col.id" width="" :style="{'visibility': col.id == 'dairy' ? 'collapse' : 'visible' }">
+	</template> -->
+	<!-- <template #col-name><col style="background-color: rgba(150, 20, 50, 0.3);" width="300px"><col></template> -->
+	<!-- <template #col-dairy><col style="visibility: collapse;"></template> -->
+<!-- #endregion ColGroups -->
+	
+	<!-- <template #header="{ columns }"><tr :style="{ border: '2px solid red', padding: '5px' }" ><td :colspan="columns.length">{{ columns.map(c => c.property ?? c.id) }}</td></tr></template> -->
+	<!-- <template #header-tr="{ columns }"><td :colspan="columns.length">{{ columns.map(c => c.id) }}</td></template> -->
+	<!-- <template #header-dairy="{ class: classes, style: styles }"><th style="background-color: rgba(40, 120, 50, 0.3); border: 2px dashed blueviolet;" :style="styles" :class="classes">DAIRY ?</th></template> -->
+	
+	<!-- <template #body="{ displaying, columns }"><tr><td :colspan="columns.length" style="background-color: initial;">{{ displaying }}</td></tr></template> -->
+
+	<template #row-Lollipop="{ column, columns, class: classes, style }"><td colspan="2" style="text-align: center;" :style="{ ...style, fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" :class="classes">{{ column }}</td></template>
+
+	<template #cell-iron="{ row, value, column, class: classes, style }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)', ...style }" :class="classes">{{ value }} %</td></template>
+	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand, class: classes, style }"><th style="text-align: right; cursor: pointer" :style="style" :class="classes" @click="expand(expanded, column, row)">{{ value }} g</th></template>
+
+	<template #rows-expansions="{ column, columns, class: classes, style }"><td colspan="2" /><td :colspan="columns.length" style="text-align: right;" :style="style" :class="classes">expansion {{ column }}</td></template>
+	<template #rows-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightcyan;" :style="style" :class="classes">expansion CARBS</td></template>
+	<template #row-Eclair-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightgoldenrodyellow;" :style="style" :class="classes">expansion CARBS pour l'ECLAIR</td></template>
+
+	<template #no-data="{ columns, class: classes, style }"><td :colspan="columns.length" :style="{ ...style, textAlign: 'center' }" :class="classes">NO DATA</td></template>
+	
+	<template #footer-iron="{ value, class: classes, style }"><th :style="{...style, textAlign: 'left', backgroundColor: value > 25 ? 'rgba(244, 191, 191, 0.25)' : value > 10 ? 'rgba(255, 229, 196, 1)' : 'rgba(191, 246, 194, 1)' }" :class="classes">{{ value }} %</th></template>
+	<template v-slot:[`footer-category`]="{ class: classes, style }"><td colspan="2" style="box-sizing: border-box;border: 4px dashed blueviolet;" :style="style" :class="classes">Nothing here</td></template>
+	<!-- <template #footer="{ columns }"><tr><td :colspan="columns.length" style="background-color: lightblue;">{{ columns.map(c => c.id) }}</td></tr></template> -->
+	<!-- <template #footer-tr="{ columns }"><td :colspan="columns.length" style="background-color: lightblue;">{{ columns.map(c => c.id) }}</td></template> -->
+</Datatable>
 </div>
 
 </template>
@@ -73,13 +163,9 @@
 <script setup lang="ts">
 import { ref } from "vue"
 
-import useDebug from "./composables/useDebug"
-const { debugTime } = useDebug()
-
-// import Datatable from "./components/datatable.vue"
 import { Datatable, DatatableCell, DatatableColumn, DatatableRow, DatatableSelection } from "./components"
 
-const debug = ref(true)
+const debug = ref(false)
 const dense = ref(false)
 const empty = ref(false)
 const dark = ref(false)
@@ -87,7 +173,7 @@ const loading = ref(false)
 const multiSort = ref(false)
 
 const tabEmpty = ref(false)
-const tabSimple = ref(true)
+const tabSimple = ref(false)
 const tabSloted = ref(true)
 const tabNested = ref(true)
 
@@ -107,7 +193,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 	{
 		property: 'name',
 		header: { text: 'Dessert (100g serving)', },
-		headerStyle: { color: "red" },
+		headerStyle: { color: "red", fontSize: '1.2rem', 'font-weight': '900' },
 		footer: { text: (desserts:string[]) => desserts.length },
 		footerStyle: { color: "green" },
 		bodyStyle: { fontStyle: 'italic' },
@@ -149,10 +235,6 @@ const items = ref<Array<Item>>([
 	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false },
 	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, },
 ])
-
-
-
-
 
 function addCol(){
 	let name = 'Col-'+Math.random().toString(36).substring(2,7)

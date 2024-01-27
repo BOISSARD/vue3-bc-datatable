@@ -51,7 +51,7 @@
         </div>
 
         <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass">
-            <slot>
+            <slot v-bind="getThis">
 
                 <table 
                     style="table-layout: auto; min-width: 100%"
@@ -140,7 +140,7 @@
                                                             :id="generateKey(row, column)"
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
-                                                            :class="[column.bodyClass, { 'table-cell-divider-left': column.dividerLeft, 'table-cell-divider-right': column.dividerRight, }, ]" 
+                                                            :class="[column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, }, ]" 
                                                             :style="{ ...column.bodyStyle, ...getSticky(column) }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
@@ -224,6 +224,7 @@
                                         :loading="loading" 
                                         :columns="getColumns"
                                         :displaying="getRows"
+                                        :message="filter ? noResultsMessage : loading ? loadingMessage : noDataMessage"
                                     >
                                         <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
                                             {{ filter ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
@@ -900,8 +901,8 @@ const getThis = computed(() => {
         // props
         ...props,
         // computed cols & rows
-        headers: getColumns,
-        displaying: getRows,
+        headers: getColumns.value,
+        displaying: getRows.value,
         // generic
         whatPropId,
         getId,
@@ -1181,11 +1182,11 @@ table {
         td {
             background-color: white;
 
-            &.table-cell-divider-left {
+            &.divider-left {
                 border-left: thin solid rgba(0, 0, 0, 0.12);
             }
 
-            &.table-cell-divider-right {
+            &.divider-right {
                 border-right: thin solid rgba(0, 0, 0, 0.12);
             }
         }
@@ -1247,11 +1248,11 @@ table {
         td {
             background-color: #1e1e1e;
 
-            &.table-cell-divider-left {
+            &.divider-left {
                 border-left: thin solid hsla(0, 0%, 100%, 0.12);
             }
 
-            &.table-cell-divider-right {
+            &.divider-right {
                 border-right: thin solid hsla(0, 0%, 100%, 0.12);
             }
         }

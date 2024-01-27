@@ -7,7 +7,7 @@
                     <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
                         :name="`${slotPrefix}-${column.id}`" v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
-                        :class="[column[`${slotPrefix}Class`], { 'table-cell-divider-left': column.dividerLeft, 'table-cell-divider-right': column.dividerRight }]"
+                        :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
                     >
                         <DatatableCell 
@@ -18,7 +18,7 @@
                             :value="table.format(column, displaying, slotPrefix)"
                             v-bind="column[slotPrefix]"
 
-                            :class="[column[`${slotPrefix}Class`], { 'table-cell-divider-left': column.dividerLeft, 'table-cell-divider-right': column.dividerRight }]"
+                            :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                             :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }" 
                             
                             :debug="table.debug"

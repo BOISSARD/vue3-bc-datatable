@@ -26,7 +26,7 @@
             </div>
             <div v-if="selectable && displaySelect" :style="{ flex: '0 0 auto' }">
                 <!-- class="table-selection"
-                :class="[{ 'table-cell-divider-left': column.dividerLeft,  'table-cell-divider-right': column.dividerRight }]" -->
+                :class="[{ 'divider-left': column.dividerLeft,  'divider-right': column.dividerRight }]" -->
                 <input type="checkbox" :checked="selected" @change="emit('update:selected', $event )" >                    
             </div>
             <div :cols="cols">
