@@ -1,7 +1,7 @@
 <template>
     <component :is="component" :class="{ divider: table.hasDivider(component) }">
         <slot :name="slotPrefix" v-bind="table">
-            <tr >
+            <tr>
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
                     <!-- <template v-if="table" > -->
                     <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
@@ -9,7 +9,7 @@
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
-                    >
+                    > 
                         <DatatableCell 
                             header 
                         
@@ -18,8 +18,8 @@
                             :value="table.format(column, displaying, slotPrefix)"
                             v-bind="column[slotPrefix]"
 
-                            :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
-                            :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }" 
+                            :class="[...column.columnClass, column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
+                            :style="{...column.columnStyle, ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity }" 
                             
                             :debug="table.debug"
 

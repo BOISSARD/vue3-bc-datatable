@@ -6,7 +6,8 @@
             'asc': typeof sorted === 'object' && !sorted?.desc, 
             'desc': typeof sorted === 'object' && sorted?.desc, 
             'groupable': groupable && displayGroup 
-        }]"    
+        }]"
+        :style="{ height: '' }"
     >
         <div :style="{ display: 'flex', alignItems: align, justifyContent: justify }">
             <div v-if="expandable && displayExpanse"
@@ -57,7 +58,6 @@
                 >{{ sorted?.position}}</span>
             </div>
         </div>
-        <!-- <client-only><span v-show="debug" class="text-caption">{{ debugTime() }}</span></client-only> -->
         <RerenderChecker v-if="debug" :id="id" />
     </component>
 </template>

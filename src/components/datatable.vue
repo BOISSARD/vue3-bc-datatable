@@ -56,7 +56,7 @@
                 <table 
                     style="table-layout: auto; min-width: 100%"
                     :style="tableStyle"
-                    :class="{ dense: dense, divider: hasDivider(), ...tableClass }" 
+                    :class="{ 'density-comfortable': density === 'comfortable', 'density-compact': density === 'compact', divider: hasDivider(), ...tableClass }" 
                 >
 
                     <DatatableHeaders v-if="!hideHeader" 
@@ -77,7 +77,7 @@
                     <template v-if="loading">
                         <tr class="table-progress" :style="{ ...getSticky('thead') }">
                             <td :colspan="getColumns.length">
-                                <slot name="progress" :loading="loading" :dark="dark" :dense="dense">
+                                <slot name="progress" :loading="loading" :dark="dark" :density="density">
                                     <div class="table-progress-bar">
                                         <div />
                                     </div>
@@ -140,8 +140,8 @@
                                                             :id="generateKey(row, column)"
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
-                                                            :class="[column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, }, ]" 
-                                                            :style="{ ...column.bodyStyle, ...getSticky(column) }"
+                                                            :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, }, ]" 
+                                                            :style="{ ...column.columnStyle, ...column.bodyStyle, ...getSticky(column), ...getRowHeightFromDensity }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
                                                             @update:selected="select(column, row, $event)"
@@ -184,7 +184,6 @@
                                                     :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
                                                     :style="{ ...getSticky(column) }"
                                                 >
-                                                    <!-- <span v-show="debug" class="text-caption">{{ debugTime() }}</span> -->                                                    
                                                     <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'table-nested')" ></RerenderChecker>
                                                     <Datatable 
                                                         nested 
@@ -192,7 +191,7 @@
                                                         :identifiant="`${identifiant}_${expansion}-${getId(row)}`"
                                                         :columns="column.expansion.columns"
                                                         :rows="format(column, row, 'expansion')" 
-                                                        :dense="dense" 
+                                                        :density="density" 
                                                         :dark="dark"
                                                         :loading="loading" 
                                                         :debug="debug" 
@@ -202,11 +201,10 @@
                                                     :id="generateKey(`expansion-${identifiant}_${expansion}-${getId(row)}`, column)"
                                                     :colspan="getColumns.length" 
                                                     :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
-                                                    :style="{ ...getSticky(column) }" 
+                                                    :style="{ ...getSticky(column), ...getRowHeightFromDensity  }" 
                                                     :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" 
                                                     :debug="debug" 
                                                 />
-
                                             </slot>
 
                                         </slot>
@@ -228,7 +226,6 @@
                                     >
                                         <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
                                             {{ filter ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
-                                            <!-- <client-only><span v-show="debug" class="text-caption">{{ debugTime() }}</span></client-only> -->
                                             <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}`,'messages')" />
                                         </td>
                                     </slot>
@@ -322,7 +319,8 @@ const props = withDefaults(
         displayFooter?: boolean;
         stick?: DatatableSticky;
         // ** Design
-        dense?: boolean;
+        // dense?: boolean;
+        density?: 'default' | 'comfortable' | 'compact' | number | null;
         dark?: boolean;
         dividers?: DatatableDividers;
         tableStyle?: StyleProps;
@@ -352,6 +350,7 @@ const props = withDefaults(
         pagination: false,
         displayFooter: false,
         // ** Design
+        density: 'default',
         dividers: true,
         tableStyle: () => ({}),
         tableClass: () => Array<string>(),
@@ -887,6 +886,19 @@ function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow 
     }
     return false
 }
+
+const getRowHeightFromDensity = computed(() => {
+    // { height typeof props.density === 'number' && (props.density+'px') || (typeof props.density === null && 'inherit')
+    let retour = {}
+    if (typeof props.density === 'number')  {
+        retour["height"] = props.density+'px'
+    } else if(props.density === null) {
+        retour["height"] = 'inherit'
+    }
+    console.log(`${props.identifiant} getRowHeightFromDensity`, retour, props.density)
+    return retour
+})
+
 //#endregion    ###     DESIGN      ###
 
 //#region       ###     GENERIC       ###
@@ -931,6 +943,7 @@ const getThis = computed(() => {
         generateKey,
         getSticky,
         hasDivider,
+        getRowHeightFromDensity,
         // cells
         format,
         // sort
@@ -1006,7 +1019,7 @@ table {
         }
     }
 
-    &.dense {
+    &.density-compact {
 
         th,
         td {
@@ -1016,6 +1029,19 @@ table {
 
         .table-progress .table-progress-bar {
             height: 3px;
+        }
+    }
+
+    &.density-comfortable {
+
+        th,
+        td {
+            padding: 10px 16px;
+            height: 62px;
+        }
+
+        .table-progress .table-progress-bar {
+            height: 8px;
         }
     }
 

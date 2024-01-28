@@ -3,7 +3,14 @@
 <h1>Examples</h1>
 <div id="options" :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }">
 	<div class="switch"><input type="checkbox" v-model="debug"><label>debug</label></div>
-	<div class="switch"><input type="checkbox" v-model="dense"><label>dense</label></div>
+	<!-- <div class="switch"><input type="checkbox" v-model="dense"><label>dense</label></div> -->
+	<div class="switch"><select v-model="density">
+		<option value="null">Automatique (null)</option>
+		<option value="100">Nombre 100</option>
+		<option value="compact">Compact</option>
+		<option value="default">Default</option>
+		<option value="comfortable">Comfortable</option>
+		</select><label>dense</label> : {{ densities[density] ?? "null" }}</div>
 	<div class="switch"><input type="checkbox" v-model="empty"><label>clear items ?</label></div>
 	<div class="switch"><input type="checkbox" v-model="dark"><label>dark</label></div>
 	<div class="switch"><input type="checkbox" v-model="loading"><label>loading</label></div>
@@ -13,7 +20,7 @@
 <Datatable identifiant="empty" v-if="tabEmpty" 
 	title="Tableau Vide"
 	:debug="debug"
-	:dense="dense"
+	:density="densities[density]"
 	:dark="dark"
 	:loading="loading"
 />
@@ -50,7 +57,7 @@
 		@displaying="displaying"
 		
 		displayFooter
-		:dense="dense"
+		:density="densities[density]"
 		:dark="dark"
 		:loading="loading"
 		:stick="{ header: true, footer: true }"
@@ -84,7 +91,7 @@
 	@displaying="displaying"
 	
 	displayFooter
-	:dense="dense"
+	:density="densities[density]"
 	:dark="dark"
 	:loading="loading"
 	:stick="{ header: true, footer: true }"
@@ -107,7 +114,7 @@
 		<h3 :style="{ margin: '10px 25px', fontSize: '1.8rem', fontFamily: 'cursive' }">{{ title }} <span style="font-size: 1.1rem; padding-left: 20px">({{ displaying.length }}/{{ rows.length }} lignes affichées)</span></h3>
 	</template>
 	<template #top>
-		<input v-model="search" >
+		<input v-model="search" style="display: block; width: calc(100% - 50px); margin: auto;">
 	</template>
 	<!-- <template #progress="{ dense: densed, dark: darken }" class="px-1">
 		<v-progress-linear color="primary" :height="densed ? 3 : 6" :dark="darken" indeterminate rounded striped />
@@ -140,7 +147,7 @@
 	<template #cell-iron="{ row, value, column, class: classes, style }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)', ...style }" :class="classes">{{ value }} %</td></template>
 	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand, class: classes, style }"><th style="text-align: right; cursor: pointer" :style="style" :class="classes" @click="expand(expanded, column, row)">{{ value }} g</th></template>
 
-	<template #rows-expansions="{ column, columns, class: classes, style }"><td colspan="2" /><td :colspan="columns.length" style="text-align: right;" :style="style" :class="classes">expansion {{ column }}</td></template>
+	<template #rows-expansions="{ column, columns, class: classes, style }"><td colspan="1">Expansion :</td><td :colspan="columns.length -1" style="text-align: right;" :style="style" :class="classes"> {{ column }}</td></template>
 	<template #rows-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightcyan;" :style="style" :class="classes">expansion CARBS</td></template>
 	<template #row-Eclair-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightgoldenrodyellow;" :style="style" :class="classes">expansion CARBS pour l'ECLAIR</td></template>
 
@@ -164,7 +171,8 @@ import { ref } from "vue"
 import { Datatable, DatatableCell, DatatableColumn, DatatableRow, DatatableSelection } from "./components"
 
 const debug = ref(false)
-const dense = ref(false)
+const densities = { "100": 100, "null": null, "default": "default", "compact": "compact", "comfortable": "comfortable" }
+const density = ref("default")
 const empty = ref(false)
 const dark = ref(false)
 const loading = ref(false)
@@ -190,6 +198,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 	},
 	{
 		property: 'name',
+		columnStyle: { width: '300px' },
 		header: { text: 'Dessert (100g serving)', },
 		headerStyle: { color: "red", fontSize: '1.2rem', 'font-weight': '900' },
 		footer: { text: (desserts:string[]) => `Total : ${desserts.length} desserts` },
@@ -309,7 +318,7 @@ button {
 	}
 }
 input[type="text"] {
-	margin: 0 4px;
+	margin: 0 6px;
 	font-size: 1.2rem;
 	border-radius: 10px;
 }
@@ -317,6 +326,10 @@ input[type="checkbox"] {
 	width: 1.2rem;
 	height: 1.2rem;
 	margin: 0 6px;
+}
+select {
+	margin: 0 6px;
+	height: 2rem;
 }
 
 .switch {
