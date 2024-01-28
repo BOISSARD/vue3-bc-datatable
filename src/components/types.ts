@@ -95,7 +95,9 @@ export type DatatableRow = {
     [property: string]: DatatableCell | {
         value: DatatableCell,
         rows: Array<DatatableRow>
-    }
+    },
+    style?: StyleProps,
+    class?: ClassProps,
 }
 // let test: DatatableRow = { yolo:"yolo", nb: 125, test: false, embeded: { value: 12, rows: [{ sub:"row", val: 89 }] } }
 //#endregion

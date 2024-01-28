@@ -91,7 +91,7 @@
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
 
-                                <tr>
+                                <tr :style="{ ...row.style }" :class="[ ...(row.class ?? []) ]">
                                     <slot :name="`row-${getId(row)}`" 
                                         :row="row" 
                                         :whatPropId="whatPropId"
@@ -149,7 +149,8 @@
                                                             :expanded="getExpandedValue(column, row)"
                                                             @update:expanded="expanse($event, column, row)"
                                                             :debug="debug" 
-                                                        />
+                                                        >
+                                                        </DatatableCell>
                                                     </slot>
                                                 </slot>
                                             </template>
@@ -200,11 +201,14 @@
                                                 <DatatableCell v-else 
                                                     :id="generateKey(`expansion-${identifiant}_${expansion}-${getId(row)}`, column)"
                                                     :colspan="getColumns.length" 
-                                                    :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
-                                                    :style="{ ...getSticky(column), ...getRowHeightFromDensity  }" 
+                                                    :class="[{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }, 
+                                                        //...(row.class ?? [])
+                                                    ]" 
+                                                    :style="{ ...getSticky(column), ...getRowHeightFromDensity, }" 
                                                     :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" 
                                                     :debug="debug" 
-                                                />
+                                                >
+                                                </DatatableCell>
                                             </slot>
 
                                         </slot>
@@ -978,8 +982,9 @@ table {
     border-radius: 4px;
     max-width: 100%;
     border-spacing: 0;
-    // border-collapse: collapse;
-    border-collapse: separate;
+    
+    border-collapse: collapse;
+    // border-collapse: separate;
 
     th {
         font-weight: bold;
