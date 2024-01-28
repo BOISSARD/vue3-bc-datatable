@@ -7,7 +7,6 @@
             'desc': typeof sorted === 'object' && sorted?.desc, 
             'groupable': groupable && displayGroup 
         }]"
-        :style="{ height: '' }"
     >
         <div :style="{ display: 'flex', alignItems: align, justifyContent: justify }">
             <div v-if="expandable && displayExpanse"

@@ -161,12 +161,32 @@
 </div>
 
 <h2 id="tabNested">Nested datatable <input type="checkbox" v-model="tabNested"></h2>
+<div v-if="tabNested">
+<!-- {{ itemsCredit[0].date.getFullYear() }} -->
+<Datatable v-if="tabNested"
+	identifiant="tabNested"
+
+	:columns="headersCredit"
+	:rows="itemsCredit"
+	propId="id"
+
+	:density="densities[density]"
+	:dark="dark"
+	:loading="loading"
+
+	:debug="debug"
+
+	@expanded="console.log('@expanded',$event)"
+/>
+
+</div>
 
 <br style="margin-top: 20px">
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, computed } from "vue"
+import moment from "moment"
 
 import { Datatable, DatatableCell, DatatableColumn, DatatableRow, DatatableSelection } from "./components"
 
@@ -179,10 +199,11 @@ const loading = ref(false)
 const multiSort = ref(false)
 
 const tabEmpty = ref(false)
-const tabSimple = ref(true)
-const tabSloted = ref(true)
-const tabNested = ref(false)
+const tabSimple = ref(false)
+const tabSloted = ref(false)
+const tabNested = ref(true)
 
+//#region		Table with desserts
 const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat' }])
 const search = ref("")
 const filters = ref(null)
@@ -233,7 +254,7 @@ type Item = { name:string, calories:number, fat:number, carbs:number, protein:nu
 const items = ref<Array<Item>>([
 	{ name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
 	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true },
-	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false, style: { height: "100px", border: "thin solid red" } },
+	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" }
 	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, },
 	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
 	{ name: 'Jelly bean', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, iron: 0, category: 'Candy', dairy: false, },
@@ -282,10 +303,65 @@ function removeRow() {
 function displaying(event) {
 	// console.log(`Displaying ${event.length} rows :`, event?.length)
 }
+//#endregion	Table with desserts
+
+//#region		Nested Table
+const headersCredit = ref([
+	{
+		expansion: { 
+			global: true,
+			//*
+			columns : [
+				{ sort: false, columnStyle: { width: "10%" }, },
+				{ property: "date", header: { text: "Mois" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => moment(val).format("MMMM") } , sort: (a, b) => a.getMonth() - b.getMonth(), },
+				{ property: "mensualite", header: { text: "Mensualité" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+				{ property: "amortissement", header: { text: "Capital amortis" }, headerStyle: { textAlign: "center" }, value: "amortissement", columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+				{ property: "interet", header: { text: "Interets" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+				{ property: "assurance", header: { text: "Assurance" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, }
+			], //*/
+			property: "mensualites",
+			hideHeader: true,
+			style: { margin: '4px 0' },
+		}, 
+		body: { justify: "end" },
+		bodyStyle: { textAlign: "center" },
+		columnStyle: { width: "10%" },
+		sort: false,
+	},
+	{ property: "date", header: { text: "Année/Mois", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => val?.getFullYear?.() }, bodyStyle: { textAlign: "right" }, sort: (a, b) => a.getTime() - b.getTime(),  },
+	{ property: "annuite", header: { text: "Annuité/Mensualité", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+	{ property: "amortissement", header: { text: "Capital amortis", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+	{ property: "interet", header: { text: "Interets", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+	{ property: "assurance", header: { text: "Assurance", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
+])
+import interets from "./interets.json";
+const itemsCredit = computed(() => {
+	var years = {};
+	for(let interet of interets) {
+		let date = new Date(interet.date);
+		interet.id = "annee" + date.getFullYear() + date.getMonth()
+		if (!years["annee" + date.getFullYear()])
+			years["annee" + date.getFullYear()] = {
+				id: "annee" + date.getFullYear(),
+				date: date,//.getFullYear(),
+				annuite: 0,
+				amortissement: 0,
+				interet: 0,
+				assurance: 0,
+				mensualites: []
+			};
+		years["annee" + date.getFullYear()].annuite += interet.mensualite;
+		years["annee" + date.getFullYear()].amortissement += interet.amortissement;
+		years["annee" + date.getFullYear()].interet += interet.interet;
+		years["annee" + date.getFullYear()].assurance += interet.assurance;
+		years["annee" + date.getFullYear()].mensualites.push(interet);
+	}
+	// console.log(Object.values(years))
+	return Object.values(years);
+})
 
 
-
-
+//#endregion	Nested Table
 
 </script>
 

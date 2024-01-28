@@ -6,12 +6,9 @@ createApp(App).mount('#app')
 
 
 
-
-
-
 // import * as utils from "./utils/object.ts"
 
-// let base = { a: 2, b: 'yolo', c: { c1: "lol" }, d: {} }
+// let base = { a: 2, b: 'yolo', c: { c1: "lol" }, d: {}, e: new Date(), f: [null, 1, "trois"] }
 // base.d = { base }
 // let copy = utils.cloneDeep(base)
 // console.log(base, copy)

@@ -5,6 +5,10 @@ export function cloneDeep<T extends object>(source: T, map = new WeakMap()): T {
         return source;
     }
 
+    if (source instanceof Date) { 
+        return source 
+    }
+
     if (map.has(source)) {
         return map.get(source);
     }

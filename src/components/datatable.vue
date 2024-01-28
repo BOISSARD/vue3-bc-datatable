@@ -87,6 +87,7 @@
                     </template>
 
                     <tbody :class="{ divider: hasDivider('tbody') }">
+
                         <slot name="body" v-bind="getThis">
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
@@ -196,6 +197,7 @@
                                                         :dark="dark"
                                                         :loading="loading" 
                                                         :debug="debug" 
+                                                        v-bind="column.expansion"
                                                     />
                                                 </td>
                                                 <DatatableCell v-else 
@@ -362,7 +364,7 @@ const props = withDefaults(
         // ** Other
     }
 );
-console.log(`${props.identifiant}`, props)
+// console.log(`${props.identifiant}`, props)
 // #endregion   ###     Props       ###
 
 //#region       ###    Events       ###
@@ -874,7 +876,6 @@ function getSticky(
 }
 
 function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow ) {
-    console.log(`${props.identifiant} hasDivider`, props.dividers, row)
     if(props.dividers === true) return true
     if(typeof props.dividers === "object" && props.dividers) {
         if (!row && props.dividers.header && props.dividers.body && props.dividers.footer) return true // Cas de la table
@@ -884,9 +885,8 @@ function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow 
             if(row === "tfoot" && props.dividers.footer) return true
             if(row === "tbody" && props.dividers.body) return true
         } else if (typeof row === "object") {
-
+            throw new Error("Not Implemented yet !")
         }
-
     }
     return false
 }
@@ -899,7 +899,7 @@ const getRowHeightFromDensity = computed(() => {
     } else if(props.density === null) {
         retour["height"] = 'inherit'
     }
-    console.log(`${props.identifiant} getRowHeightFromDensity`, retour, props.density)
+    // console.log(`${props.identifiant} getRowHeightFromDensity`, retour, props.density)
     return retour
 })
 
@@ -982,7 +982,7 @@ table {
     border-radius: 4px;
     max-width: 100%;
     border-spacing: 0;
-    
+
     border-collapse: collapse;
     // border-collapse: separate;
 
@@ -1182,8 +1182,8 @@ table {
         &.divider {
             thead>tr:last-child {
 
-                th,
-                td {
+                >th,
+                >td {
                     border-bottom: var(--table-border-options)  var(--table-border-color-light);
                     // border-bottom: 3px solid red;
                 }
@@ -1191,8 +1191,8 @@ table {
 
             tfoot>tr:first-child {
 
-                th,
-                td {
+                >th,
+                >td {
                     border-top: var(--table-border-options)  var(--table-border-color-light);
                     // border-top: 3px solid green;
                 }
@@ -1200,8 +1200,8 @@ table {
 
             tbody>tr:not(:last-child) {
 
-                th,
-                td {
+                >th,
+                >td {
                     border-bottom: var(--table-border-options)  var(--table-border-color-light);
 
                     &.table-empty-row-cell {
@@ -1225,23 +1225,23 @@ table {
    
         thead.divider>tr:last-child, 
         thead>tr.divider {
-            th,
-            td {
+            >th,
+            >td {
                 border-bottom: var(--table-border-options)  var(--table-border-color-light);
             }
         }
         tfoot.divider>tr:first-child,
         tfoot>tr.divider {
-            th,
-            td {
+            >th,
+            >td {
                 border-top: var(--table-border-options)  var(--table-border-color-light);
                 // border-top: 3px solid green;
             }
         }
         tbody.divider>tr:not(:last-child), 
         tbody>tr.divider:not(:last-child) {
-            th,
-            td {
+            >th,
+            >td {
                 border-bottom: var(--table-border-options)  var(--table-border-color-light);
 
                 &.table-empty-row-cell {
@@ -1263,7 +1263,7 @@ table {
             }
         }
     
-        .table-expansion-row {
+        .table-expansion-row, .table-expansion-nested-row {
             .table-expansion-only-row {
                 box-shadow: 
                     var(--table-expansion-shadow-top) var(--table-expansion-shadow-light),
@@ -1289,24 +1289,23 @@ table {
         &.divider {
             thead>tr:last-child {
 
-                th,
-                td {
+                >th,
+                >td {
                     border-bottom: var(--table-border-options)  var(--table-border-color-dark);
                 }
             }
 
             tfoot>tr:first-child {
 
-                th,
-                td {
+                >th,
+                >td {
                     border-top: var(--table-border-options)  var(--table-border-color-dark);
                 }
             }
 
             tbody>tr:not(:last-child) {
-
-                th,
-                td {
+                >th,
+                >td {
                     border-bottom: var(--table-border-options)  var(--table-border-color-dark);
 
                     &.table-empty-row-cell {
@@ -1330,24 +1329,24 @@ table {
    
         thead.divider>tr, 
         thead>tr.divider {
-            th,
-            td {
+            >th,
+            >td {
                 border-bottom: var(--table-border-options)  var(--table-border-color-dark);
                 // border-bottom: 3px solid red;
             }
         }
         tfoot.divider>tr,
         tfoot>tr.divider {
-            th,
-            td {
+            >th,
+            >td {
                 border-top: var(--table-border-options)  var(--table-border-color-dark);
                 // border-top: 3px solid green;
             }
         }
         tbody.divider>tr:not(:last-child), 
         tbody>tr.divider:not(:last-child) {
-            th,
-            td {
+            >th,
+            >td {
                 border-bottom: var(--table-border-options)  var(--table-border-color-dark);
 
                 &.table-empty-row-cell {
@@ -1369,7 +1368,7 @@ table {
             }
         }
 
-        .table-expansion-row {
+        .table-expansion-row, .table-expansion-nested-row {
             .table-expansion-only-row {
                 box-shadow: 
                     var(--table-expansion-shadow-top) var(--table-expansion-shadow-dark),
