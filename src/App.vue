@@ -9,7 +9,7 @@
 	<div class="switch"><input type="checkbox" v-model="loading"><label>loading</label></div>
 </div>
 
-<h2>Empty datatable <input type="checkbox" v-model="tabEmpty"></h2>
+<h2 id="tabEmpty">Empty datatable <input type="checkbox" v-model="tabEmpty"></h2>
 <Datatable identifiant="empty" v-if="tabEmpty" 
 	title="Tableau Vide"
 	:debug="debug"
@@ -36,10 +36,10 @@
 	<div :style="{ width: '100%' }">selected : {{ selected }}</div>
 	</template>
 
-<h2>Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
+<h2 id="tabSimple">Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
 <div v-if="tabSimple">
 	<Datatable v-if="true"
-		tableStyle="text-align: rightt; max-height: 400px;"
+		tableStyle="text-align: rightt; max-height: 350px;"
 
 		identifiant="tabSimple"
 		title="Tableau Simple"
@@ -54,6 +54,7 @@
 		:dark="dark"
 		:loading="loading"
 		:stick="{ header: true, footer: true }"
+		:dividers="{ header: true, footer: true, body: false }"
 		
 		:debug="debug"
 
@@ -69,7 +70,7 @@
 	/>
 </div>
 
-<h2>Sloted datatable <input type="checkbox" v-model="tabSloted"></h2>
+<h2 id="tabSloted">Sloted datatable <input type="checkbox" v-model="tabSloted"></h2>
 <div v-if="tabSloted">
 <Datatable v-if="true"
 	tableStyle="text-align: rightt; max-height: 400px;"
@@ -85,9 +86,9 @@
 	displayFooter
 	:dense="dense"
 	:dark="dark"
-	notDivided
 	:loading="loading"
 	:stick="{ header: true, footer: true }"
+	:dividers="{ header: 'thick double #32a1ce' }"
 	
 	:debug="debug"
 
@@ -106,19 +107,13 @@
 		<h3 :style="{ margin: '10px 25px', fontSize: '1.8rem', fontFamily: 'cursive' }">{{ title }} <span style="font-size: 1.1rem; padding-left: 20px">({{ displaying.length }}/{{ rows.length }} lignes affichées)</span></h3>
 	</template>
 	<template #top>
-		<v-text-field
-			v-model="search"
-			append-icon="mdi-magnify"
-			label="Search"
-			single-line
-			clearable
-		/>
+		<input v-model="search" >
 	</template>
 	<!-- <template #progress="{ dense: densed, dark: darken }" class="px-1">
 		<v-progress-linear color="primary" :height="densed ? 3 : 6" :dark="darken" indeterminate rounded striped />
 	</template> -->
-	<template #progress="{ dense: densed, dark: darken }" class="px-1">
-		<div style="width: 100%; text-align: center;" class="divider">Loading...</div>
+	<template #progress="{ dense: densed, dark: darken }">
+		<div style="width: 100%; text-align: center; font-size: 1.3rem;" class="divider">Loading...</div>
 	</template>
 
 	<!-- <template #default="{ columns, displaying }">{{ columns }}<br>{{ displaying }}</template> -->
@@ -140,7 +135,7 @@
 	
 	<!-- <template #body="{ displaying, columns }"><tr><td :colspan="columns.length" style="background-color: initial;">{{ displaying }}</td></tr></template> -->
 
-	<template #row-Lollipop="{ column, columns, class: classes, style }"><td colspan="2" style="text-align: center;" :style="{ ...style, fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" :class="classes">{{ column }}</td></template>
+	<template #row-Lollipop="{ row, columns, class: classes, style }"><td colspan="2" style="text-align: center;" :style="{ ...style, fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" :class="classes">{{ row }}</td></template>
 
 	<template #cell-iron="{ row, value, column, class: classes, style }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)', ...style }" :class="classes">{{ value }} %</td></template>
 	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand, class: classes, style }"><th style="text-align: right; cursor: pointer" :style="style" :class="classes" @click="expand(expanded, column, row)">{{ value }} g</th></template>
@@ -158,6 +153,9 @@
 </Datatable>
 </div>
 
+<h2 id="tabNested">Nested datatable <input type="checkbox" v-model="tabNested"></h2>
+
+<br style="margin-top: 20px">
 </template>
 
 <script setup lang="ts">
@@ -173,9 +171,9 @@ const loading = ref(false)
 const multiSort = ref(false)
 
 const tabEmpty = ref(false)
-const tabSimple = ref(false)
+const tabSimple = ref(true)
 const tabSloted = ref(true)
-const tabNested = ref(true)
+const tabNested = ref(false)
 
 const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat' }])
 const search = ref("")
@@ -194,8 +192,8 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		property: 'name',
 		header: { text: 'Dessert (100g serving)', },
 		headerStyle: { color: "red", fontSize: '1.2rem', 'font-weight': '900' },
-		footer: { text: (desserts:string[]) => desserts.length },
-		footerStyle: { color: "green" },
+		footer: { text: (desserts:string[]) => `Total : ${desserts.length} desserts` },
+		footerStyle: { color: "green", fontSize: '1.1rem', 'font-weight': '700' },
 		bodyStyle: { fontStyle: 'italic' },
 		sort: (a:string, b:string) => a.length - b.length,
 		sticky: { position: "left", zIndex: 2, distance: "50px" },                
@@ -283,10 +281,16 @@ function displaying(event) {
 </script>
 
 <style lang="scss">
+:root {
+    // --table-border-options: thick solid;
+    // --table-border-color-light: red;
+    // --table-border-color-dark: hsla(0, 0%, 100%, 0.12);
+}
 
 h2 {
 	display: flex;
 	align-items: center;
+	margin-top: 50px;
 }
 
 label, button {

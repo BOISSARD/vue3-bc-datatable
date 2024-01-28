@@ -56,7 +56,7 @@
                 <table 
                     style="table-layout: auto; min-width: 100%"
                     :style="tableStyle"
-                    :class="{ dense: dense, divider: !notDivided, ...tableClass }" 
+                    :class="{ dense: dense, divider: hasDivider(), ...tableClass }" 
                 >
 
                     <DatatableHeaders v-if="!hideHeader" 
@@ -86,7 +86,7 @@
                         </tr>
                     </template>
 
-                    <tbody>
+                    <tbody :class="{ divider: hasDivider('tbody') }">
                         <slot name="body" v-bind="getThis">
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
@@ -287,7 +287,9 @@ import {
     DatatableSort,
     DatatableSticky,
     StyleProps,
+DatatableDividers,
 } from ".";
+import RerenderChecker from "./rerender-checker.vue"
 // #endregion
 
 //#region       ###    Props       ###
@@ -322,7 +324,7 @@ const props = withDefaults(
         // ** Design
         dense?: boolean;
         dark?: boolean;
-        notDivided?: boolean;
+        dividers?: DatatableDividers;
         tableStyle?: StyleProps;
         tableClass?: ClassProps;
         // ** Features
@@ -350,12 +352,14 @@ const props = withDefaults(
         pagination: false,
         displayFooter: false,
         // ** Design
+        dividers: true,
         tableStyle: () => ({}),
         tableClass: () => Array<string>(),
         // ** Features
         // ** Other
     }
 );
+console.log(`${props.identifiant}`, props)
 // #endregion   ###     Props       ###
 
 //#region       ###    Events       ###
@@ -865,6 +869,24 @@ function getSticky(
     }
     return retour;
 }
+
+function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow ) {
+    console.log(`${props.identifiant} hasDivider`, props.dividers, row)
+    if(props.dividers === true) return true
+    if(typeof props.dividers === "object" && props.dividers) {
+        if (!row && props.dividers.header && props.dividers.body && props.dividers.footer) return true // Cas de la table
+
+        if (typeof row === "string") {
+            if(row === "thead" && props.dividers.header) return true
+            if(row === "tfoot" && props.dividers.footer) return true
+            if(row === "tbody" && props.dividers.body) return true
+        } else if (typeof row === "object") {
+
+        }
+
+    }
+    return false
+}
 //#endregion    ###     DESIGN      ###
 
 //#region       ###     GENERIC       ###
@@ -908,6 +930,7 @@ const getThis = computed(() => {
         getId,
         generateKey,
         getSticky,
+        hasDivider,
         // cells
         format,
         // sort
@@ -928,6 +951,16 @@ const getThis = computed(() => {
 </script>
 
 <style lang="scss">
+:root {
+    --table-border-options: thin solid;
+    --table-border-color-light: rgba(0, 0, 0, 0.12);
+    --table-border-color-dark: hsla(0, 0%, 100%, 0.12);
+    --table-expansion-shadow-light: rgb(50 50 50 / 50%);
+    --table-expansion-shadow-dark: rgb(200 200 200 / 50%);
+    --table-expansion-shadow-top: inset 0 4px 10px -8px;
+    --table-expansion-shadow-bottom: inset 0 -4px 10px -8px;
+}
+
 table {
     border-radius: 4px;
     max-width: 100%;
@@ -1088,21 +1121,6 @@ table {
     }
 
     tbody {
-        .table-expansion-row {
-            .table-expansion-only-row {
-                box-shadow: inset 0 1px 6px -5px rgb(50 50 50 / 75%),
-                    inset 0 -1px 6px -5px rgb(50 50 50 / 75%);
-            }
-
-            .table-expansion-first-row {
-                box-shadow: inset 0 1px 6px -5px rgb(50 50 50 / 75%);
-            }
-
-            .table-expansion-last-row {
-                box-shadow: inset 0 -1px 6px -5px rgb(50 50 50 / 75%);
-            }
-        }
-
         .table-expansion-nested-row {
 
             >th,
@@ -1131,20 +1149,20 @@ table {
 .table-wrapper.theme--light {
     table {
         &.divider {
-            thead>tr {
+            thead>tr:last-child {
 
                 th,
                 td {
-                    border-bottom: thin solid rgba(0, 0, 0, 0.12);
+                    border-bottom: var(--table-border-options)  var(--table-border-color-light);
                     // border-bottom: 3px solid red;
                 }
             }
 
-            tfoot>tr {
+            tfoot>tr:first-child {
 
                 th,
                 td {
-                    border-top: thin solid rgba(0, 0, 0, 0.12);
+                    border-top: var(--table-border-options)  var(--table-border-color-light);
                     // border-top: 3px solid green;
                 }
             }
@@ -1153,41 +1171,80 @@ table {
 
                 th,
                 td {
-                    border-bottom: thin solid rgba(0, 0, 0, 0.12);
+                    border-bottom: var(--table-border-options)  var(--table-border-color-light);
 
                     &.table-empty-row-cell {
                         color: rgba(0, 0, 0, 0.38);
                     }
                 }
             }
+        }
 
-            .table-progress .table-progress-bar {
-                background: rgba(0, 0, 0, 0.12);
+        .table-progress .table-progress-bar {
+            background: rgba(0, 0, 0, 0.12);
 
-                >div {
-                    background: rgba(0, 0, 0, 0.25);
-                }
-            }
-
-            .table-sort-badge {
-                background-color: rgba(0, 0, 0, 0.12);
+            >div {
+                background: rgba(0, 0, 0, 0.25);
             }
         }
 
-        // col.divider:not(:last-child) {
-        //     border-right: thin solid rgba(0,0,0,.12);
-        // }
+        .table-sort-badge {
+            background-color: rgba(0, 0, 0, 0.12);
+        }
+   
+        thead.divider>tr:last-child, 
+        thead>tr.divider {
+            th,
+            td {
+                border-bottom: var(--table-border-options)  var(--table-border-color-light);
+            }
+        }
+        tfoot.divider>tr:first-child,
+        tfoot>tr.divider {
+            th,
+            td {
+                border-top: var(--table-border-options)  var(--table-border-color-light);
+                // border-top: 3px solid green;
+            }
+        }
+        tbody.divider>tr:not(:last-child), 
+        tbody>tr.divider:not(:last-child) {
+            th,
+            td {
+                border-bottom: var(--table-border-options)  var(--table-border-color-light);
+
+                &.table-empty-row-cell {
+                    color: rgba(0, 0, 0, 0.38);
+                }
+            }
+        }
 
         th,
         td {
             background-color: white;
 
             &.divider-left {
-                border-left: thin solid rgba(0, 0, 0, 0.12);
+                border-left: var(--table-border-options)  var(--table-border-color-light);
             }
 
             &.divider-right {
-                border-right: thin solid rgba(0, 0, 0, 0.12);
+                border-right: var(--table-border-options)  var(--table-border-color-light);
+            }
+        }
+    
+        .table-expansion-row {
+            .table-expansion-only-row {
+                box-shadow: 
+                    var(--table-expansion-shadow-top) var(--table-expansion-shadow-light),
+                    var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-light);
+            }
+
+            .table-expansion-first-row {
+                box-shadow: var(--table-expansion-shadow-top) var(--table-expansion-shadow-light);
+            }
+
+            .table-expansion-last-row {
+                box-shadow: var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-light);
             }
         }
     }
@@ -1203,7 +1260,7 @@ table {
 
                 th,
                 td {
-                    border-bottom: thin solid hsla(0, 0%, 100%, 0.12);
+                    border-bottom: var(--table-border-options)  var(--table-border-color-dark);
                 }
             }
 
@@ -1211,7 +1268,7 @@ table {
 
                 th,
                 td {
-                    border-top: thin solid hsla(0, 0%, 100%, 0.12);
+                    border-top: var(--table-border-options)  var(--table-border-color-dark);
                 }
             }
 
@@ -1219,41 +1276,81 @@ table {
 
                 th,
                 td {
-                    border-bottom: thin solid hsla(0, 0%, 100%, 0.12);
+                    border-bottom: var(--table-border-options)  var(--table-border-color-dark);
 
                     &.table-empty-row-cell {
                         color: rgba(255, 255, 255, 0.38);
                     }
                 }
             }
+        }
 
-            .table-progress .table-progress-bar {
-                background: hsla(0, 0%, 100%, 0.12);
+        .table-progress .table-progress-bar {
+            background: hsla(0, 0%, 100%, 0.12);
 
-                >div {
-                    background: hsla(0, 0%, 100%, 0.25);
-                }
-            }
-
-            .table-sort-badge {
-                background-color: hsla(0, 0%, 100%, 0.12);
+            >div {
+                background: hsla(0, 0%, 100%, 0.25);
             }
         }
 
-        // col.divider:not(:last-child) {
-        //     border-right: thin solid hsla(0,0%,100%,.12);
-        // }
+        .table-sort-badge {
+            background-color: hsla(0, 0%, 100%, 0.12);
+        }
+   
+        thead.divider>tr, 
+        thead>tr.divider {
+            th,
+            td {
+                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
+                // border-bottom: 3px solid red;
+            }
+        }
+        tfoot.divider>tr,
+        tfoot>tr.divider {
+            th,
+            td {
+                border-top: var(--table-border-options)  var(--table-border-color-dark);
+                // border-top: 3px solid green;
+            }
+        }
+        tbody.divider>tr:not(:last-child), 
+        tbody>tr.divider:not(:last-child) {
+            th,
+            td {
+                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
+
+                &.table-empty-row-cell {
+                    color: rgba(0, 0, 0, 0.38);
+                }
+            }
+        }
 
         th,
         td {
             background-color: #1e1e1e;
 
             &.divider-left {
-                border-left: thin solid hsla(0, 0%, 100%, 0.12);
+                border-left: var(--table-border-options)  var(--table-border-color-dark);
             }
 
             &.divider-right {
-                border-right: thin solid hsla(0, 0%, 100%, 0.12);
+                border-right: var(--table-border-options)  var(--table-border-color-dark);
+            }
+        }
+
+        .table-expansion-row {
+            .table-expansion-only-row {
+                box-shadow: 
+                    var(--table-expansion-shadow-top) var(--table-expansion-shadow-dark),
+                    var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-dark);
+            }
+
+            .table-expansion-first-row {
+                box-shadow: var(--table-expansion-shadow-top) var(--table-expansion-shadow-dark);
+            }
+
+            .table-expansion-last-row {
+                box-shadow: var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-dark);
             }
         }
     }

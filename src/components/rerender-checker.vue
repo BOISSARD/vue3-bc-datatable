@@ -11,9 +11,9 @@ const props = withDefaults(defineProps<{
 }>(), {})
 
 onMounted(() => {
-    console.log("Mounted RC :", props.id)
+    console.log(`${props.id} rendered`)
 })
 onUpdated(() => {
-    console.log("Updated RC :", props.id)
+    console.log(`${props.id} re-rendered`)
 })
 </script>

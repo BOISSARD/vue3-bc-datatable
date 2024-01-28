@@ -151,6 +151,10 @@ export type DatatableSelection = Array<string> | Array<DatatableColumnSelection>
 export type DatatableSticky = { header: boolean, footer: boolean }
 //#endregion
 
+//#region Dividers
+export type DatatableDividers = { header?: boolean, footer?: boolean, body?: boolean } | boolean
+//#endregion 
+
 //#region Pagination
 export type DatatablePagination = boolean | {}
 //#endregion

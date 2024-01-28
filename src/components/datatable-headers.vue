@@ -1,7 +1,7 @@
 <template>
-    <component :is="component">
+    <component :is="component" :class="{ divider: table.hasDivider(component) }">
         <slot :name="slotPrefix" v-bind="table">
-            <tr>
+            <tr >
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
                     <!-- <template v-if="table" > -->
                     <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
