@@ -137,11 +137,11 @@
                                                         :value="format(column, row)"
                                                     >
 
-                                                        <DatatableCell 
+                                                        <DatatableCell v-if="!column.hidden"
                                                             :id="generateKey(row, column)"
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
-                                                            :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, }, ]" 
+                                                            :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
                                                             :style="{ ...column.columnStyle, ...column.bodyStyle, ...getSticky(column), ...getRowHeightFromDensity }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
@@ -152,11 +152,15 @@
                                                             :debug="debug" 
                                                         >
                                                         </DatatableCell>
+
                                                     </slot>
+
                                                 </slot>
+
                                             </template>
 
                                         </slot>
+                                        
                                     </slot>
                                 </tr>
 
@@ -875,7 +879,7 @@ function getSticky(
     return retour;
 }
 
-function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow ) {
+function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow, position: 'top' | 'bottom') {
     if(props.dividers === true) return true
     if(typeof props.dividers === "object" && props.dividers) {
         if (!row && props.dividers.header && props.dividers.body && props.dividers.footer) return true // Cas de la table
@@ -1079,8 +1083,23 @@ table {
     thead,
     tfoot {
 
+        tr:not(:last-child) {
+            th,
+            td {
+                padding-bottom: 0;
+            }
+        }
+
+        tr:not(:first-child) {
+            th,
+            td {
+                padding-top: 0;
+            }
+        }
+
         th,
         td {
+
             &.sortable .table-sort {
                 pointer-events: auto;
                 cursor: pointer;
@@ -1131,6 +1150,8 @@ table {
             }
         }
 
+
+
         .table-sort-icon {
             display: block;
             position: relative;
@@ -1158,6 +1179,61 @@ table {
             >td {
                 padding: 0;
             }
+        }
+    }
+
+
+    .table-filter > div {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+
+    }
+
+    .table-filter-input {
+        min-width: 60px;
+        width: 100%;
+        // flex: 1 0 auto;
+
+        border: 1px solid lightgray;
+        border-right: 0;
+        border-radius: 4px 0 0 4px;
+
+        // &:focus-visible {
+        //     border: 1px solid grey;
+        // }
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .table-filter-button {
+        // width: 100%;
+        flex: 1 0 auto;
+        
+        margin: 0;
+        padding: 2px 6px;
+        
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        
+        border-radius: 0 4px 4px 0;
+        border: 1px solid lightgray;
+        background-color: buttonface;
+
+        &:hover { 
+            background-color: buttonface;
+
+            > svg {
+                color: black;
+            }
+        }
+
+        > svg {
+            color: grey;
+            width: 20px;
+            height: 20px;
         }
     }
 }
@@ -1261,6 +1337,15 @@ table {
             &.divider-right {
                 border-right: var(--table-border-options)  var(--table-border-color-light);
             }
+
+            &.divider-top {
+                border-top: var(--table-border-options)  var(--table-border-color-light);
+            }
+
+            &.divider-bottom {
+                border-bottom: var(--table-border-options)  var(--table-border-color-light);
+            }
+
         }
     
         .table-expansion-row, .table-expansion-nested-row {
@@ -1366,6 +1451,15 @@ table {
             &.divider-right {
                 border-right: var(--table-border-options)  var(--table-border-color-dark);
             }
+
+            &.divider-top {
+                border-top: var(--table-border-options)  var(--table-border-color-dark);
+            }
+
+            &.divider-bottom {
+                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
+            }
+
         }
 
         .table-expansion-row, .table-expansion-nested-row {

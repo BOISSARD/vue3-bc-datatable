@@ -20,7 +20,6 @@ export type DatatableColumnCellOptions = {
     prefix?: string
     suffix?: string
     cols?: string
-    // header?: boolean
 }
 
 export class DatatableColumn {
@@ -83,6 +82,8 @@ export class DatatableColumn {
         zIndex?: number | undefined, 
         distance?: number | string  
     } = null // la position ("right" ou "left") pour mettre une position sticky null sinon
+    
+    hidden: boolean
 }
 //#endregion
 
@@ -130,6 +131,53 @@ export class DatatableColumnFilter {
     expansion?: null | DatatableColumnFilter
 }
 export type DatatableFilter = DatatableCell | Array<DatatableColumnFilter>
+
+export const filterFunctions = {
+    
+    eq(value, comparison) {
+        if (typeof value === "number") return value === comparison
+        
+        throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+
+    gt(value, comparison) {
+        if (typeof value === "number") return value > comparison
+        
+        throw new Error(`"Greate Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+    ge(value, comparison) {
+        if (typeof value === "number") return value >= comparison
+        
+        throw new Error(`"Greater Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+
+    lt(value, comparison) {
+        if (typeof value === "number") return value < comparison
+        
+        throw new Error(`"Less Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+    le(value, comparison) {
+        if (typeof value === "number") return value <= comparison
+        
+        throw new Error(`"Less Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+
+    in(value) {
+        return value === null || value === undefined
+    },
+
+    includes(value, comparison) {
+        return comparison.includes(value)
+    },
+
+    sw(value, comparison: string) {
+        return comparison.startsWith(value)
+    },
+    ew(value, comparison: string) {
+        return comparison.endsWith(value)
+    }
+
+}
 //#endregion
 
 //#region Expand

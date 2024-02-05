@@ -24,11 +24,13 @@
                     <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
                 </svg>
             </div>
+
             <div v-if="selectable && displaySelect" :style="{ flex: '0 0 auto' }">
                 <!-- class="table-selection"
                 :class="[{ 'divider-left': column.dividerLeft,  'divider-right': column.dividerRight }]" -->
                 <input type="checkbox" :checked="selected" @change="emit('update:selected', $event )" >                    
             </div>
+
             <div :cols="cols">
                 <slot>
                     <div :style="{ display: 'flex', alignItems: align, justifyContent: justify }">
@@ -38,6 +40,7 @@
                     </div>
                 </slot>
             </div>
+
             <div v-if="sortable && displaySort" 
                 :style="{ flex: '0 0 auto' }" 
                 @click.stop="$emit('update:sorted', 'sort')" 
@@ -56,6 +59,7 @@
                     class="table-sort-badge"
                 >{{ sorted?.position}}</span>
             </div>
+            
         </div>
         <RerenderChecker v-if="debug" :id="id" />
     </component>

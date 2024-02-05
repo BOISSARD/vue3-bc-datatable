@@ -36,6 +36,7 @@
 		<div :style="{ flex: '0 0 auto' }"> <button @click="removeRow" >Remove last row</button> </div>
 		<div :style="{ flex: '1 0 auto' }"> <label>Search : </label><input type="text" v-model="search" > </div>
 		<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="multiSort"><label>Multi sort</label> </div>
+		<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="hideCol"><label>Hide col name</label> </div>
 	</div>
 	<div :style="{ width: '100%' }">expanded : {{ expanded }}</div>
 	<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
@@ -72,6 +73,7 @@
 
 		:search="search"
 		v-model:filter="filters"
+		displayFilters
 		
 		v-model:expand="expanded"
 	/>
@@ -197,25 +199,27 @@ const empty = ref(false)
 const dark = ref(false)
 const loading = ref(false)
 const multiSort = ref(false)
+const hideCol = ref(false)
 
 const tabEmpty = ref(false)
-const tabSimple = ref(false)
+const tabSimple = ref(true)
 const tabSloted = ref(false)
-const tabNested = ref(true)
+const tabNested = ref(false)
 
 //#region		Table with desserts
-const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat' }])
+const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const search = ref("")
 const filters = ref(null)
 const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 
-const headers = ref<Partial<DatatableColumn>[]>([
+const headers = computed<Partial<DatatableColumn>[]>(() => ([
 	{ id:"id_selection", selection: { single: false, global: true }, 
 		body: { cols: "auto", justify: "center" }, dividerLeft: false, dividerRight: false, 
 		header: { cols: "auto", justify: "center" }, 
 		footer : { cols: "auto", justify: "end", displayExpanse: true, displaySelect: true, displaySort: false }, 
 		expansion: { global: true }, sticky: { position: "left", zIndex: 2 }, 
+		filter: false
 	},
 	{
 		property: 'name',
@@ -228,6 +232,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		sort: (a:string, b:string) => a.length - b.length,
 		sticky: { position: "left", zIndex: 2, distance: "50px" },                
 		dividerLeft: true, dividerRight: true, 
+		hidden: hideCol.value
 	},
 	{ property: 'dairy', header: { text: 'Dairy', }, body: { text: (val:boolean) => val ? "Yes" : "No" }, bodyStyle: { textAlign: 'right' }, footer: { text: (dairies:boolean[]) => `${countBy(dairies)['true'] ?? 0}/${dairies.length}` }, footerStyle: { textAlign: 'center' } },
 	{ property: 'calories', header: { text: 'Calories' }, footer: { text: average, /*cols: "auto", justify: "end"*/ }, footerStyle: { textAlign: "center" }, bodyStyle: { fontStyle: 'italic', textAlign: "center" }, expansion: { text: "La calorie c'est cool", global: false, single: true } },
@@ -237,7 +242,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 	{ property: 'iron', header: { text: 'Iron', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: (irons:number[]) => Math.round(average(irons)*10000)/100, suffix: "%", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { text: (iron:number) => Math.round(iron*10000)/100, suffix: "%", cols: "auto", justify: "end" } },
 	{ property: 'category', header: { text: 'Category' }, footer: { text: (categories: string[]) => [...new Set(categories)].length, suffix: "catégories" }, footerStyle: { textAlign: "center" }, sticky: "right", dividerLeft: true },
 	// { header : { text: 'Actions' }, sort: false }
-])
+]))
 function average(vals) {
     return Math.round((vals.reduce((a, b) => a + b, 0)/vals.length || 0)*100)/100
 }
@@ -252,16 +257,16 @@ function countBy(array, iteratee = val => val) {
 
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: any }
 const items = ref<Array<Item>>([
-	{ name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
-	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true },
+	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
+	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false },
+	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, dividerTop: true, dividerBottom: true},
+	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true },
+	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false, dividerBottom: true, },
+	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true, },
 	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" }
 	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, },
 	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
-	{ name: 'Jelly bean', calories: 375, fat: 0.0, carbs: 94, protein: 0.0, iron: 0, category: 'Candy', dairy: false, },
 	{ name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, iron: 0.01, category: 'Ice cream', dairy: true },
-	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true },
-	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false },
-	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true},
 ])
 
 function addCol(){
