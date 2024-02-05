@@ -1,6 +1,36 @@
 <template>
     <component :is="component" :class="{ divider: table.hasDivider(component) }">
         <slot :name="slotPrefix" v-bind="table">
+            <tr v-if="table.displayFilters && component === 'tfoot'">
+                <slot :name="`${slotPrefix}-tr-filters`" v-bind="table">
+                    <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
+                        :name="`${slotPrefix}-${column.id}-filter`" 
+                        v-bind="table"
+                        :value="table.format(column, table.displaying, slotPrefix)"
+                        :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
+                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
+                    >
+                        <template v-if="!column.hidden"> 
+                            <th v-if="column.filter == false"></th>
+                            <th v-else-if="true"
+                                :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
+                                class="table-filter"
+                            >
+                                <div>
+                                    <input class="table-filter-input" >
+                                    <button class="table-filter-button" >
+                                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                        </svg>
+                                    </button>
+                                    <!-- <select >
+                                    </select> -->
+                                </div>
+                            </th>
+                        </template>
+                    </slot>
+                </slot>
+            </tr>
             <tr>
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
                     <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
@@ -52,8 +82,6 @@
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 class="table-filter"
                             >
-                                <!-- :class="[...column.columnClass, column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{...column.columnStyle, ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }"  -->
                                 <div>
                                     <input class="table-filter-input" >
                                     <button class="table-filter-button" >
@@ -61,6 +89,8 @@
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
+                                    <!-- <select >
+                                    </select> -->
                                 </div>
                             </th>
                         </template>

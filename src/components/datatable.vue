@@ -987,8 +987,8 @@ table {
     max-width: 100%;
     border-spacing: 0;
 
-    border-collapse: collapse;
-    // border-collapse: separate;
+    // border-collapse: collapse;
+    border-collapse: separate; // without, border on cells disappears with sticky
 
     th {
         font-weight: bold;
@@ -1002,6 +1002,17 @@ table {
         padding: 6px 16px;
         // padding: 0 16px;
         height: 38px;
+
+        box-sizing: border-box;
+        
+        .table-filter-input {
+            height: 28px;
+        }
+
+        .table-filter-button > svg {
+            width: 18px;
+            height: 18px;
+        }
 
         &.table-empty-row-cell {
             text-align: center;
@@ -1032,8 +1043,17 @@ table {
 
         th,
         td {
-            padding: 1px 16px;
+            padding: 2px 16px;
             height: 26px;
+        }
+        
+        .table-filter-input {
+            height: 20px;
+        }
+
+        .table-filter-button > svg {
+            width: 14px;
+            height: 14px;
         }
 
         .table-progress .table-progress-bar {
@@ -1048,6 +1068,16 @@ table {
             padding: 10px 16px;
             height: 62px;
         }
+        
+        .table-filter-input {
+            height: 40px;
+        }
+
+        .table-filter-button > svg {
+            width: 18px;
+            height: 18px;
+        }
+
 
         .table-progress .table-progress-bar {
             height: 8px;
@@ -1067,7 +1097,7 @@ table {
             height: 5px;
             position: relative;
 
-            >div {
+            > div {
                 position: absolute;
                 border-radius: 10px;
                 top: 0;
@@ -1086,19 +1116,21 @@ table {
         tr:not(:last-child) {
             th,
             td {
-                padding-bottom: 0;
+                padding-bottom: 0px;
             }
         }
 
-        tr:not(:first-child) {
-            th,
-            td {
-                padding-top: 0;
+        tr:first-child:not(:last-child),
+        tr:last-child:not(:first-child) {
+            th, td {
+                height: inherit;
             }
         }
 
         th,
         td {
+
+            z-index: 2;
 
             &.sortable .table-sort {
                 pointer-events: auto;
@@ -1150,8 +1182,6 @@ table {
             }
         }
 
-
-
         .table-sort-icon {
             display: block;
             position: relative;
@@ -1183,11 +1213,15 @@ table {
     }
 
 
-    .table-filter > div {
-        width: 100%;
-        max-width: 100%;
-        display: flex;
-
+    .table-filter {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        
+        > div {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+        }
     }
 
     .table-filter-input {
@@ -1195,13 +1229,12 @@ table {
         width: 100%;
         // flex: 1 0 auto;
 
+        box-sizing: border-box;
+
         border: 1px solid lightgray;
         border-right: 0;
         border-radius: 4px 0 0 4px;
 
-        // &:focus-visible {
-        //     border: 1px solid grey;
-        // }
         &:focus {
             outline: none;
         }
@@ -1232,8 +1265,6 @@ table {
 
         > svg {
             color: grey;
-            width: 20px;
-            height: 20px;
         }
     }
 }

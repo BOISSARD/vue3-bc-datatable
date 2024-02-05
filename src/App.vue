@@ -73,7 +73,7 @@
 
 		:search="search"
 		v-model:filter="filters"
-		displayFilters
+		:displayFilters="true"
 		
 		v-model:expand="expanded"
 	/>
