@@ -229,14 +229,14 @@
                             <template v-else>
                                 <tr class="table-empty-row">
                                     <slot name="no-data" 
-                                        :filter="filter" 
+                                        :filters="filters" 
                                         :loading="loading" 
                                         :columns="getColumns"
                                         :displaying="getRows"
-                                        :message="filter ? noResultsMessage : loading ? loadingMessage : noDataMessage"
+                                        :message="filters ? noResultsMessage : loading ? loadingMessage : noDataMessage"
                                     >
                                         <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
-                                            {{ filter ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
+                                            {{ filters ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
                                             <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}`,'messages')" />
                                         </td>
                                     </slot>
@@ -278,6 +278,7 @@
 //#region   Imports
 import { computed, ref, watch, isRef, isReactive, toRaw, unref } from "vue";
 import { merge, cloneDeep } from "../utils/object";
+import { getCommonType } from "../utils/array";
 import {
     DatatableHeaders,
     DatatableCell,
@@ -317,7 +318,7 @@ const props = withDefaults(
         noDataMessage?: string; // Message si aucune données à la fin du chargement
         noResultsMessage?: string; // Message si aucune données suite à une interaction (filter)
         // ** Interaction avec le tableau
-        sort?: DatatableSort; // La manière dont est trié le tableau au départ
+        sorts?: DatatableSort; // La manière dont est trié le tableau au départ
         multiSort?: boolean;
         group?: DatatableGroup; // La manière dont sont groupées les lignes du tableau par une colonne
         // search?: string;
@@ -377,9 +378,9 @@ const emit = defineEmits<{
     (e: "update:columns", value: DatatableColumn[]): void; // retourne l'ensemble des colonnes (en cas de modification avec draggable ou resizable)
     (e: "update:rows", value: DatatableRow[]): void; // retourne l'ensemble des rows (en cas de modification d'une données directement depuis le talbeau : ordre avec draggable, d'une valeur etc..)
     (e: "update:modelValue", value: DatatableRow[]): void; // retourne les rows affichées (incluant les interactions et la pagination etc)
-    (e: "update:sort", value: DatatableSort): void; // retourne les rows triées ou les paramètres de tries en cas d'interaction ?? ce qui revient au même (indirectement) ?
+    (e: "update:sorts", value: DatatableSort): void; // retourne les rows triées ou les paramètres de tries en cas d'interaction ?? ce qui revient au même (indirectement) ?
     (e: "update:group", value: DatatableGroup): void; // retourne les rows groupées ou les paramètres de groupage en cas d'interaction ?? ce qui revient au même (indirectement) ?
-    (e: "update:filter", value: DatatableFilter): void; // retourne les rows filtrées ou les paramètres de filtres en cas d'interaction ?? ce qui revient au même (indirectement) ?
+    (e: "update:filters", value: DatatableFilter): void; // retourne les rows filtrées ou les paramètres de filtres en cas d'interaction ?? ce qui revient au même (indirectement) ?
     (e: "update:select", value: DatatableSelection): void; // retourne les rows selectionnées ou les paramètres de selection en cas d'interaction ?? ce qui revient au même (indirectement) ?
     (e: "update:expand", value: DatatableExpansion): void; // retourne les rows selectionnées ou les paramètres de selection en cas d'interaction ?? ce qui revient au même (indirectement) ?
     (e: "update:pagination", value: DatatablePagination): void; // retourne la pagination
@@ -470,8 +471,8 @@ const getRows = computed(() => {
     //     }); // */
 
     // /***   Filtre les élements suivant les filtres
+    console.log(`${props.identifiant} getRows, filters :`, filtering.value)
     // retour = retour.filter((r) => {
-    console.log(`${props.identifiant} watch props.rows, filters :`, props.filters)
     // });
     // */
 
@@ -550,6 +551,25 @@ function format(
 //#endregion    ###     CELLS       ###
 
 //#region       ###     FILTER      ###
+const filtering = ref<DatatableFilter>({});
+
+watch(props.filters, () => {
+    // console.log(`${props.identifiant} watch filters`, props.filters)
+    filtering.value = props.filters ? cloneDeep(props.filters) : {}
+
+    console.log(`${props.identifiant} watch filters`, filtering.value["name"])
+}, { deep: true, immediate: true })
+
+function updateFilters(column: DatatableColumn, action: "value" | "method", value: any) {
+    console.log(`${props.identifiant} updateFilters`, action, value, column)
+}
+
+const valueTypeByColumn = computed<{ [col: string]: string }>(() => {
+    let retour = Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType(props.rows.map(r => r[c.property])) ]) ))
+    console.log("valueTypeByColumn", retour)
+    //getCommonType
+    return retour
+})
 
 //#endregion    ###     FILTER      ###
 
@@ -557,16 +577,16 @@ function format(
 const sorting = ref<DatatableSort>({});
 
 function watchSortAndMultiSort() {
-    if (!props.sort) return;
+    if (!props.sorts) return;
     if (!props.multiSort) {
-        const paires = Object.entries(props.sort);
+        const paires = Object.entries(props.sorts);
         if (paires.length) {
             const premier = paires[0];
             // console.log("watchSortAndMultiSort", paires, premier)
             sorting.value = { [premier[0]]: cloneDeep(premier[1]) } //props.sort.slice(0, 1);
         } else sorting.value = {}
     } else {
-        sorting.value = cloneDeep(props.sort)
+        sorting.value = cloneDeep(props.sorts)
         // let positions : number[] = []
         // sorting.value = Object.fromEntries(Object.entries(props.sort).map(([col, s], i) => {
         //     console.log(i, col, s, positions)
@@ -584,19 +604,19 @@ function watchSortAndMultiSort() {
         //     } as DatatableColumnSort]
         // }))
     }
-    console.log("watchSortAndMultiSort", sorting.value)
+    // console.log("watchSortAndMultiSort", sorting.value)
 }
 
 watch(
-    [() => props.sort, () => props.multiSort],
+    [() => props.sorts, () => props.multiSort],
     (
         [newSort, newMultiSort]: [DatatableSort, boolean],
         [oldSort, oldMultiSort]: [DatatableSort, boolean]
     ) => {
-        // console.log(`${props.identifiant} watch sort & multisort`, props.sort, props.multiSort, [newSort, newMultiSort], [oldSort, oldMultiSort])
+        // console.log(`${props.identifiant} watch sorts & multisort`, props.sorts, props.multiSort, [newSort, newMultiSort], [oldSort, oldMultiSort])
         watchSortAndMultiSort();
         if (oldMultiSort !== undefined && oldMultiSort !== newMultiSort) {
-            emit("update:sort", sorting);
+            emit("update:sorts", sorting);
         }
     },
     { deep: true, immediate: true }
@@ -618,15 +638,15 @@ function findColumnSort(column: DatatableColumn) {
     return { ...found, position: props.multiSort ? position + 1 : undefined };
 }
 
-function updateSort(column: DatatableColumn, action: string) {
-    console.log(`${props.identifiant}`,"updateSort", sorting.value, action, column)
+function updateSorts(column: DatatableColumn, action: string) {
+    // console.log(`${props.identifiant}`,"updateSorts", sorting.value, action, column)
     if (!sorting.value) return;
 
     if (action == "position") {
         let foundIndex = Object.keys(sorting.value).indexOf(column.id)
         // Si on souhaite changer la position de la colonne dans le sort
 
-        console.log(`${props.identifiant}`,"change position", foundIndex, Object.keys(sorting.value).length)
+        // console.log(`${props.identifiant}`,"change position", foundIndex, Object.keys(sorting.value).length)
         
         let newOrder = Object.keys(sorting.value)
         newOrder.splice(
@@ -634,8 +654,7 @@ function updateSort(column: DatatableColumn, action: string) {
             0,
             newOrder.splice(foundIndex, 1)[0]
         );
-        console.log(Object.keys(sorting.value), newOrder)
-        
+        // console.log(Object.keys(sorting.value), newOrder)
         sorting.value = Object.fromEntries(newOrder.map(name => ([name, sorting.value[name]]) ))
     } else {
         let found = sorting.value[column.id];
@@ -658,8 +677,8 @@ function updateSort(column: DatatableColumn, action: string) {
         }
     }
 
-    console.log(`${props.identifiant} updateSort :`, sorting.value)
-    emit("update:sort", sorting.value);
+    // console.log(`${props.identifiant} updateSorts :`, sorting.value)
+    emit("update:sorts", sorting.value);
 }
 //#endregion    ###     SORT    ###
 
@@ -994,9 +1013,15 @@ const getThis = computed(() => {
         // cells
         format,
         // sort
-        sort: sorting,
+        // sorts: sorting.value, // sorting,
+        sorting,
         findColumnSort,
-        updateSort,
+        updateSorts,
+        // filter
+        // filters: filtering.value,// filtering,
+        filtering,
+        updateFilters,
+        valueTypeByColumn,
         // expanse
         expand: expanse,
         getExpandedValue,
@@ -1347,6 +1372,9 @@ table {
         
         opacity: 1;
         z-index: 4;
+
+        max-height: 200px;
+        overflow: auto;
 
         ul {
             list-style-type: none;

@@ -1,5 +1,4 @@
 
-
 export function cloneDeep<T extends object>(source: T, map = new WeakMap()): T {
     if (source === null || typeof source !== 'object') {
         return source;
@@ -52,3 +51,4 @@ export function merge<T extends object>(target: T, ...sources: object[]): T {
 
     return merge(target, ...sources);
 }
+

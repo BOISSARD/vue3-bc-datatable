@@ -26,8 +26,27 @@
 />
 
 
+<h2 id="tabMinimal">Minimal datatable <input type="checkbox" v-model="tabMinimal"></h2>
+<div v-if="tabMinimal">
+	<Datatable v-if="true"
+		identifiant="tabMinimal"
+		title="Tableau Minimal"
+		
+		:columns="headers"
+		:rows="empty ? [] : items"
+		propId="name"
+
+		displayFilters
+		displayFooter
+
+		multiSort
+		density="compact"
+	/>
+</div>
+
+
 	<template v-if="tabSimple || tabSloted">
-	<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', marginBottom: '15px' }">
+	<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', margin: '60px 0 15px' }">
 		<div :style="{ flex: '0 0 auto' }"> <button @click="addCol" >Add Col</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="update2ndCol" >Update 2nd col</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="removeCol" >Remove last col</button> </div>
@@ -68,12 +87,11 @@
 		
 		:debug="debug"
 
-		:multiSort="multiSort"
-		v-model:sort="sorted"
-		
 		v-model:select="selected"
 
-		:search="search"
+		:multiSort="multiSort"
+		v-model:sorts="sorted"		
+
 		v-model:filters="filters"
 		:displayFilters="true"
 		
@@ -205,6 +223,7 @@ const multiSort = ref(true)
 const hideCol = ref(false)
 
 const tabEmpty = ref(false)
+const tabMinimal = ref(false)
 const tabSimple = ref(true)
 const tabSloted = ref(false)
 const tabNested = ref(false)
@@ -214,18 +233,19 @@ const search = ref("")
 // const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const sorted = ref<DatatableSort>({ 'calories': { desc: true, position: 1 }, 'fat': { desc: true } })
 // const filters = ref<DatatableFilter>([{ column: "name", method: "Equals", value: "ea" }])
-const filters = ref<DatatableFilter>({ 'name': { method: "Equals", value: "ea" } })
+const filters = ref<DatatableFilter>({ 'name': { method: "Equals", value: "ea" }, 'carbs': { method: null, value: 100 } }) // "Greather Than or Equal"
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 
 // const headers = computed<Partial<DatatableColumn>[]>(() => ([
 const headers = ref<Partial<DatatableColumn>[]>([
-	{ id:"id_selection", selection: { single: false, global: true }, 
-		body: { cols: "auto", justify: "center" }, dividerLeft: false, dividerRight: false, 
+	{ 	id:"id_selection", 
+		selection: { single: false, global: true }, filter: false,
 		header: { cols: "auto", justify: "center" }, 
+		body: { cols: "auto", justify: "center" }, 
 		footer : { cols: "auto", justify: "end", displayExpanse: true, displaySelect: true, displaySort: false }, 
+		dividerLeft: false, dividerRight: false, 
 		expansion: { global: true }, sticky: { position: "left", zIndex: 2 }, 
-		filter: false
 	},
 	{
 		property: 'name',
@@ -241,6 +261,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		hidden: hideCol.value
 	},
 	{ property: 'dairy', header: { text: 'Dairy', }, body: { text: (val:boolean) => val ? "Yes" : "No" }, bodyStyle: { textAlign: 'right' }, footer: { text: (dairies:boolean[]) => `${countBy(dairies)['true'] ?? 0}/${dairies.length}` }, footerStyle: { textAlign: 'center' } },
+	{ property: 'date', header: { text: 'Date', }, body: { text: (val: Date) => val?.toLocaleDateString() }, bodyStyle: { textAlign: 'center' }, footer: { text: 'Date' }, footerStyle: { textAlign: 'center' } },
 	{ property: 'calories', header: { text: 'Calories' }, footer: { text: average, /*cols: "auto", justify: "end"*/ }, footerStyle: { textAlign: "center" }, bodyStyle: { fontStyle: 'italic', textAlign: "center" }, expansion: { text: "La calorie c'est cool", global: false, single: true } },
 	{ property: 'fat', header: { text: 'Fat', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: average, suffix: "g", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { suffix: "g", cols: "auto", justify: "space-between" }, expansion: { text: "Le gras c'est pas cool" }, },
 	{ property: 'carbs', header: { text: 'Carbs', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: average, suffix: "g", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { suffix: "g", cols: "auto", justify: "end" }, expansion: { property: "dairy", text: (val,item) => `${val} ${JSON.stringify(item)}`, global: true } },
@@ -263,16 +284,16 @@ function countBy(array, iteratee = val => val) {
 
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: any }
 const items = ref<Array<Item>>([
-	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" }
-	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
-	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false },
-	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, dividerTop: true, dividerBottom: true},
-	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true },
-	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false, dividerBottom: true, },
-	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true, },
-	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, },
-	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
-	{ name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, iron: 0.01, category: 'Ice cream', dairy: true },
+	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false, date: new Date(1997, 11, 31, 22) }, // , style: { height: "100px", border: "thin solid red" }
+	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true, date: new Date(1993, 3, 9, 12) },
+	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false, date: new Date(2001, 2, 17, 17) },
+	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, date: new Date(2023, 8, 3, 4), dividerTop: true, dividerBottom: true },
+	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true, date: new Date(2021, 3, 13, 17) },
+	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false, date: new Date(2023, 6, 24, 6) , dividerBottom: true, },
+	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true, date: new Date(2021, 3, 21, 7), },
+	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, date: new Date(2024, 4, 10, 8), },
+	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true, date:  new Date(2020, 3, 13, 17) },
+	{ name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, iron: 0.01, category: 'Ice cream', dairy: true, date: new Date(2003, 6, 24, 6) },
 ])
 
 function addCol(){

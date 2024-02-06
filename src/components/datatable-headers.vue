@@ -47,7 +47,7 @@
 
                             :sortable="!!column.sort" 
                             :sorted="table.findColumnSort(column)"
-                            @update:sorted="table.updateSort(column, $event)"
+                            @update:sorted="table.updateSorts(column, $event)"
 
                             :selectable="column.selection && column.selection.global && !column.selection.single"
                             :selected="select && displaying && select.length == displaying.length"
@@ -83,8 +83,7 @@
                                 @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
                             >
                                 <div>
-                                    {{  }}
-                                    <input class="table-filter-input" >
+                                    <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', $event.target.value)" >
                                     <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
                                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -92,8 +91,7 @@
                                     </button>
                                     <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" >
                                         <ul>
-                                            <li @click="filterChoice(null, column)">No Filter</li>
-                                            <li v-for="i in 5" @click="filterChoice(i, column)" >Filtre {{ i }}</li>
+                                            <li v-for="(method, label) in getFilters(table.valueTypeByColumn.value[column.id])" @click="table.updateFilters(column, 'method', {label, method})" >{{ label }}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -110,7 +108,7 @@
 <script setup lang='ts'>
 import { ref, computed, onMounted, watch } from 'vue';
 import DatatableCell from "./datatable-cell.vue"
-import { DatatableColumn, DatatableRow, DatatableSelection } from './types';
+import { DatatableColumn, DatatableRow, DatatableSelection, filtersLabelsForTypes, filtersLabels } from './types';
 import RerenderChecker from "./rerender-checker.vue"
 
 const props = defineProps<{
@@ -164,6 +162,11 @@ function hideFiltersMenu(buttonName: string) {
 }
 function filterChoice(filter, column) {
     console.log("filterChoice", filter, column)
+}
+
+
+function getFilters(type) {
+    return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
 }
 </script>
         

@@ -52,6 +52,7 @@ export class DatatableColumn {
     filter: boolean // pour activer ou désactiver le filtrage sur la colonne
         | Function // activer en définissant la fonction lambda, args : filter (string de recherche), valeur (any)
         | Array<{ label: string, method: Function }>
+        // Voir pour mettre un objet avec le type de valeur 
     = true 
     // Voir pour avoir un filtre complexe sur chaque en-tête et faire une recherche en profondeur dans les tableaux imbriqués
 
