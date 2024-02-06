@@ -83,6 +83,7 @@
                                 @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
                             >
                                 <div>
+                                    {{  }}
                                     <input class="table-filter-input" >
                                     <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
                                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -91,8 +92,8 @@
                                     </button>
                                     <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" >
                                         <ul>
-                                            <li>No Filter</li>
-                                            <li v-for="i in 5" @click="" class="" >Filtre {{ i }}</li>
+                                            <li @click="filterChoice(null, column)">No Filter</li>
+                                            <li v-for="i in 5" @click="filterChoice(i, column)" >Filtre {{ i }}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -123,6 +124,8 @@ const props = defineProps<{
 
     select?: DatatableSelection,
 }>()
+
+// console.log(`${props.identifiant}`, props.table.filters)
 
 const emit = defineEmits<{
     (e: 'selectedAll', value: any): void
@@ -158,6 +161,9 @@ function hideFiltersMenu(buttonName: string) {
     // return
     // console.log("hideFiltersMenu", buttonName, displayedFiltersMenu.value)
     displayedFiltersMenu.value = ""
+}
+function filterChoice(filter, column) {
+    console.log("filterChoice", filter, column)
 }
 </script>
         

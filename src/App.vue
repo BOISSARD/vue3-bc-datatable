@@ -42,7 +42,8 @@
 	<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
 	<div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
 	<div :style="{ width: '100%' }">selected : {{ selected }}</div>
-	<code>{{ headers }}</code>
+	<!-- <code>{{ headers }}</code> -->
+	<!-- <code>{{ items }}</code> -->
 	</template>
 
 <h2 id="tabSimple">Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
@@ -73,7 +74,7 @@
 		v-model:select="selected"
 
 		:search="search"
-		v-model:filter="filters"
+		v-model:filters="filters"
 		:displayFilters="true"
 		
 		v-model:expand="expanded"
@@ -108,7 +109,7 @@
 	v-model:select="selected"
 
 	:search="search"
-	v-model:filter="filters"
+	v-model:filters="filters"
 	
 	v-model:expand="expanded"
 >
@@ -122,7 +123,8 @@
 	<!-- <template #progress="{ dense: densed, dark: darken }" class="px-1">
 		<v-progress-linear color="primary" :height="densed ? 3 : 6" :dark="darken" indeterminate rounded striped />
 	</template> -->
-	<template #progress="{ dense: densed, dark: darken }">
+	<template #progress="{ density: densed, dark: darken }">
+		density: {{ densed }} dark: {{ darken }}
 		<div style="width: 100%; text-align: center; font-size: 1.3rem;" class="divider">Loading...</div>
 	</template>
 
@@ -191,7 +193,7 @@
 import { ref, computed } from "vue"
 import moment from "moment"
 
-import { Datatable, DatatableCell, DatatableColumn, DatatableRow, DatatableSelection } from "./components"
+import { Datatable, DatatableCell, DatatableColumn, DatatableFilter, DatatableRow, DatatableSelection, DatatableSort } from "./components"
 
 const debug = ref(false)
 const densities = { "100": 100, "null": null, "default": "default", "compact": "compact", "comfortable": "comfortable" }
@@ -199,7 +201,7 @@ const density = ref("default")
 const empty = ref(false)
 const dark = ref(false)
 const loading = ref(false)
-const multiSort = ref(false)
+const multiSort = ref(true)
 const hideCol = ref(false)
 
 const tabEmpty = ref(false)
@@ -208,11 +210,13 @@ const tabSloted = ref(false)
 const tabNested = ref(false)
 
 //#region		Table with desserts
-const sorted = ref([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const search = ref("")
-const filters = ref(null)
-const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
+// const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
+const sorted = ref<DatatableSort>({ 'calories': { desc: true, position: 1 }, 'fat': { desc: true } })
+// const filters = ref<DatatableFilter>([{ column: "name", method: "Equals", value: "ea" }])
+const filters = ref<DatatableFilter>({ 'name': { method: "Equals", value: "ea" } })
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
+const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 
 // const headers = computed<Partial<DatatableColumn>[]>(() => ([
 const headers = ref<Partial<DatatableColumn>[]>([
@@ -259,13 +263,13 @@ function countBy(array, iteratee = val => val) {
 
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: any }
 const items = ref<Array<Item>>([
+	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" }
 	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true },
 	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false },
 	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, dividerTop: true, dividerBottom: true},
 	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true },
 	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false, dividerBottom: true, },
 	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true, },
-	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" }
 	{ name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9, iron: 0.16, category: 'Cookie', dairy: false, },
 	{ name: 'Eclair', calories: 237, fat: 16.0, carbs: 23, protein: 6.0, iron: 0.075, category: 'Cookie', dairy: true },
 	{ name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3, iron: 0.01, category: 'Ice cream', dairy: true },

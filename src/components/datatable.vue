@@ -124,7 +124,7 @@
                                                     :expanded="getExpandedValue(column, row)" :value="format(column, row)"
                                                 >
 
-                                                    <slot :name="`cell-${column.id}`" 
+                                                    <slot :name="`cell-${column.id}-body`" 
                                                         :row="row" 
                                                         :whatPropId="whatPropId"
                                                         :displaying="getRows" 
@@ -207,7 +207,8 @@
                                                 <DatatableCell v-else 
                                                     :id="generateKey(`expansion-${identifiant}_${expansion}-${getId(row)}`, column)"
                                                     :colspan="getColumns.length" 
-                                                    :class="[{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }, 
+                                                    :class="[
+                                                        { 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }, 
                                                         //...(row.class ?? [])
                                                     ]" 
                                                     :style="{ ...getSticky(column), ...getRowHeightFromDensity, }" 
@@ -252,7 +253,7 @@
                         :select="selecting"
                         :style="{ ...getSticky('tfoot') }" 
                         :table="getThis"
-                        :debug="debug" 
+                        :debug="debug"
                     >
                         <template v-for="slotName of Object.keys($slots).filter((name) => name.startsWith('footer'))" :key="slotName" #[slotName]="slotProps">
                             <slot :name="slotName" v-bind="slotProps" />
@@ -295,6 +296,7 @@ import {
     DatatableSticky,
     StyleProps,
 DatatableDividers,
+DatatableColumnSort,
 } from ".";
 import RerenderChecker from "./rerender-checker.vue"
 // #endregion
@@ -318,8 +320,8 @@ const props = withDefaults(
         sort?: DatatableSort; // La manière dont est trié le tableau au départ
         multiSort?: boolean;
         group?: DatatableGroup; // La manière dont sont groupées les lignes du tableau par une colonne
-        search?: string;
-        filter?: DatatableFilter; // La manière dont sont filtrées les lignes du tableau
+        // search?: string;
+        filters?: DatatableFilter; // La manière dont sont filtrées les lignes du tableau
         expand?: DatatableExpansion; // La manière dont sont étendus les lignes de certaines colonnes
         select?: DatatableSelection; // la manière dont selectionner des lignes
         // ** headers to footers
@@ -329,7 +331,6 @@ const props = withDefaults(
         displayFooter?: boolean;
         stick?: DatatableSticky;
         // ** Design
-        // dense?: boolean;
         density?: 'default' | 'comfortable' | 'compact' | number | null;
         dark?: boolean;
         dividers?: DatatableDividers;
@@ -392,7 +393,7 @@ const columns = ref<Array<Partial<DatatableColumn>>>([]);
 watch(
     () => props.columns, 
     () => {
-        console.info(`${props.identifiant} watch props.columns :`, props.columns)
+        // console.info(`${props.identifiant} watch props.columns :`, props.columns)
         if (Array.isArray(props.columns)) {
             columns.value = cloneDeep(props.columns);
         } else {
@@ -403,7 +404,7 @@ watch(
 );
 
 const getColumns = computed<DatatableColumn[]>(() => {
-    console.log(`====================================\n${props.identifiant} getColumns :`, columns.value);
+    // console.log(`====================================\n${props.identifiant} getColumns :`, columns.value);
     if (!columns.value) return [];
     let retour = [];
 
@@ -421,9 +422,9 @@ const getColumns = computed<DatatableColumn[]>(() => {
     }
 
     /* Log Columns
-      console.groupCollapsed(`${props.identifiant} getColumns :`);
-      console.table(columns.value )
-      console.groupEnd(); //*/
+    console.groupCollapsed(`${props.identifiant} getColumns :`);
+    console.table(columns.value )
+    console.groupEnd(); //*/
 
     return retour;
     // return columns.value
@@ -436,7 +437,7 @@ let rows = ref<Array<Partial<DatatableRow>>>([]);
 watch(
     () => props.rows, 
     () => {
-        console.info(`${props.identifiant} watch props.rows :`, props.rows)
+        // console.info(`${props.identifiant} watch props.rows :`, props.rows)
         if (Array.isArray(props.rows)) {
             rows.value = cloneDeep(props.rows);
         } else {
@@ -452,30 +453,35 @@ const getRows = computed(() => {
     let retour: Partial<DatatableRow>[] = [...rows.value];
 
     // /***   Filtre les élements suivant la recherche
-    if (props.search)
-        retour = retour.filter((r) => {
-            let includeFilter = false;
-            for (let col of getColumns.value) {
-                if (col.filter) {
-                    if (typeof col.filter === "function") {
-                        includeFilter = col.filter(props.search, r[col.id]);
-                    } else if (r[col.id]) {
-                        includeFilter = `${r[col.id]}`.match(new RegExp(props.search, "i"));
-                    }
-                    if (includeFilter) return true;
-                }
-            }
-            return false;
-        }); // */
+    // if (props.search)
+    //     retour = retour.filter((r) => {
+    //         let includeFilter = false;
+    //         for (let col of getColumns.value) {
+    //             if (col.filter) {
+    //                 if (typeof col.filter === "function") {
+    //                     includeFilter = col.filter(props.search, r[col.id]);
+    //                 } else if (r[col.id]) {
+    //                     includeFilter = `${r[col.id]}`.match(new RegExp(props.search, "i"));
+    //                 }
+    //                 if (includeFilter) return true;
+    //             }
+    //         }
+    //         return false;
+    //     }); // */
+
+    // /***   Filtre les élements suivant les filtres
+    // retour = retour.filter((r) => {
+    console.log(`${props.identifiant} watch props.rows, filters :`, props.filters)
+    // });
+    // */
 
     // /***   Trie les élements dans l'ordre
     retour.sort((s1: Partial<DatatableRow>, s2: Partial<DatatableRow>) => {
         let sortResult = 0;
-        // console.log(`${this.identifiant}`,this.sorting)
-        for (let s of sorting.value) {
-            let r1 = s1[s.column],
-                r2 = s2[s.column];
-            let col = getColumns.value.find((c: DatatableColumn) => c.id === s.column);
+        for (let s of Object.keys(sorting.value)) {
+            let r1 = s1[s],
+                r2 = s2[s];
+            let col = getColumns.value.find((c: DatatableColumn) => c.id === s);
             if (col) {
                 if (typeof col.sort == "boolean") {
                     if (typeof r1 === "string" && typeof r2 === "string")
@@ -493,7 +499,7 @@ const getRows = computed(() => {
             if (sortResult === undefined)
                 throw new Error(`Sort method ${col.sort} invalid for column ${col.id}`);
             if (sortResult == 0) continue;
-            if (s.desc) sortResult *= -1;
+            if (sorting.value[s].desc) sortResult *= -1;
             break;
         }
         return sortResult;
@@ -548,15 +554,37 @@ function format(
 //#endregion    ###     FILTER      ###
 
 //#region       ###     SORT     ###
-const sorting = ref<DatatableSort>([]);
+const sorting = ref<DatatableSort>({});
 
 function watchSortAndMultiSort() {
     if (!props.sort) return;
     if (!props.multiSort) {
-        sorting.value = props.sort.slice(0, 1);
+        const paires = Object.entries(props.sort);
+        if (paires.length) {
+            const premier = paires[0];
+            // console.log("watchSortAndMultiSort", paires, premier)
+            sorting.value = { [premier[0]]: cloneDeep(premier[1]) } //props.sort.slice(0, 1);
+        } else sorting.value = {}
     } else {
-        sorting.value = props.sort.map((s) => Object.assign({}, s));
+        sorting.value = cloneDeep(props.sort)
+        // let positions : number[] = []
+        // sorting.value = Object.fromEntries(Object.entries(props.sort).map(([col, s], i) => {
+        //     console.log(i, col, s, positions)
+        //     let position = s.position
+        //     if (position === undefined) position = i
+        //     else if (position >= Object.keys(props.sort).length) position = i
+        //     if (positions.includes(position)) 
+
+        //     positions.push(position)
+        //     return [col, {
+        //         sorted: s.sorted,
+        //         desc: s.desc,
+        //         expansion: s.expansion,
+        //         position
+        //     } as DatatableColumnSort]
+        // }))
     }
+    console.log("watchSortAndMultiSort", sorting.value)
 }
 
 watch(
@@ -577,8 +605,8 @@ watch(
 function findColumnSort(column: DatatableColumn) {
     let found: null | DatatableColumnSort = null,
         position: number = 0;
-    sorting.value?.forEach((col: DatatableColumnSort, i: number) => {
-        if (col.column === column.id) {
+    Object.entries(sorting.value)?.forEach(([key, col]: [string, DatatableColumnSort], i: number) => {
+        if (key === column.id) {
             found = col;
             position = i;
             return;
@@ -591,40 +619,46 @@ function findColumnSort(column: DatatableColumn) {
 }
 
 function updateSort(column: DatatableColumn, action: string) {
-    // console.log(`${this.identifiant}`,"updateSort", action, column)
+    console.log(`${props.identifiant}`,"updateSort", sorting.value, action, column)
     if (!sorting.value) return;
-    let foundIndex = sorting.value.findIndex(
-        (col: DatatableColumnSort) => col.column === column.id
-    );
-    if (foundIndex === undefined) return;
 
     if (action == "position") {
+        let foundIndex = Object.keys(sorting.value).indexOf(column.id)
         // Si on souhaite changer la position de la colonne dans le sort
-        // console.log(`${this.identifiant}`,"change position", foundIndex, this.sorting.length)
-        sorting.value.splice(
-            (foundIndex + 1) % sorting.value.length,
+
+        console.log(`${props.identifiant}`,"change position", foundIndex, Object.keys(sorting.value).length)
+        
+        let newOrder = Object.keys(sorting.value)
+        newOrder.splice(
+            (foundIndex + 1) % newOrder.length,
             0,
-            sorting.value.splice(foundIndex, 1)[0]
+            newOrder.splice(foundIndex, 1)[0]
         );
+        console.log(Object.keys(sorting.value), newOrder)
+        
+        sorting.value = Object.fromEntries(newOrder.map(name => ([name, sorting.value[name]]) ))
     } else {
+        let found = sorting.value[column.id];
         // Si on souhaite modifier l'utilisation de la colonne dans le sort
-        // console.log(`${this.identifiant}`,"change sort", foundIndex)
-        if (foundIndex < 0) {
+        // console.log(`${props.identifiant}`,"change sort", found)
+        if (!found) {
             // Si La colonne n'est pas utilisée
-            if (props.multiSort) sorting.value.push({ column: column.id, desc: false });
-            else
-                sorting.value.splice(0, sorting.value.length, { column: column.id, desc: false });
+            if (props.multiSort) {
+                sorting.value[column.id] = { desc: false };
+            } else {
+                sorting.value = { [column.id]: { desc: false } };
+            }
         } else {
             // Si la colonne est déjà utilisée dans le sort
-            let found = sorting.value[foundIndex];
-            if (!found.desc)
-                sorting.value.splice(foundIndex, 1, Object.assign(found, { desc: true }));
-            //found.desc = true // Et que le sens est ascendant alors on passe en descendant
-            else sorting.value.splice(foundIndex, 1); // Sinon vu que le sens est descendant on retire la colonne du sort
+            if (!found.desc) {
+                found.desc = true; // Passer en mode descendant
+            } else {
+                delete sorting.value[column.id]; // Retirer la colonne du sort
+            }
         }
     }
 
-    // console.log(`${this.identifiant} updateSort :`, sorting.value)
+    console.log(`${props.identifiant} updateSort :`, sorting.value)
     emit("update:sort", sorting.value);
 }
 //#endregion    ###     SORT    ###

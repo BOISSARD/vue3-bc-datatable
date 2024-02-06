@@ -51,6 +51,7 @@ export class DatatableColumn {
     // pour définir si le filtrage fonctionne sur les valeurs de cette colonne 
     filter: boolean // pour activer ou désactiver le filtrage sur la colonne
         | Function // activer en définissant la fonction lambda, args : filter (string de recherche), valeur (any)
+        | Array<{ label: string, method: Function }>
     = true 
     // Voir pour avoir un filtre complexe sur chaque en-tête et faire une recherche en profondeur dans les tableaux imbriqués
 
@@ -105,12 +106,13 @@ export type DatatableRow = {
 
 //#region Sort
 export class DatatableColumnSort {
-    column?: string
+    // column?: string
     sorted?: boolean = false
     desc?: boolean = false
     expansion?: null | DatatableSort
+    position?: number = 0
 }
-export type DatatableSort = Array<DatatableColumnSort>
+export type DatatableSort = { [column: string]: DatatableColumnSort } // Array<DatatableColumnSort>
 // let test: DatatableSort = [{column:"yolo"}, {column:"embeded", desc: false, expansion: [{ column: "lol", desc: true}] }, {column:"don't sort", sorted: false, expansion: [{ column: "lol", desc: true}] }]
 //#endregion
 
@@ -125,15 +127,23 @@ export type DatatableGroup = Array<DatatableColumnGroup>
 
 //#region Filter
 export class DatatableColumnFilter {
-    column?: string
-    method?: null | Function = (a: DatatableCell , b: DatatableCell ) => a == b
-    value?: DatatableCell
-    expansion?: null | DatatableColumnFilter
+    // column?: string
+    method?: null | (keyof filtersLabels) = "Equals" // | Function = (a: DatatableCell , b: DatatableCell ) => a == b
+    value?: any
+    expansion?: null | DatatableFilter
 }
-export type DatatableFilter = DatatableCell | Array<DatatableColumnFilter>
+export type DatatableFilter = Function |  { [column: string]: DatatableColumnFilter } // Array<DatatableColumnFilter>
 
-export const filterFunctions = {
+export type DatatableFilterValueType = null | "boolean" | "number" | "string" | "Date" | "object"
+export const filtersFunctions = {
     
+    it(value) {
+        return !!value
+    },
+    in(value) {
+        return value === null || value === undefined
+    },
+
     eq(value, comparison) {
         if (typeof value === "number") return value === comparison
         
@@ -162,8 +172,8 @@ export const filterFunctions = {
         throw new Error(`"Less Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
-    in(value) {
-        return value === null || value === undefined
+    be(value, min, max) {
+        return filtersFunctions.ge(value, min) && filtersFunctions.le(value, max)
     },
 
     includes(value, comparison) {
@@ -175,8 +185,49 @@ export const filterFunctions = {
     },
     ew(value, comparison: string) {
         return comparison.endsWith(value)
-    }
+    },
 
+    ct(value, comparison: string) {
+        throw new Error("Match Regex not implemented")
+    },
+
+}
+export const filtersLabels = {
+    "No filter": null, //() => true,
+    
+    "True": (...args) => filtersFunctions.it(...args),
+    "False": (...args) => !filtersFunctions.it(...args),
+
+    "Equals": (...args) => filtersFunctions.eq(...args),
+    "Not equals": (...args) => !filtersFunctions.eq(...args),
+
+    "Greater Than": (...args) => filtersFunctions.gt(...args),
+    "Greater Than or Equal": (...args) => filtersFunctions.ge(...args),
+
+    "Less Than": (...args) => filtersFunctions.lt(...args),
+    "Less Than or Equal": (...args) => filtersFunctions.le(...args),
+
+    "Between": (...args) => filtersFunctions.be(...args),
+
+    "Is Null": (...args) => filtersFunctions.in(...args),
+    "Not Null": (...args) => !filtersFunctions.in(...args),
+
+    "Contains": (...args) => filtersFunctions.includes(...args),
+    "Doesn't Contain": (...args) => !filtersFunctions.includes(...args),
+
+    "Starts With": (...args) => filtersFunctions.sw(...args),
+    "Doesn't start With": (...args) => !filtersFunctions.sw(...args),
+    "Ends With": (...args) => filtersFunctions.ew(...args),
+    "Doesn't end With": (...args) => !filtersFunctions.ew(...args),
+
+    "Corresponds Regex": (...args) => filtersFunctions.ct(...args),
+}
+export const filtersLabelsForTypes = {
+    "boolean": ["No filter", "True", "False", ],
+    "number": ["No filter", "Equal", "Not equal", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
+    "string": ["No filter", "True", "False", "Contains", "Doesn't Contain", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex", ],
+    "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
+    "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
 }
 //#endregion
 
@@ -214,7 +265,7 @@ export type DatatableDraggable = boolean | { rows?: boolean, columns?: boolean }
 // let test: DatatableDraggable = { columns: true, "col2": true, "col4" : { "col4-2": { rows: true } } }
 //#endregion
 
-//#region Draggable
+//#region Resizable
 export type DatatableResizable = boolean | { rows?: boolean, columns?: boolean } & { [key: string]: DatatableResizable }
 // let test: DatatableResizable = { columns: true, "col2": true, "col4" : { "col4-2": { rows: true } } }
 //#endregion
