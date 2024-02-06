@@ -388,9 +388,11 @@ const emit = defineEmits<{
 //#endregion    ###     Events       ###
 
 //#region       ###     COLUMNS       ###
-const columns = ref<DatatableColumn[]>([]);
-watch(() => props.columns, () => {
-        // console.info(`${props.identifiant} watch props.columns :`, props.columnss, isRef(props.columns), isReactive(props.columns))
+const columns = ref<Array<Partial<DatatableColumn>>>([]);
+watch(
+    () => props.columns, 
+    () => {
+        console.info(`${props.identifiant} watch props.columns :`, props.columns)
         if (Array.isArray(props.columns)) {
             columns.value = cloneDeep(props.columns);
         } else {
@@ -401,7 +403,7 @@ watch(() => props.columns, () => {
 );
 
 const getColumns = computed<DatatableColumn[]>(() => {
-    // console.log(`====================================\n${props.identifiant} getColumns :`, columns.value);
+    console.log(`====================================\n${props.identifiant} getColumns :`, columns.value);
     if (!columns.value) return [];
     let retour = [];
 
@@ -431,7 +433,10 @@ const getColumns = computed<DatatableColumn[]>(() => {
 //#region       ###     ROWS       ###
 let rows = ref<Array<Partial<DatatableRow>>>([]);
 
-watch(() => props.rows, () => {
+watch(
+    () => props.rows, 
+    () => {
+        console.info(`${props.identifiant} watch props.rows :`, props.rows)
         if (Array.isArray(props.rows)) {
             rows.value = cloneDeep(props.rows);
         } else {
@@ -973,13 +978,29 @@ const getThis = computed(() => {
 
 <style lang="scss">
 :root {
+    --table-background-color-light: white;
+    --table-background-color-dark: #1e1e1e;
+
+    --table-text-color-light: black;
+    --table-text-color-dark: white;
+
+    --table-button-color-light: lightgray;
+    --table-button-color-dark: gray;
+    --table-button-hover-color-light: gray;
+    --table-button-hover-color-dark: lightgray;
+
     --table-border-options: thin solid;
     --table-border-color-light: rgba(0, 0, 0, 0.12);
     --table-border-color-dark: hsla(0, 0%, 100%, 0.12);
+
     --table-expansion-shadow-light: rgb(50 50 50 / 50%);
     --table-expansion-shadow-dark: rgb(200 200 200 / 50%);
     --table-expansion-shadow-top: inset 0 4px 10px -8px;
     --table-expansion-shadow-bottom: inset 0 -4px 10px -8px;
+
+    // --table-headers-background-color: rgb(246, 247, 250);
+    // --table-odd-background-color: #e0e6ed26;
+    // --table-even-background-color: #e0e6ed26;
 }
 
 table {
@@ -1005,6 +1026,11 @@ table {
 
         box-sizing: border-box;
         
+        .table-filter {
+            // padding-left: 0px !important;
+            // padding-right: 0px !important;
+        }
+
         .table-filter-input {
             height: 28px;
         }
@@ -1047,8 +1073,13 @@ table {
             height: 26px;
         }
         
+        .table-filter {
+            // padding-left: 2px !important;
+            // padding-right: 2px !important;
+        }
+
         .table-filter-input {
-            height: 20px;
+            height: 24px;
         }
 
         .table-filter-button > svg {
@@ -1069,6 +1100,11 @@ table {
             height: 62px;
         }
         
+        .table-filter {
+            // padding-left: 10px !important;
+            // padding-right: 10px !important;
+        }
+
         .table-filter-input {
             height: 40px;
         }
@@ -1077,7 +1113,6 @@ table {
             width: 18px;
             height: 18px;
         }
-
 
         .table-progress .table-progress-bar {
             height: 8px;
@@ -1214,45 +1249,45 @@ table {
 
 
     .table-filter {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
         
         > div {
             width: 100%;
             max-width: 100%;
             display: flex;
+            position: relative;
         }
     }
 
     .table-filter-input {
-        min-width: 60px;
+        // min-width: 60px;
         width: 100%;
         // flex: 1 0 auto;
 
         box-sizing: border-box;
 
-        border: 1px solid lightgray;
-        border-right: 0;
+        // border: 1px solid var(--table-border-color-light);
+        border-right: 0 !important;
         border-radius: 4px 0 0 4px;
 
-        &:focus {
-            outline: none;
-        }
+        outline: none;
     }
 
     .table-filter-button {
+
         // width: 100%;
-        flex: 1 0 auto;
-        
-        margin: 0;
-        padding: 2px 6px;
-        
+        // flex: 0 0 auto;
+
         display: flex; 
         align-items: center; 
         justify-content: center;
         
+        margin: 0;
+        padding: 2px 6px;
+
         border-radius: 0 4px 4px 0;
-        border: 1px solid lightgray;
+        // border: 1px solid var(--table-border-color-light);
         background-color: buttonface;
 
         &:hover { 
@@ -1266,6 +1301,37 @@ table {
         > svg {
             color: grey;
         }
+    }
+    
+    .table-filter-menu {
+        position: absolute;
+        // padding: 10px;
+
+        right: 0;
+
+        border-radius: 4px;
+        
+        opacity: 1;
+        z-index: 4;
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            margin: 0;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    }
+
+    thead .table-filter-menu {
+        top: calc(100% - 1px);
+    }
+    tfoot .table-filter-menu {
+        bottom: calc(100% - 1px);
     }
 }
 
@@ -1285,6 +1351,10 @@ table {
 }
 
 .table-wrapper.theme--light {
+
+    background-color: var(--table-background-color-light);
+    color: var(--table-text-color-light);
+
     table {
         &.divider {
             thead>tr:last-child {
@@ -1359,7 +1429,7 @@ table {
 
         th,
         td {
-            background-color: white;
+            background-color: var(--table-background-color-light);
 
             &.divider-left {
                 border-left: var(--table-border-options)  var(--table-border-color-light);
@@ -1395,11 +1465,23 @@ table {
             }
         }
     }
+
+    .table-filter-input, .table-filter-button, .table-filter-menu { 
+        border: 1px solid var(--table-border-color-light);
+    }
+    .table-filter-menu ul {
+        background-color: var(--table-background-color-light);
+            
+            li:hover, li.table-filter-active {
+                background-color: var(--table-border-color-light);
+            }
+    }
+
 }
 
 .table-wrapper.theme--dark {
-    background-color: #1e1e1e;
-    color: #fff;
+    background-color: var(--table-background-color-dark);
+    color: var(--table-text-color-dark);
 
     table {
         &.divider {
@@ -1473,7 +1555,7 @@ table {
 
         th,
         td {
-            background-color: #1e1e1e;
+            background-color: var(--table-background-color-dark);
 
             &.divider-left {
                 border-left: var(--table-border-options)  var(--table-border-color-dark);
@@ -1508,6 +1590,19 @@ table {
                 box-shadow: var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-dark);
             }
         }
+
+        .table-filter-input, .table-filter-button, .table-filter-menu { 
+            border: 1px solid var(--table-border-color-dark);
+            // border: 1px solid var(--table-border-color-dark);
+        }
+        .table-filter-menu ul {
+            background-color: var(--table-background-color-dark);
+
+            li:hover, li.table-filter-active {
+                background-color: var(--table-border-color-dark);
+            }
+        }
+
     }
 }
 

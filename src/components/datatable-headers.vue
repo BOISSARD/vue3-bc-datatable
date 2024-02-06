@@ -1,36 +1,29 @@
 <template>
     <component :is="component" :class="{ divider: table.hasDivider(component) }">
         <slot :name="slotPrefix" v-bind="table">
-            <tr v-if="table.displayFilters && component === 'tfoot'">
+            <!-- <tr v-if="table.displayFilters && component === 'tfoot'">
                 <slot :name="`${slotPrefix}-tr-filters`" v-bind="table">
-                    <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
+                    <slot v-if="table" v-for="column in headers" :key="`filter-${table.generateKey(component, column)}`"
                         :name="`${slotPrefix}-${column.id}-filter`" 
                         v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
                     >
-                        <template v-if="!column.hidden"> 
-                            <th v-if="column.filter == false"></th>
+                        <template v-if="!column.hidden">
+                            <th v-if="!column.filter"></th>
                             <th v-else-if="true"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 class="table-filter"
                             >
                                 <div>
-                                    <input class="table-filter-input" >
-                                    <button class="table-filter-button" >
-                                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                                        </svg>
-                                    </button>
-                                    <!-- <select >
-                                    </select> -->
+
                                 </div>
                             </th>
                         </template>
                     </slot>
                 </slot>
-            </tr>
+            </tr> -->
             <tr>
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
                     <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
@@ -38,7 +31,7 @@
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
-                    > 
+                    >
                         <DatatableCell v-if="!column.hidden"
                             header 
                         
@@ -67,30 +60,41 @@
                     </slot>
                 </slot>
             </tr>
-            <tr v-if="table.displayFilters && component === 'thead'">
+            <!-- <tr v-if="table.displayFilters && component === 'thead'"> -->
+            <tr v-if="table.displayFilters">
                 <slot :name="`${slotPrefix}-tr-filters`" v-bind="table">
-                    <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
+                    <slot v-if="table" v-for="column in headers" :key="`filter-${table.generateKey(component, column)}`"
                         :name="`${slotPrefix}-${column.id}-filter`" 
                         v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
-                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
+                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value }"
                     >
                         <template v-if="!column.hidden"> 
-                            <th v-if="column.filter == false"></th>
+                            <th v-if="!column.filter"
+                                :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
+                                :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
+                            >
+                            </th>
                             <th v-else-if="true"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
+                                :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="table-filter"
+                                @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
                             >
                                 <div>
                                     <input class="table-filter-input" >
-                                    <button class="table-filter-button" >
+                                    <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
                                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
-                                    <!-- <select >
-                                    </select> -->
+                                    <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" >
+                                        <ul>
+                                            <li>No Filter</li>
+                                            <li v-for="i in 5" @click="" class="" >Filtre {{ i }}</li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </th>
                         </template>
@@ -103,7 +107,7 @@
 </template>
         
 <script setup lang='ts'>
-import { computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import DatatableCell from "./datatable-cell.vue"
 import { DatatableColumn, DatatableRow, DatatableSelection } from './types';
 import RerenderChecker from "./rerender-checker.vue"
@@ -132,9 +136,6 @@ const slotPrefix = computed(() => {
     return props.is === "head" ? "header" : props.is === "foot" ? "footer" : "unknown"
 })
 
-// console.groupCollapsed(`${component.value.toUpperCase()} ${props.identifiant} :`)
-// console.table(props.table, ["value"])
-// console.groupEnd()
 
 // #region  ###     GENERIC       ###
 if(props.debug) {
@@ -146,6 +147,20 @@ if(props.debug) {
     }, { immediate: true, deep: true })
 }
 // #endregion  ###     GENERIC       ###
+
+const displayedFiltersMenu = ref<string>("")
+function displayFiltersMenu(buttonName: string, column: any) {
+    // console.log("displayFiltersMenu", buttonName, column)
+    if(displayedFiltersMenu.value === buttonName) displayedFiltersMenu.value = ''
+    else displayedFiltersMenu.value = buttonName
+}
+function hideFiltersMenu(buttonName: string) {
+    // return
+    // console.log("hideFiltersMenu", buttonName, displayedFiltersMenu.value)
+    displayedFiltersMenu.value = ""
+}
 </script>
         
-<style></style>
+<style lang="scss">
+
+</style>

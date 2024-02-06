@@ -29,7 +29,7 @@
 	<template v-if="tabSimple || tabSloted">
 	<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', marginBottom: '15px' }">
 		<div :style="{ flex: '0 0 auto' }"> <button @click="addCol" >Add Col</button> </div>
-		<div :style="{ flex: '0 0 auto' }"> <button @click="update1stCol" >Update 2nd col</button> </div>
+		<div :style="{ flex: '0 0 auto' }"> <button @click="update2ndCol" >Update 2nd col</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="removeCol" >Remove last col</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="addRow" >Add Row</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="update1stRow" >Update 1st row</button> </div>
@@ -42,6 +42,7 @@
 	<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
 	<div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
 	<div :style="{ width: '100%' }">selected : {{ selected }}</div>
+	<code>{{ headers }}</code>
 	</template>
 
 <h2 id="tabSimple">Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
@@ -213,7 +214,8 @@ const filters = ref(null)
 const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 
-const headers = computed<Partial<DatatableColumn>[]>(() => ([
+// const headers = computed<Partial<DatatableColumn>[]>(() => ([
+const headers = ref<Partial<DatatableColumn>[]>([
 	{ id:"id_selection", selection: { single: false, global: true }, 
 		body: { cols: "auto", justify: "center" }, dividerLeft: false, dividerRight: false, 
 		header: { cols: "auto", justify: "center" }, 
@@ -242,7 +244,7 @@ const headers = computed<Partial<DatatableColumn>[]>(() => ([
 	{ property: 'iron', header: { text: 'Iron', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: (irons:number[]) => Math.round(average(irons)*10000)/100, suffix: "%", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { text: (iron:number) => Math.round(iron*10000)/100, suffix: "%", cols: "auto", justify: "end" } },
 	{ property: 'category', header: { text: 'Category' }, footer: { text: (categories: string[]) => [...new Set(categories)].length, suffix: "catégories" }, footerStyle: { textAlign: "center" }, sticky: "right", dividerLeft: true },
 	// { header : { text: 'Actions' }, sort: false }
-]))
+])//)
 function average(vals) {
     return Math.round((vals.reduce((a, b) => a + b, 0)/vals.length || 0)*100)/100
 }
@@ -271,12 +273,12 @@ const items = ref<Array<Item>>([
 
 function addCol(){
 	let name = 'Col-'+Math.random().toString(36).substring(2,7)
-	headers.value.push({ property: name, footer: { text: average }, footerStyle: { textAlign: 'center', } })
+	headers.value.push({ property: name, header: { text: name }, footer: { text: average }, footerStyle: { textAlign: 'center', } })
 	items.value.forEach(item => {
 		item[name] = Math.round(Math.random()*100)
 	});
 }
-function update1stCol() {
+function update2ndCol() {
 	const index = 1
 	if(headers.value?.[index]) {
 		headers.value[index].dividerRight = !headers.value?.[index]?.dividerRight
