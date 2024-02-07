@@ -41,6 +41,9 @@
 
 		multiSort
 		density="compact"
+		
+		:dark="dark"
+		:loading="loading"
 	/>
 </div>
 

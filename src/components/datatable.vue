@@ -559,7 +559,7 @@ function format(
 //#region       ###     FILTER      ###
 const filtering = ref<DatatableFilter>({});
 
-watch(props.filters, () => {
+watch(() => props.filters, () => {
     // console.log(`${props.identifiant} watch filters`, props.filters)
     filtering.value = props.filters ? cloneDeep(props.filters) : {}
 
@@ -913,34 +913,36 @@ function getSticky(
     zIndex: number | null = null
 ) {
     let retour: {
-        position?: string;
-        bottom?: number | string;
-        top?: number | string;
-        right?: number | string;
-        left?: number | string;
-        zIndex?: number;
-    } = {};
+        position?: string
+        bottom?: number | string
+        top?: number | string
+        right?: number | string
+        left?: number | string
+        zIndex?: number
+    } = {}
     // console.log(`getSticky ${identifiant}`, position)
-    if (position == "tfoot" && props.stick?.footer) {
-        retour.position = "sticky";
-        retour.bottom = 0; // "-1px"
-        retour.zIndex = zIndex ?? 4;
-    } else if (position == "thead" && props.stick?.header) {
-        retour.position = "sticky";
-        retour.top = 0;
-        retour.zIndex = zIndex ?? 5;
+    if (position == "tfoot") {
+        retour.position = props.stick?.footer ? "sticky" : "relative"
+        if(props.stick?.footer) retour.bottom = "-1px"
+        retour.zIndex = zIndex ?? 4
+    } else if (position == "thead") {
+        retour.position = props.stick?.header ? "sticky" : "relative"
+        if(props.stick?.header) retour.top = 0
+        retour.zIndex = zIndex ?? 5
     } else if (typeof position == "object" && position.sticky) {
-        retour.position = "sticky";
+        retour.position = "sticky"
         if (typeof position.sticky === "string") {
-            retour[position.sticky] = 0;
-            retour.zIndex = zIndex ?? 1;
+            retour[position.sticky] = 0
+            retour.zIndex = zIndex ?? 1
         } else if (typeof position.sticky === "object") {
             if (position.sticky.position)
-                retour[position.sticky.position] = position.sticky.distance ?? 0;
-            retour.zIndex = position.sticky.zIndex ?? 1;
+                retour[position.sticky.position] = position.sticky.distance ?? 0
+            retour.zIndex = position.sticky.zIndex ?? 1
         }
+    } else {
+        retour.position = "relative"
     }
-    return retour;
+    return retour
 }
 
 function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow, position: 'top' | 'bottom') {
@@ -978,29 +980,29 @@ console.log(table.value)
 
 //#region       ###     GENERIC       ###
 const whatPropId = computed(() => {
-    if (typeof props.propId === "string") return props.propId;
+    if (typeof props.propId === "string") return props.propId
     else if (typeof props.propId === "object" && props.propId?.propId)
-        return props.propId.propId;
-    else throw Error("Invalid row ID defined");
-});
+        return props.propId.propId
+    else throw Error("Invalid row ID defined")
+})
 
 function getId(row: DatatableRow | Partial<DatatableRow>) {
     // console.log("getId", whatPropId.value, row[whatPropId.value])
-    return (row[whatPropId.value] as string).replace(/[\W_]+/g, "_");
+    return (row[whatPropId.value] as string).replace(/[\W_]+/g, "_")
 }
 
 function generateKey(row: DatatableRow, column: DatatableColumn) {
     // console.log(`${props.identifiant} generateKey :`, row, column)
     // if(typeof row === "string")
-    let id = typeof row === "string" ? row : getId(row);
+    let id = typeof row === "string" ? row : getId(row)
     // if(typeof row !== "string") {
     //     console.log(`${this.identifiant}`,row, this.whatPropId, column)
     //     console.log(`${this.identifiant}`,"column id", column.id)
     // }
     // console.log(`${this.identifiant}`,"id", id)
-    id = id.replace(" ", "_");
+    id = id.replace(" ", "_")
     // console.log(`${this.identifiant}`,`${id}-${column.id}`, row, this.whatPropId)
-    return `${id}-${typeof column === "string" ? column : column.id}`;
+    return `${id}-${typeof column === "string" ? column : column.id}`
 }
 //#endregion    ###     GENERIC       ### */
 
@@ -1592,6 +1594,10 @@ table {
         }
     }
 
+    .table-expansion-icon, .table-sort-icon {
+        fill: var(--table-text-color-light);
+    }
+
 }
 
 .table-wrapper.theme--dark {
@@ -1736,6 +1742,11 @@ table {
             background-color: var(--table-background-color-dark-hover);
         }
     }
+
+    .table-expansion-icon, .table-sort-icon {
+        fill: var(--table-text-color-dark);
+    }
+
 }
 
 @keyframes progress_bar_loading {

@@ -89,6 +89,7 @@
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
+                                    <!-- {{ displayedFiltersMenu || "nullish" }} {{ table.generateKey(component, column) || "nullish" }} -->
                                     <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
                                             <ul>
                                             <li v-for="(method, label) in getFilters(table.valueTypeByColumn.value[column.id])" 
