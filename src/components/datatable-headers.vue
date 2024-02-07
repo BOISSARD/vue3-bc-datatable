@@ -80,8 +80,8 @@
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="table-filter"
-                                @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
                             >
+                                <!-- @mouseleave="hideFiltersMenu(table.generateKey(component, column))" -->
                                 <div>
                                     <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', $event.target.value)" >
                                     <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
@@ -89,9 +89,12 @@
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
-                                    <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" >
-                                        <ul>
-                                            <li v-for="(method, label) in getFilters(table.valueTypeByColumn.value[column.id])" @click="table.updateFilters(column, 'method', {label, method})" >{{ label }}</li>
+                                    <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
+                                            <ul>
+                                            <li v-for="(method, label) in getFilters(table.valueTypeByColumn.value[column.id])" 
+                                                @click="table.updateFilters(column, 'method', {label, method})" 
+                                                :class="[ { 'table-filter-active': table.filtering.value[column.id]?.method === label } ]" 
+                                            >{{ label }}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -122,8 +125,6 @@ const props = defineProps<{
 
     select?: DatatableSelection,
 }>()
-
-// console.log(`${props.identifiant}`, props.table.filters)
 
 const emit = defineEmits<{
     (e: 'selectedAll', value: any): void
@@ -168,6 +169,9 @@ function filterChoice(filter, column) {
 function getFilters(type) {
     return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
 }
+const filterMenuHeight = computed(() => {
+    return props.table.wrapper.value?.clientHeight * 0.75
+})
 </script>
         
 <style lang="scss">

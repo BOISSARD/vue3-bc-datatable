@@ -223,10 +223,10 @@ export const filtersLabels = {
 
     "Corresponds Regex": (...args) => filtersFunctions.ct(...args),
 }
-export const filtersLabelsForTypes = {
+export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: (keyof typeof filtersLabels)[] } = {
     "boolean": ["No filter", "True", "False", ],
-    "number": ["No filter", "Equal", "Not equal", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
-    "string": ["No filter", "True", "False", "Contains", "Doesn't Contain", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex", ],
+    "number": ["No filter", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
+    "string": ["No filter", "Equals", "Not equals", "True", "False", "Contains", "Doesn't Contain", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex", ],
     "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
     "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
 }

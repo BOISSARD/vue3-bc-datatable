@@ -50,13 +50,19 @@
             <slot name="top"></slot>
         </div>
 
-        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass">
+        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" ref="tableWrapper" >
             <slot v-bind="getThis">
 
                 <table 
                     style="table-layout: auto; min-width: 100%"
                     :style="tableStyle"
-                    :class="{ 'density-comfortable': density === 'comfortable', 'density-compact': density === 'compact', divider: hasDivider(), ...tableClass }" 
+                    :class="{ 
+                        'density-comfortable': density === 'comfortable', 
+                        'density-compact': density === 'compact', 
+                        divider: hasDivider(), 
+                        ...tableClass 
+                    }" 
+                    ref="table"
                 >
 
                     <DatatableHeaders v-if="!hideHeader" 
@@ -918,11 +924,11 @@ function getSticky(
     if (position == "tfoot" && props.stick?.footer) {
         retour.position = "sticky";
         retour.bottom = 0; // "-1px"
-        retour.zIndex = zIndex ?? 100;
+        retour.zIndex = zIndex ?? 4;
     } else if (position == "thead" && props.stick?.header) {
         retour.position = "sticky";
         retour.top = 0;
-        retour.zIndex = zIndex ?? 100;
+        retour.zIndex = zIndex ?? 5;
     } else if (typeof position == "object" && position.sticky) {
         retour.position = "sticky";
         if (typeof position.sticky === "string") {
@@ -965,6 +971,9 @@ const getRowHeightFromDensity = computed(() => {
     return retour
 })
 
+const table = ref()
+const tableWrapper = ref()
+console.log(table.value)
 //#endregion    ###     DESIGN      ###
 
 //#region       ###     GENERIC       ###
@@ -1028,6 +1037,9 @@ const getThis = computed(() => {
         // select
         select: selecting,
         selectAll,
+        // design
+        el: table,
+        wrapper: tableWrapper,
     };
     // console.log(`${props.identifiant} getThis`, retour)
     return retour;
@@ -1042,6 +1054,7 @@ const getThis = computed(() => {
 
     --table-text-color-light: black;
     --table-text-color-dark: white;
+    --table-text-font-size: 0.9rem;
 
     --table-button-color-light: lightgray;
     --table-button-color-dark: gray;
@@ -1077,7 +1090,7 @@ table {
 
     th,
     td {
-        font-size: 0.8rem;
+        font-size: var(--table-text-font-size);
         transition: padding 0.2s cubic-bezier(0.4, 0, 0.6, 1);
         padding: 6px 16px;
         // padding: 0 16px;
@@ -1224,8 +1237,6 @@ table {
         th,
         td {
 
-            z-index: 2;
-
             &.sortable .table-sort {
                 pointer-events: auto;
                 cursor: pointer;
@@ -1293,6 +1304,17 @@ table {
             min-height: 18px;
             height: 18px;
             width: 18px;
+        }
+    }
+
+    thead {
+        th, td {
+            z-index: 3;
+        }
+    }
+    tfoot {
+        th, td {
+            z-index: 2;
         }
     }
 
@@ -1371,9 +1393,9 @@ table {
         border-radius: 4px;
         
         opacity: 1;
-        z-index: 4;
+        z-index: 10;
 
-        max-height: 200px;
+        // max-height: 200px;
         overflow: auto;
 
         ul {
