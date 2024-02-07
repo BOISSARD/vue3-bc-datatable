@@ -233,7 +233,7 @@ const search = ref("")
 // const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const sorted = ref<DatatableSort>({ 'calories': { desc: true, position: 1 }, 'fat': { desc: true } })
 // const filters = ref<DatatableFilter>([{ column: "name", method: "Equals", value: "ea" }])
-const filters = ref<DatatableFilter>({ 'name': { method: "Equals", value: "ea" }, 'carbs': { method: null, value: 100 } }) // "Greather Than or Equal"
+const filters = ref<DatatableFilter>({ 'name': { method: "Contains", value: "ea" }, 'carbs': { method: null, value: 100 } }) // "Greather Than or Equal"
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 

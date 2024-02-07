@@ -50,7 +50,7 @@
             <slot name="top"></slot>
         </div>
 
-        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" ref="tableWrapper" >
+        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" class="table-parent" ref="tableWrapper" >
             <slot v-bind="getThis">
 
                 <table 
@@ -1050,7 +1050,11 @@ const getThis = computed(() => {
 <style lang="scss">
 :root {
     --table-background-color-light: white;
+    --table-background-color-light-active: #e1e1e1;
+    --table-background-color-light-hover: #cccccc;
     --table-background-color-dark: #1e1e1e;
+    --table-background-color-dark-active: #313131; // #444444; // #3c3c3c;
+    --table-background-color-dark-hover: #444444; // #313131; // #2e2e2e;
 
     --table-text-color-light: black;
     --table-text-color-dark: white;
@@ -1075,6 +1079,23 @@ const getThis = computed(() => {
     // --table-even-background-color: #e0e6ed26;
 }
 
+.table-parent, .table-filter-menu {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        // background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        // background: #888;
+        border-radius: 10px;
+    }
+}
+
 table {
     border-radius: 4px;
     max-width: 100%;
@@ -1097,11 +1118,6 @@ table {
         height: 38px;
 
         box-sizing: border-box;
-        
-        .table-filter {
-            // padding-left: 0px !important;
-            // padding-right: 0px !important;
-        }
 
         .table-filter-input {
             height: 28px;
@@ -1144,11 +1160,6 @@ table {
             padding: 2px 16px;
             height: 26px;
         }
-        
-        .table-filter {
-            // padding-left: 2px !important;
-            // padding-right: 2px !important;
-        }
 
         .table-filter-input {
             height: 24px;
@@ -1157,6 +1168,10 @@ table {
         .table-filter-button > svg {
             width: 14px;
             height: 14px;
+        }
+
+        .table-filter-menu li {
+            padding: 4px 20px;
         }
 
         .table-progress .table-progress-bar {
@@ -1171,11 +1186,6 @@ table {
             padding: 10px 16px;
             height: 62px;
         }
-        
-        .table-filter {
-            // padding-left: 10px !important;
-            // padding-right: 10px !important;
-        }
 
         .table-filter-input {
             height: 40px;
@@ -1184,6 +1194,10 @@ table {
         .table-filter-button > svg {
             width: 18px;
             height: 18px;
+        }
+
+        .table-filter-menu li {
+            padding: 12px 20px;
         }
 
         .table-progress .table-progress-bar {
@@ -1246,19 +1260,17 @@ table {
             &.sortable,
             &:not(.sortable) {
                 &:not(.table-selection) {
-                    >* {
-                        opacity: 0.7;
+                    .table-sort {
+                        opacity: 0.2;
+                        // color: green;
                     }
                 }
             }
 
             &.sortable.active {
-                >* {
-                    opacity: 0.87;
-                }
-
                 .table-sort {
-                    opacity: 0.8;
+                    opacity: 0.6;
+                    // color: red;
                 }
             }
 
@@ -1277,8 +1289,9 @@ table {
             }
 
             &.sortable:hover {
-                >* {
+                .table-sort {
                     opacity: 1;
+                    // color: blue;
                 }
             }
 
@@ -1287,11 +1300,17 @@ table {
             }
         }
 
+        .table-sort {
+            display: flex;
+            align-items: center;
+        }
+
         .table-sort-icon {
             display: block;
             position: relative;
             top: -0.08rem;
             margin-left: 3px;
+            fill: currentColor;
         }
 
         .table-sort-badge {
@@ -1327,7 +1346,6 @@ table {
             }
         }
     }
-
 
     .table-filter {
         padding-left: 8px !important;
@@ -1386,17 +1404,13 @@ table {
     
     .table-filter-menu {
         position: absolute;
-        // padding: 10px;
-
         right: 0;
-
         border-radius: 4px;
-        
         opacity: 1;
         z-index: 10;
 
-        // max-height: 200px;
         overflow: auto;
+        padding: 10px 0;
 
         ul {
             list-style-type: none;
@@ -1406,16 +1420,16 @@ table {
 
         li {
             margin: 0;
-            padding: 10px 20px;
+            padding: 8px 20px;
             cursor: pointer;
         }
     }
 
     thead .table-filter-menu {
-        top: calc(100% - 1px);
+        top: calc(100% + 1px);
     }
     tfoot .table-filter-menu {
-        bottom: calc(100% - 1px);
+        bottom: calc(100% + 0px);
     }
 }
 
@@ -1438,6 +1452,20 @@ table {
 
     background-color: var(--table-background-color-light);
     color: var(--table-text-color-light);
+
+    .table-parent, .table-filter-menu {
+        &::-webkit-scrollbar-track {
+            background: var(--table-background-color-light) ; // #f1f1f1;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--table-background-color-light-active) ; // #888;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: var(--table-background-color-light-hover) ; // #555;
+        }
+    }
 
     table {
         &.divider {
@@ -1553,12 +1581,15 @@ table {
     .table-filter-input, .table-filter-button, .table-filter-menu { 
         border: 1px solid var(--table-border-color-light);
     }
-    .table-filter-menu ul {
+    .table-filter-menu {
         background-color: var(--table-background-color-light);
-            
-            li:hover, li.table-filter-active {
-                background-color: var(--table-border-color-light);
-            }
+
+        li.table-filter-active {
+            background-color: var(--table-background-color-light-active);
+        }
+        li:hover {
+            background-color: var(--table-background-color-light-hover);
+        }
     }
 
 }
@@ -1566,6 +1597,20 @@ table {
 .table-wrapper.theme--dark {
     background-color: var(--table-background-color-dark);
     color: var(--table-text-color-dark);
+
+    .table-parent, .table-filter-menu {
+        &::-webkit-scrollbar-track {
+            background: var(--table-background-color-dark) ; 
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--table-background-color-dark-active) ; 
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: var(--table-background-color-dark-hover) ; 
+        }
+    }
 
     table {
         &.divider {
@@ -1675,18 +1720,21 @@ table {
             }
         }
 
-        .table-filter-input, .table-filter-button, .table-filter-menu { 
-            border: 1px solid var(--table-border-color-dark);
-            // border: 1px solid var(--table-border-color-dark);
-        }
-        .table-filter-menu ul {
-            background-color: var(--table-background-color-dark);
+    }
 
-            li:hover, li.table-filter-active {
-                background-color: var(--table-border-color-dark);
-            }
-        }
+    .table-filter-input, .table-filter-button, .table-filter-menu { 
+        border: 1px solid var(--table-border-color-dark);
+        // border: 1px solid var(--table-border-color-dark);
+    }
+    .table-filter-menu {
+        background-color: var(--table-background-color-dark);
 
+        li.table-filter-active {
+            background-color: var(--table-background-color-dark-active);
+        }
+        li:hover {
+            background-color: var(--table-background-color-dark-hover);
+        }
     }
 }
 

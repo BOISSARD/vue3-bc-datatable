@@ -226,7 +226,7 @@ export const filtersLabels = {
 export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: (keyof typeof filtersLabels)[] } = {
     "boolean": ["No filter", "True", "False", ],
     "number": ["No filter", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
-    "string": ["No filter", "Equals", "Not equals", "True", "False", "Contains", "Doesn't Contain", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex", ],
+    "string": ["No filter", "Contains", "Doesn't Contain", "Equals", "Not equals", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex",  "True", "False" ],
     "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
     "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
 }
