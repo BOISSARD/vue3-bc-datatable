@@ -304,6 +304,8 @@ import {
     StyleProps,
 DatatableDividers,
 DatatableColumnSort,
+DatatableColumnFilter,
+filtersLabels,
 } from ".";
 import RerenderChecker from "./rerender-checker.vue"
 // #endregion
@@ -478,8 +480,11 @@ const getRows = computed(() => {
 
     // /***   Filtre les élements suivant les filtres
     console.log(`${props.identifiant} getRows, filters :`, filtering.value)
-    // retour = retour.filter((r) => {
-    // });
+    retour = retour.filter((r) => {
+        let retour = Object.entries(filtering.value).every(([col, filter]: [string, DatatableColumnFilter]) => filtersLabels[filter.method](r[col], filter.value))
+        console.log(r, retour)
+        return retour
+    });
     // */
 
     // /***   Trie les élements dans l'ordre
@@ -562,8 +567,6 @@ const filtering = ref<DatatableFilter>({});
 watch(() => props.filters, () => {
     // console.log(`${props.identifiant} watch filters`, props.filters)
     filtering.value = props.filters ? cloneDeep(props.filters) : {}
-
-    console.log(`${props.identifiant} watch filters`, filtering.value["name"])
 }, { deep: true, immediate: true })
 
 function updateFilters(column: DatatableColumn, action: "value" | "method", value: any) {

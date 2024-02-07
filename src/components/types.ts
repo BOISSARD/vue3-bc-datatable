@@ -178,14 +178,14 @@ export const filtersFunctions = {
     },
 
     includes(value, comparison) {
-        return comparison.includes(value)
+        return value.includes(comparison)
     },
 
     sw(value, comparison: string) {
-        return comparison.startsWith(value)
+        return value.startsWith(comparison)
     },
     ew(value, comparison: string) {
-        return comparison.endsWith(value)
+        return value.endsWith(comparison)
     },
 
     ct(value, comparison: string) {
