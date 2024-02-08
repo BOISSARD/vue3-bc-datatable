@@ -71,7 +71,7 @@
 <h2 id="tabSimple">Simple datatable <input type="checkbox" v-model="tabSimple"></h2>
 <div v-if="tabSimple">
 	<Datatable v-if="true"
-		tableStyle="text-align: rightt; max-height: 350px;"
+		tableStyle="text-align: rightt; height: 450px;"
 
 		identifiant="tabSimple"
 		title="Tableau Simple"
@@ -236,7 +236,7 @@ const search = ref("")
 // const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const sorted = ref<DatatableSort>({ 'calories': { desc: true, position: 1 }, 'fat': { desc: true } })
 // const filters = ref<DatatableFilter>([{ column: "name", method: "Equals", value: "ea" }])
-const filters = ref<DatatableFilter>({ 'name': { method: "Contains", value: "ea" }, 'carbs': { method: "Greater Than", value: 40 } }) // "Greather Than or Equal"
+const filters = ref<DatatableFilter>({ 'name': { method: "Contains", value: "" }, 'carbs': { method: "Greater Than", value: "" } }) // "Greather Than or Equal"
 const expanded = ref({ 'calories': ['Lollipop'], 'fat': ['Gingerbread'] })
 const selected = ref<DatatableSelection>(["Eclair", "Donut", "Cupcake"])
 

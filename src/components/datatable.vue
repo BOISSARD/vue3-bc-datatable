@@ -302,10 +302,13 @@ import {
     DatatableSort,
     DatatableSticky,
     StyleProps,
-DatatableDividers,
-DatatableColumnSort,
-DatatableColumnFilter,
-filtersLabels,
+    DatatableDividers,
+    DatatableColumnSort,
+    DatatableColumnFilter,
+    filtersLabels,
+    filtersLabelsForTypes,
+    defaultFilterForType,
+    DatatableFilterLabel
 } from ".";
 import RerenderChecker from "./rerender-checker.vue"
 // #endregion
@@ -480,10 +483,17 @@ const getRows = computed(() => {
 
     // /***   Filtre les élements suivant les filtres
     retour = retour
-        .filter((r) => Object
+        .filter((r) => { 
+            console.log("==================", r.name, "\n", r)
+            let retour = Object
             .entries(filtering.value)
-            .every(([col, filter]: [string, DatatableColumnFilter]) => filtersLabels[filter.method](r[col], filter.value))
-        )
+            .every(([col, filter]: [string, DatatableColumnFilter]) => {
+                console.log(col, filter, filtersLabels[filter.method], filter.value, filtersLabels[filter.method]?.(r[col], filter.value), filtersLabels[filter.method]?.(r[col], filter.value) ?? true)
+                return filtersLabels[filter.method]?.(r[col], filter.value) ?? true
+            })
+            console.log(r.name, ":", retour)
+            return retour
+        })
     // */
 
     // /***   Trie les élements dans l'ordre
@@ -561,25 +571,38 @@ function format(
 //#endregion    ###     CELLS       ###
 
 //#region       ###     FILTER      ###
+const valueTypeByColumn = computed<{ [col: string]: string }>(() => Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType(props.rows.map(r => r[c.property])) ]) )) )
+
 const filtering = ref<DatatableFilter>({});
 
 watch(() => props.filters, () => {
-    // console.log(`${props.identifiant} watch filters`, props.filters)
-    filtering.value = props.filters ? cloneDeep(props.filters) : {}
+    console.log(`${props.identifiant} watch filters`, props.filters)
+    // filtering.value = props.filters ? cloneDeep(props.filters) : {}
+    let filters = props.filters ? cloneDeep(props.filters) : {}
+    for(let col of getColumns.value) {
+        if (col.filter && filters[col.id] == undefined) {
+            // console.log(col.id, getDefault(valueTypeByColumn.value[col.id]) )
+            filters[col.id] = { value: null, method: getDefault(valueTypeByColumn.value[col.id]) }
+        }
+    }
+    filtering.value = filters
 }, { deep: true, immediate: true })
 
-function updateFilters(column: DatatableColumn, action: "value" | "method", value: any) {
-    console.log(`${props.identifiant} updateFilters`, action, value, column)
-    filtering.value[column.id][action] = value
+function getFilters(type) {
+    return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
+}
+function getDefault(type): DatatableFilterLabel {
+    console.log("getDefault", type, defaultFilterForType[type], defaultFilterForType[type] ?? "No filter")
+    return defaultFilterForType[type] ?? "No filter"
 }
 
-const valueTypeByColumn = computed<{ [col: string]: string }>(() => {
-    let retour = Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType(props.rows.map(r => r[c.property])) ]) ))
-    console.log("valueTypeByColumn", retour)
-    //getCommonType
-    return retour
-})
-
+function updateFilters(column: DatatableColumn, action: "value" | "method", value: any) {
+    if (action === "value") {
+        filtering.value[column.id][action] = value
+    } else if (action === "method") {
+        filtering.value[column.id][action] = value.label
+    }
+}
 //#endregion    ###     FILTER      ###
 
 //#region       ###     SORT     ###
@@ -1034,6 +1057,7 @@ const getThis = computed(() => {
         // filter
         // filters: filtering.value,// filtering,
         filtering,
+        getFilters,
         updateFilters,
         valueTypeByColumn,
         // expanse

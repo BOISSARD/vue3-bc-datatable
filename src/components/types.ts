@@ -1,3 +1,5 @@
+import { normalize as normalizeString } from "../utils/string"
+
 //#region Generic
 type GenericOrDictOfGeneric<T> = T | { [key: string]: GenericOrDictOfGeneric<T> }
 
@@ -146,7 +148,9 @@ export const filtersFunctions = {
     },
 
     eq(value, comparison) {
-        if (typeof value === "number") return value === comparison
+        if (filtersFunctions.in(comparison) || comparison === "") return true
+
+        if (typeof value === "number") return value == comparison
         
         throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
@@ -178,6 +182,11 @@ export const filtersFunctions = {
     },
 
     includes(value, comparison) {
+        if (filtersFunctions.in(comparison) || comparison === "") return true
+
+        if (typeof value === "string" && typeof comparison === "string")
+            return normalizeString(value).includes(normalizeString(comparison))
+
         return value.includes(comparison)
     },
 
@@ -223,12 +232,20 @@ export const filtersLabels = {
 
     "Corresponds Regex": (...args) => filtersFunctions.ct(...args),
 }
-export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: (keyof typeof filtersLabels)[] } = {
+export type DatatableFilterLabel = keyof typeof filtersLabels
+export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: DatatableFilterLabel[] } = {
     "boolean": ["No filter", "True", "False", ],
     "number": ["No filter", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
     "string": ["No filter", "Contains", "Doesn't Contain", "Equals", "Not equals", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex",  "True", "False" ],
     "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
     "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
+}
+export const defaultFilterForType: { [key in DatatableFilterValueType]?: DatatableFilterLabel } = {
+    // "boolean": "No filter",
+    "number": "Equals",
+    "string": "Contains",
+    "object": "No filter",
+    // "Date": "Equals"
 }
 //#endregion
 

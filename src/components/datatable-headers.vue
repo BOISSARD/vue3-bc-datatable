@@ -80,8 +80,8 @@
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="table-filter"
+                                @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
                             >
-                                <!-- @mouseleave="hideFiltersMenu(table.generateKey(component, column))" -->
                                 <div>
                                     <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', $event.target.value)" >
                                     <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
@@ -92,7 +92,7 @@
                                     <!-- {{ displayedFiltersMenu || "nullish" }} {{ table.generateKey(component, column) || "nullish" }} -->
                                     <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
                                             <ul>
-                                            <li v-for="(method, label) in getFilters(table.valueTypeByColumn.value[column.id])" 
+                                            <li v-for="(method, label) in table.getFilters(table.valueTypeByColumn.value[column.id])" 
                                                 @click="table.updateFilters(column, 'method', {label, method})" 
                                                 :class="[ { 'table-filter-active': table.filtering.value[column.id]?.method === label } ]" 
                                             >{{ label }}</li>
@@ -162,14 +162,8 @@ function hideFiltersMenu(buttonName: string) {
     // console.log("hideFiltersMenu", buttonName, displayedFiltersMenu.value)
     displayedFiltersMenu.value = ""
 }
-function filterChoice(filter, column) {
-    console.log("filterChoice", filter, column)
-}
 
 
-function getFilters(type) {
-    return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
-}
 const filterMenuHeight = computed(() => {
     return props.table.wrapper.value?.clientHeight * 0.75
 })
