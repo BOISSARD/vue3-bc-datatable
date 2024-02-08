@@ -479,12 +479,11 @@ const getRows = computed(() => {
     //     }); // */
 
     // /***   Filtre les élements suivant les filtres
-    console.log(`${props.identifiant} getRows, filters :`, filtering.value)
-    retour = retour.filter((r) => {
-        let retour = Object.entries(filtering.value).every(([col, filter]: [string, DatatableColumnFilter]) => filtersLabels[filter.method](r[col], filter.value))
-        console.log(r, retour)
-        return retour
-    });
+    retour = retour
+        .filter((r) => Object
+            .entries(filtering.value)
+            .every(([col, filter]: [string, DatatableColumnFilter]) => filtersLabels[filter.method](r[col], filter.value))
+        )
     // */
 
     // /***   Trie les élements dans l'ordre
@@ -571,6 +570,7 @@ watch(() => props.filters, () => {
 
 function updateFilters(column: DatatableColumn, action: "value" | "method", value: any) {
     console.log(`${props.identifiant} updateFilters`, action, value, column)
+    filtering.value[column.id][action] = value
 }
 
 const valueTypeByColumn = computed<{ [col: string]: string }>(() => {
