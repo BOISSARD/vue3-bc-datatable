@@ -131,7 +131,7 @@ export type DatatableGroup = Array<DatatableColumnGroup>
 //#region Filter
 export class DatatableColumnFilter {
     // column?: string
-    method?: null | (keyof filtersLabels) = "Equals" // | Function = (a: DatatableCell , b: DatatableCell ) => a == b
+    method?: null | (keyof typeof filtersLabels) = "Equals" // | Function = (a: DatatableCell , b: DatatableCell ) => a == b
     value?: any
     expansion?: null | DatatableFilter
 }
@@ -140,97 +140,124 @@ export type DatatableFilter = Function |  { [column: string]: DatatableColumnFil
 export type DatatableFilterValueType = null | "boolean" | "number" | "string" | "Date" | "object"
 export const filtersFunctions = {
     
-    it(value) {
+    it(value: unknown) {
         return !!value
     },
-    in(value) {
+    in(value: unknown) {
         return value === null || value === undefined
     },
 
-    eq(value, comparison) {
-        if (filtersFunctions.in(comparison) || comparison === "") return true
+    eq(value: unknown, comparison: unknown) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
 
-        if (typeof value === "number") return value == comparison
+        // if (typeof value === "number") 
+        return value == comparison
         
         throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
-    gt(value, comparison) {
+    gt(value: unknown, comparison: any) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
         if (typeof value === "number") return value > comparison
         
         throw new Error(`"Greate Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
-    ge(value, comparison) {
+    ge(value: unknown, comparison: any) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
         if (typeof value === "number") return value >= comparison
         
         throw new Error(`"Greater Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
-    lt(value, comparison) {
+    lt(value: unknown, comparison: any) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
         if (typeof value === "number") return value < comparison
         
         throw new Error(`"Less Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
-    le(value, comparison) {
+    le(value: unknown, comparison: any) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
         if (typeof value === "number") return value <= comparison
         
         throw new Error(`"Less Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
-    be(value, min, max) {
+    be(value: unknown, min: number, max: number) {
+        // if (filtersFunctions.in(min) || min === "" || filtersFunctions.in(max) || max === "") return true
+
         return filtersFunctions.ge(value, min) && filtersFunctions.le(value, max)
     },
 
-    includes(value, comparison) {
-        if (filtersFunctions.in(comparison) || comparison === "") return true
+    includes(value: unknown, comparison: unknown) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
 
         if (typeof value === "string" && typeof comparison === "string")
             return normalizeString(value).includes(normalizeString(comparison))
 
-        return value.includes(comparison)
+        throw new Error(`"Includes"/"Contains" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
-    sw(value, comparison: string) {
-        return value.startsWith(comparison)
-    },
-    ew(value, comparison: string) {
-        return value.endsWith(comparison)
-    },
+    sw(value: unknown, comparison: string) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
 
-    ct(value, comparison: string) {
+        if (typeof value === "string" && typeof comparison === "string")
+            return normalizeString(value).startsWith(normalizeString(comparison))
+    
+        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },
+    ew(value: unknown, comparison: string) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
+        if (typeof value === "string" && typeof comparison === "string")
+            return normalizeString(value).endsWith(normalizeString(comparison))
+
+        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+    },    
+
+    match(value: unknown, comparison: string) {
+        // if (filtersFunctions.in(comparison) || comparison === "") return true
+
         throw new Error("Match Regex not implemented")
+        console.log("ct", value, comparison)
     },
 
+}
+function filterComparisonIsDefined(comparison) {
+    return comparison !== null && comparison !== undefined && comparison !== ""
 }
 export const filtersLabels = {
     "No filter": null, //() => true,
     
-    "True": (...args) => filtersFunctions.it(...args),
-    "False": (...args) => !filtersFunctions.it(...args),
+    "True": (...args: any[]) => filtersFunctions.it(args[0]),
+    "False": (...args: any[]) => !filtersFunctions.it(args[0]),
 
-    "Equals": (...args) => filtersFunctions.eq(...args),
-    "Not equals": (...args) => !filtersFunctions.eq(...args),
+    "Equals": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.eq(args[0], args[1]) : true,
+    "Not equals": (...args: any[]) => filterComparisonIsDefined(args[1]) ? !filtersFunctions.eq(args[0], args[1]) : true,
 
-    "Greater Than": (...args) => filtersFunctions.gt(...args),
-    "Greater Than or Equal": (...args) => filtersFunctions.ge(...args),
+    "Greater Than": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.gt(args[0], args[1]) : true,
+    "Greater Than or Equal": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.ge(args[0], args[1]) : true,
 
-    "Less Than": (...args) => filtersFunctions.lt(...args),
-    "Less Than or Equal": (...args) => filtersFunctions.le(...args),
+    "Less Than": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.lt(args[0], args[1]) : true,
+    "Less Than or Equal": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.le(args[0], args[1]) : true,
 
-    "Between": (...args) => filtersFunctions.be(...args),
+    "Between": (...args: any[]) => filterComparisonIsDefined(args[1]) && filterComparisonIsDefined(args[2]) ? filtersFunctions.be(args[0], args[1], args[2]) : true,
 
-    "Is Null": (...args) => filtersFunctions.in(...args),
-    "Not Null": (...args) => !filtersFunctions.in(...args),
+    "Is Null": (...args: any[]) => filtersFunctions.in(args[0]),
+    "Not Null": (...args: any[]) => !filtersFunctions.in(args[0]),
 
-    "Contains": (...args) => filtersFunctions.includes(...args),
-    "Doesn't Contain": (...args) => !filtersFunctions.includes(...args),
+    "Contains": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.includes(args[0], args[1]) : true,
+    "Doesn't Contain": (...args: any[]) => filterComparisonIsDefined(args[1]) ? !filtersFunctions.includes(args[0], args[1]) : true,
 
-    "Starts With": (...args) => filtersFunctions.sw(...args),
-    "Doesn't start With": (...args) => !filtersFunctions.sw(...args),
-    "Ends With": (...args) => filtersFunctions.ew(...args),
-    "Doesn't end With": (...args) => !filtersFunctions.ew(...args),
+    "Starts With": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.sw(args[0], args[1]) : true,
+    "Doesn't start With": (...args: any[]) => filterComparisonIsDefined(args[1]) ? !filtersFunctions.sw(args[0], args[1]) : true,
+    "Ends With": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.ew(args[0], args[1]) : true,
+    "Doesn't end With": (...args: any[]) => filterComparisonIsDefined(args[1]) ? !filtersFunctions.ew(args[0], args[1]) : true,
 
-    "Corresponds Regex": (...args) => filtersFunctions.ct(...args),
+    "Corresponds Regex": (...args: any[]) => filterComparisonIsDefined(args[1]) ? filtersFunctions.match(args[0], args[1]) : true,
 }
 export type DatatableFilterLabel = keyof typeof filtersLabels
 export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: DatatableFilterLabel[] } = {
