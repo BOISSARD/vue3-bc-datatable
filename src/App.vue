@@ -287,7 +287,7 @@ function countBy(array, iteratee = val => val) {
 
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: any }
 const items = ref<Array<Item>>([
-	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false, date: new Date(1997, 11, 31, 22) }, // , style: { height: "100px", border: "thin solid red" }
+	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" } // , date: new Date(1997, 11, 31, 22)
 	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true, date: new Date(1993, 3, 9, 12) },
 	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false, date: new Date(2001, 2, 17, 17) },
 	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, date: new Date(2023, 8, 3, 4), dividerTop: true, dividerBottom: true },

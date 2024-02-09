@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUpdated, watch } from 'vue'
+import { onMounted, onUpdated } from 'vue'
 
 const props = withDefaults(defineProps<{
     id?: string,

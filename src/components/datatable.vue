@@ -571,12 +571,12 @@ function format(
 //#endregion    ###     CELLS       ###
 
 //#region       ###     FILTER      ###
-const valueTypeByColumn = computed<{ [col: string]: string }>(() => Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType(props.rows.map(r => r[c.property])) ]) )) )
+const valueTypeByColumn = computed<{ [col: string]: string }>(() => Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType( props.rows.map(r => r[c.property]) ) ]) )) )
 
 const filtering = ref<DatatableFilter>({});
 
 watch(() => props.filters, () => {
-    console.log(`${props.identifiant} watch filters`, props.filters)
+    // console.log(`${props.identifiant} watch filters`, props.filters)
     // filtering.value = props.filters ? cloneDeep(props.filters) : {}
     let filters = props.filters ? cloneDeep(props.filters) : {}
     for(let col of getColumns.value) {
@@ -589,10 +589,11 @@ watch(() => props.filters, () => {
 }, { deep: true, immediate: true })
 
 function getFilters(type) {
+    // console.log("getFilters", type, filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]) )
     return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
 }
 function getDefault(type): DatatableFilterLabel {
-    console.log("getDefault", type, defaultFilterForType[type], defaultFilterForType[type] ?? "No filter")
+    // console.log("getDefault", type, defaultFilterForType[type], defaultFilterForType[type] ?? "No filter")
     return defaultFilterForType[type] ?? "No filter"
 }
 
@@ -1001,7 +1002,6 @@ const getRowHeightFromDensity = computed(() => {
 
 const table = ref()
 const tableWrapper = ref()
-console.log(table.value)
 //#endregion    ###     DESIGN      ###
 
 //#region       ###     GENERIC       ###

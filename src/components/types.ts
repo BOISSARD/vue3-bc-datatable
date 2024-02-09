@@ -137,7 +137,7 @@ export class DatatableColumnFilter {
 }
 export type DatatableFilter = Function |  { [column: string]: DatatableColumnFilter } // Array<DatatableColumnFilter>
 
-export type DatatableFilterValueType = null | "boolean" | "number" | "string" | "Date" | "object"
+export type DatatableFilterValueType = null | "boolean" | "number" | "string" | "Date" | "object" | "Array"
 export const filtersFunctions = {
     
     it(value: unknown) {
@@ -149,10 +149,13 @@ export const filtersFunctions = {
 
     eq(value: unknown, comparison: unknown) {
         // if (filtersFunctions.in(comparison) || comparison === "") return true
+        
+        if (typeof value === "string" && typeof comparison === "string")
+            return normalizeString(value) == normalizeString(comparison)
 
         // if (typeof value === "number") 
-        return value == comparison
-        
+            return value == comparison
+
         throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
     },
 
@@ -266,12 +269,13 @@ export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: Datatab
     "string": ["No filter", "Contains", "Doesn't Contain", "Equals", "Not equals", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex",  "True", "False" ],
     "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
     "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
+    "Array": ["No filter"]
 }
 export const defaultFilterForType: { [key in DatatableFilterValueType]?: DatatableFilterLabel } = {
     // "boolean": "No filter",
     "number": "Equals",
     "string": "Contains",
-    "object": "No filter",
+    // "object": "No filter",
     // "Date": "Equals"
 }
 //#endregion

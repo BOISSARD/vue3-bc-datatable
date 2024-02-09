@@ -1,22 +1,32 @@
 
 export function getType(item: unknown) {
-    if (item === null) return 'null';
-    if (Array.isArray(item)) return 'array';
+    if (item === null || item === undefined) return 'null';
+    if (Array.isArray(item)) return 'Array';
     if (item instanceof Date) return 'Date';
     if (typeof item === 'object') return 'object';
     return typeof item;
 }
    
 export function getCommonType(list) {
-    const types = list.map(getType);
-    const uniqueTypes = new Set(types);
+    const types = list.map(getType)
+    const uniqueTypes = new Set(types)
+  
   
     if (uniqueTypes.size === 1) {
-      return types[0]; // Tous les éléments ont le même type
+      // return types[0];
+      return [...uniqueTypes][0];
+    }
+
+    uniqueTypes.delete("null")
+  
+    // console.log("getCommonType", [...uniqueTypes][0])
+    if (uniqueTypes.size === 1) {
+      // return types[0];
+      return [...uniqueTypes][0];
     }
   
     // Logique pour déterminer le type commun dans une liste mixte
-    if (uniqueTypes.has('object') || uniqueTypes.has('array') || uniqueTypes.has('date')) {
+    if (uniqueTypes.has('object') || uniqueTypes.has('Array') || uniqueTypes.has('Date')) {
       return 'object';
     }
 
