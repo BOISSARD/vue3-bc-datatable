@@ -60,7 +60,7 @@
                         'density-comfortable': density === 'comfortable', 
                         'density-compact': density === 'compact', 
                         divider: hasDivider(), 
-                        ...tableClass 
+                        ...tableClass as object
                     }" 
                     ref="table"
                 >
@@ -81,7 +81,7 @@
                     </DatatableHeaders>
 
                     <template v-if="loading">
-                        <tr class="table-progress" :style="{ ...getSticky('thead') }">
+                        <tr class="table-progress" :style="{ ...getSticky('thead') as object }">
                             <td :colspan="getColumns.length">
                                 <slot name="progress" :loading="loading" :dark="dark" :density="density">
                                     <div class="table-progress-bar">
@@ -98,7 +98,7 @@
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
 
-                                <tr :style="{ ...row.style }" :class="[ ...(row.class ?? []) ]">
+                                <tr :style="{ ...row.style as object }" :class="[ ...(row.class ?? []) ]">
                                     <slot :name="`row-${getId(row)}`" 
                                         :row="row" 
                                         :whatPropId="whatPropId"
@@ -127,7 +127,8 @@
                                                     :format="format" 
                                                     :expand="expanse"
                                                     :expandable="!!column.expansion"
-                                                    :expanded="getExpandedValue(column, row)" :value="format(column, row)"
+                                                    :expanded="getExpandedValue(column, row)" 
+                                                    :value="format(column, row)"
                                                 >
 
                                                     <slot :name="`cell-${column.id}-body`" 
@@ -148,7 +149,7 @@
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
                                                             :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
-                                                            :style="{ ...column.columnStyle, ...column.bodyStyle, ...getSticky(column), ...getRowHeightFromDensity }"
+                                                            :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(column), ...getRowHeightFromDensity }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
                                                             @update:selected="select(column, row, $event)"
@@ -172,7 +173,7 @@
 
                                 <tr v-for="({ expansion, column, length }, i) in Object
                                         .entries(getExpanded)
-                                        .map(([key, val]) => val[getId(row)] ? { expansion: key, column: getColumns.find((col) => col.id == key), row: val, } : null)
+                                        .map(([key, val]) => val[getId(row)] ? { expansion: key, column: getColumns.find((col) => col.id == key), row: val, length: undefined } : null)
                                         .filter((kv) => !!kv)
                                         .map((kv, _, arr) => { kv.length = arr.length; return kv; })
                                     " 
@@ -180,21 +181,28 @@
                                     :class="{ 'table-expansion-row': !hasExpansion(expansion), 'table-expansion-nested-row': hasExpansion(expansion), }"
                                 >
 
-                                    <slot :name="`row-${getId(row)}-expansion-${expansion}`" :row="row"
-                                        :whatPropId="whatPropId" :expanse="expanse" :displaying="getRows" :column="column"
-                                        :columns="getColumns">
+                                    <slot :name="`row-${getId(row)}-expansion-${expansion}`" 
+                                        :row="row" :whatPropId="whatPropId" 
+                                        :expanse="expanse" :displaying="getRows" 
+                                        :column="column" :columns="getColumns" 
+                                        :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" >
 
-                                        <slot :name="`rows-expansion-${expansion}`" :row="row" :whatPropId="whatPropId"
-                                            :expanse="expanse" :displaying="getRows" :column="column" :columns="getColumns">
+                                        <slot :name="`rows-expansion-${expansion}`" 
+                                            :row="row" :whatPropId="whatPropId"
+                                            :expanse="expanse" :displaying="getRows" 
+                                            :column="column" :columns="getColumns" 
+                                            :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" >
 
-                                            <slot :name="`rows-expansions`" :row="row" :whatPropId="whatPropId"
-                                                :expanse="expanse" :displaying="getRows" :column="column"
-                                                :columns="getColumns">
+                                            <slot :name="`rows-expansions`" 
+                                                :row="row" :whatPropId="whatPropId"
+                                                :expanse="expanse" :displaying="getRows" 
+                                                :column="column" :columns="getColumns"
+                                                :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" >
 
                                                 <td v-if="hasExpansion(expansion)" 
                                                     :colspan="getColumns.length" 
                                                     :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
-                                                    :style="{ ...getSticky(column) }"
+                                                    :style="{ ...getSticky(column) as object }"
                                                 >
                                                     <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'table-nested')" ></RerenderChecker>
                                                     <Datatable 
@@ -215,7 +223,7 @@
                                                     :colspan="getColumns.length" 
                                                     :class="[
                                                         { 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }, 
-                                                        //...(row.class ?? [])
+                                                        ...(row.class ?? [])
                                                     ]" 
                                                     :style="{ ...getSticky(column), ...getRowHeightFromDensity, }" 
                                                     :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" 
@@ -282,7 +290,7 @@
 
 <script setup lang="ts">
 //#region   Imports
-import { computed, ref, watch, isRef, isReactive, toRaw, unref } from "vue";
+import { computed, ref, watch, isRef, unref } from "vue";
 import { merge, cloneDeep } from "../utils/object";
 import { getCommonType } from "../utils/array";
 import {
@@ -308,7 +316,8 @@ import {
     filtersLabels,
     filtersLabelsForTypes,
     defaultFilterForType,
-    DatatableFilterLabel
+    DatatableFilterLabel,
+DatatableColumnSelection
 } from ".";
 import RerenderChecker from "./rerender-checker.vue"
 // #endregion
@@ -374,14 +383,13 @@ const props = withDefaults(
         displayFooter: false,
         // ** Design
         density: 'default',
-        dividers: true,
+        // dividers: () => ({ header: true,  }),
         tableStyle: () => ({}),
         tableClass: () => Array<string>(),
         // ** Features
         // ** Other
     }
 );
-// console.log(`${props.identifiant}`, props)
 // #endregion   ###     Props       ###
 
 //#region       ###    Events       ###
@@ -464,23 +472,6 @@ const getRows = computed(() => {
 
     let retour: Partial<DatatableRow>[] = [...rows.value];
 
-    // /***   Filtre les élements suivant la recherche
-    // if (props.search)
-    //     retour = retour.filter((r) => {
-    //         let includeFilter = false;
-    //         for (let col of getColumns.value) {
-    //             if (col.filter) {
-    //                 if (typeof col.filter === "function") {
-    //                     includeFilter = col.filter(props.search, r[col.id]);
-    //                 } else if (r[col.id]) {
-    //                     includeFilter = `${r[col.id]}`.match(new RegExp(props.search, "i"));
-    //                 }
-    //                 if (includeFilter) return true;
-    //             }
-    //         }
-    //         return false;
-    //     }); // */
-
     // /***   Filtre les élements suivant les filtres
     retour = retour
         .filter((r) => { 
@@ -537,12 +528,12 @@ const getRows = computed(() => {
 
 //#region       ###     CELLS       ###
 function format(
-    column: DatatableColumn,
-    rowOrRows: DatatableRow | DatatableRow[],
+    column: Partial<DatatableColumn>,
+    rowOrRows: Partial<DatatableRow> | Partial<DatatableRow>[],
     position: "body" | "header" | "footer" | "expansion" = "body"
 ) {
     let formating = column[position];
-    // console.log(`${props.identifiant} format :`, column, position, column?.value?.[position])
+    // console.log(`${props.identifiant} format :`, column, position, formating)
     // if(position !== "body") console.log(`format ${props.identifiant} :`, position, column, formating, rowOrRows)
     if (typeof formating?.text !== "function") return formating?.text;
     // return "format ERROR"
@@ -555,7 +546,7 @@ function format(
         case "expansion":
             // if (position == "expansion")  console.log(column, rowOrRows, position, formating)
             // console.log(`${props.identifiant} format :`, position, data)
-            args.push(data[formating?.property ?? column?.property]);
+            args.push(data[(formating as any)?.property ?? column?.property]);
             args.push(data);
             break;
         default:
@@ -571,7 +562,7 @@ function format(
 //#endregion    ###     CELLS       ###
 
 //#region       ###     FILTER      ###
-const valueTypeByColumn = computed<{ [col: string]: string }>(() => Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType( props.rows.map(r => r[c.property]) ) ]) )) )
+const valueTypeByColumn = computed<{ [col: string]: any }>(() => Object.fromEntries(getColumns.value.map(c => ([c.id, getCommonType( props.rows.map(r => r[c.property]) ) ]) )) )
 
 const filtering = ref<DatatableFilter>({});
 
@@ -603,6 +594,7 @@ function updateFilters(column: DatatableColumn, action: "value" | "method", valu
     } else if (action === "method") {
         filtering.value[column.id][action] = value.label
     }
+    emit("update:filters", filtering.value);
 }
 //#endregion    ###     FILTER      ###
 
@@ -643,13 +635,13 @@ function watchSortAndMultiSort() {
 watch(
     [() => props.sorts, () => props.multiSort],
     (
-        [newSort, newMultiSort]: [DatatableSort, boolean],
-        [oldSort, oldMultiSort]: [DatatableSort, boolean]
+        [_, newMultiSort]: [DatatableSort, boolean],
+        [__, oldMultiSort]: [DatatableSort, boolean]
     ) => {
         // console.log(`${props.identifiant} watch sorts & multisort`, props.sorts, props.multiSort, [newSort, newMultiSort], [oldSort, oldMultiSort])
         watchSortAndMultiSort();
         if (oldMultiSort !== undefined && oldMultiSort !== newMultiSort) {
-            emit("update:sorts", sorting);
+            emit("update:sorts", sorting.value);
         }
     },
     { deep: true, immediate: true }
@@ -901,7 +893,7 @@ function selectAll(column: DatatableColumn, event: Event) {
     emit("update:select", selecting.value);
 }
 
-function select(column: DatatableColumn, row: DatatableRow, event: Event) {
+function select(column: Partial<DatatableColumn>, row: Partial<DatatableRow>, event: Event) {
     console.log(`${props.identifiant} select`, column.id, getId(row), event);
     if (selectIsOnlyOfStrings(selecting.value)) {
         let index = selecting.value.indexOf(getId(row));
@@ -943,8 +935,6 @@ function getSticky(
         position?: string
         bottom?: number | string
         top?: number | string
-        right?: number | string
-        left?: number | string
         zIndex?: number
     } = {}
     // console.log(`getSticky ${identifiant}`, position)
@@ -972,7 +962,7 @@ function getSticky(
     return retour
 }
 
-function hasDivider(row: undefined | 'tbody' | 'thead' | 'tfoot' | DatatableRow, position: 'top' | 'bottom') {
+function hasDivider(row?: 'tbody' | 'thead' | 'tfoot' | DatatableRow) { // , position: 'top' | 'bottom'
     if(props.dividers === true) return true
     if(typeof props.dividers === "object" && props.dividers) {
         if (!row && props.dividers.header && props.dividers.body && props.dividers.footer) return true // Cas de la table
@@ -1017,7 +1007,7 @@ function getId(row: DatatableRow | Partial<DatatableRow>) {
     return (row[whatPropId.value] as string).replace(/[\W_]+/g, "_")
 }
 
-function generateKey(row: DatatableRow, column: DatatableColumn) {
+function generateKey(row: string | Partial<DatatableRow>, column: string | Partial<DatatableColumn>) {
     // console.log(`${props.identifiant} generateKey :`, row, column)
     // if(typeof row === "string")
     let id = typeof row === "string" ? row : getId(row)

@@ -28,8 +28,8 @@ export class DatatableColumn {
     id?: null | ID // l'id de la colonne
     property?: null | string // la propriété de chaque row à utiliser dans la cellule
     
-    header: DatatableColumnCellOptions = { displaySort: true, displayExpanse: true, displaySelect: true, /*header: true*/ } // options de la cellule de la colonne dans le header
-    footer: DatatableColumnCellOptions = { displaySort: false, displayExpanse: false, displaySelect: false, /*header: true*/ } // options de la cellule de la colonne dans le header
+    header: DatatableColumnCellOptions = { displaySort: true, displayExpanse: true, displaySelect: true} // options de la cellule de la colonne dans le header
+    footer: DatatableColumnCellOptions = { displaySort: false, displayExpanse: false, displaySelect: false } // options de la cellule de la colonne dans le header
     body: DatatableColumnCellOptions = { text: (val : string | number) => val, displaySelect: true, displayExpanse: true } // options des cellules de la colonne dans le body
 
     columnStyle: StyleProps = {} // le style pour toute la colonne
@@ -96,13 +96,14 @@ export type DatatableCell = string | number | boolean | Date | Object | Array<an
 //#endregion
 
 //#region Rows
-export type DatatableRow = {
+// export type DatatableRow = {
+export class DatatableRow {
     [property: string]: DatatableCell | {
         value: DatatableCell,
         rows: Array<DatatableRow>
-    },
-    style?: StyleProps,
-    class?: ClassProps,
+    }
+    style: StyleProps = {}
+    class: ClassProps = []
 }
 // let test: DatatableRow = { yolo:"yolo", nb: 125, test: false, embeded: { value: 12, rows: [{ sub:"row", val: 89 }] } }
 //#endregion
@@ -302,7 +303,7 @@ export type DatatableSticky = { header: boolean, footer: boolean }
 //#endregion
 
 //#region Dividers
-export type DatatableDividers = { header?: boolean, footer?: boolean, body?: boolean } | boolean
+export type DatatableDividers = boolean | { header?: boolean | string, footer?: boolean | string, body?: boolean | string }
 //#endregion 
 
 //#region Pagination

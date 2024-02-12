@@ -120,7 +120,7 @@
 	:dark="dark"
 	:loading="loading"
 	:stick="{ header: true, footer: true }"
-	:dividers="{ header: 'thick double #32a1ce' }"
+	:dividers="{ header: 'thick double red' }"
 	
 	:debug="debug"
 
@@ -168,16 +168,16 @@
 	
 	<!-- <template #body="{ displaying, columns }"><tr><td :colspan="columns.length" style="background-color: initial;">{{ displaying }}</td></tr></template> -->
 
-	<template #row-Lollipop="{ row, columns, class: classes, style }"><td colspan="2" style="text-align: center;" :style="{ ...style, fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" :class="classes">{{ row }}</td></template>
+	<template #row-Lollipop="{ row, columns }"><td colspan="2" style="text-align: center;" :style="{ fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" >{{ row }}</td></template>
 
-	<template #cell-iron="{ row, value, column, class: classes, style }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)', ...style }" :class="classes">{{ value }} %</td></template>
-	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand, class: classes, style }"><th style="text-align: right; cursor: pointer" :style="style" :class="classes" @click="expand(expanded, column, row)">{{ value }} g</th></template>
+	<template #cell-iron="{ row, value, column }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)' }" >{{ value }} %</td></template>
+	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand }"><th style="text-align: right; cursor: pointer" @click="expand(expanded, column, row)">{{ value }} g</th></template>
 
-	<template #rows-expansions="{ column, columns, class: classes, style }"><td colspan="1">Expansion :</td><td :colspan="columns.length -1" style="text-align: right;" :style="style" :class="classes"> {{ column }}</td></template>
-	<template #rows-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightcyan;" :style="style" :class="classes">expansion CARBS</td></template>
-	<template #row-Eclair-expansion-carbs="{ columns, class: classes, style }"><td :colspan="columns.length" style="text-align: center; background-color: lightgoldenrodyellow;" :style="style" :class="classes">expansion CARBS pour l'ECLAIR</td></template>
+	<template #rows-expansions="{ column, columns }"><td colspan="1">Expansion :</td><td :colspan="columns.length -1" style="text-align: right;" > {{ column }}</td></template>
+	<template #rows-expansion-carbs="{ columns }"><td :colspan="columns.length" style="text-align: center; background-color: lightcyan;" >expansion CARBS</td></template>
+	<template #row-Eclair-expansion-carbs="{ columns }"><td :colspan="columns.length" style="text-align: center; background-color: lightgoldenrodyellow;" >expansion CARBS pour l'ECLAIR</td></template>
 
-	<template #no-data="{ columns, class: classes, style }"><td :colspan="columns.length" :style="{ ...style, textAlign: 'center' }" :class="classes">NO DATA</td></template>
+	<template #no-data="{ columns }"><td :colspan="columns.length" :style="{ textAlign: 'center' }">NO DATA</td></template>
 	
 	<template #footer-iron="{ value, class: classes, style }"><th :style="{...style, textAlign: 'left', backgroundColor: value > 25 ? 'rgba(244, 191, 191, 0.25)' : value > 10 ? 'rgba(255, 229, 196, 1)' : 'rgba(191, 246, 194, 1)' }" :class="classes">{{ value }} %</th></template>
 	<template v-slot:[`footer-category`]="{ class: classes, style }"><td colspan="2" style="box-sizing: border-box;border: 4px dashed blueviolet;" :style="style" :class="classes">Nothing here</td></template>
@@ -202,6 +202,8 @@
 
 	:debug="debug"
 
+	:dividers="true"
+
 	@expanded="console.log('@expanded',$event)"
 />
 
@@ -214,7 +216,7 @@
 import { ref, computed } from "vue"
 import moment from "moment"
 
-import { Datatable, DatatableCell, DatatableColumn, DatatableFilter, DatatableRow, DatatableSelection, DatatableSort } from "./components"
+import { Datatable, DatatableColumn, DatatableFilter, DatatableRow, DatatableSelection, DatatableSort } from "./components"
 
 const debug = ref(false)
 const densities = { "100": 100, "null": null, "default": "default", "compact": "compact", "comfortable": "comfortable" }
@@ -227,9 +229,9 @@ const hideCol = ref(false)
 
 const tabEmpty = ref(false)
 const tabMinimal = ref(false)
-const tabSimple = ref(true)
+const tabSimple = ref(false)
 const tabSloted = ref(false)
-const tabNested = ref(false)
+const tabNested = ref(true)
 
 //#region		Table with desserts
 const search = ref("")
@@ -317,7 +319,7 @@ function removeCol() {
 	headers.value.pop()
 }
 function addRow(){
-	let item: DatatableRow = {}
+	let item: DatatableRow = new DatatableRow()
 	headers.value.forEach(header => {
 		if (header.property == "name") item.name = 'Test-'+Math.random().toString(36).substring(2,7) 
 		else if(header.property) {
@@ -336,12 +338,16 @@ function removeRow() {
 	items.value.pop()
 }
 function displaying(event) {
-	// console.log(`Displaying ${event.length} rows :`, event?.length)
+	if(event) {	
+		// console.log(`Displaying ${event.length} rows :`, event?.length)
+	}
 }
 //#endregion	Table with desserts
 
 //#region		Nested Table
-const headersCredit = ref([
+import interets from "./interets.json";
+// @ts-ignore
+const headersCredit = ref<Array<DatatableColumn>>([
 	{
 		expansion: { 
 			global: true,
@@ -369,11 +375,11 @@ const headersCredit = ref([
 	{ property: "interet", header: { text: "Interets", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
 	{ property: "assurance", header: { text: "Assurance", justify: "center" }, headerStyle: { textAlign: "center" }, columnStyle: { width: "18%", }, body: { text: val => (val.toFixed(2) + " €"), justify: "end" }, bodyStyle: { textAlign: "right" }, },
 ])
-import interets from "./interets.json";
-const itemsCredit = computed(() => {
+const itemsCredit = computed<Array<DatatableRow>>(() => {
 	var years = {};
 	for(let interet of interets) {
 		let date = new Date(interet.date);
+		// @ts-ignore
 		interet.id = "annee" + date.getFullYear() + date.getMonth()
 		if (!years["annee" + date.getFullYear()])
 			years["annee" + date.getFullYear()] = {

@@ -41,7 +41,7 @@
                             v-bind="column[slotPrefix]"
 
                             :class="[...column.columnClass, column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                            :style="{...column.columnStyle, ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
+                            :style="{...column.columnStyle as object, ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
                             
                             :debug="table.debug"
 
@@ -80,11 +80,11 @@
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="table-filter"
-                                @mouseleave="hideFiltersMenu(table.generateKey(component, column))"
+                                @mouseleave="hideFiltersMenu()"
                             >
                                 <div>
-                                    <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', $event.target.value)" >
-                                    <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column), column)">
+                                    <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', ($event.target as any).value)" >
+                                    <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column))">
                                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
@@ -112,7 +112,7 @@
 <script setup lang='ts'>
 import { ref, computed, onMounted, watch } from 'vue';
 import DatatableCell from "./datatable-cell.vue"
-import { DatatableColumn, DatatableRow, DatatableSelection, filtersLabelsForTypes, filtersLabels } from './types';
+import { DatatableColumn, DatatableRow, DatatableSelection } from './types';
 import RerenderChecker from "./rerender-checker.vue"
 
 const props = defineProps<{
@@ -125,6 +125,8 @@ const props = defineProps<{
     displaying?: null | Partial<DatatableRow>[], // les Données du tableau
 
     select?: DatatableSelection,
+    
+    debug?: boolean,
 }>()
 
 const emit = defineEmits<{
@@ -145,21 +147,18 @@ if(props.debug) {
     onMounted(() => {
         console.log("onMounted headers", component.value, props.identifiant)
     })
-    watch(props.identifiant, () => {
+    watch(() => props.identifiant, () => {
         console.log("watch headers", component.value, props.identifiant)
     }, { immediate: true, deep: true })
 }
 // #endregion  ###     GENERIC       ###
 
 const displayedFiltersMenu = ref<string>("")
-function displayFiltersMenu(buttonName: string, column: any) {
-    // console.log("displayFiltersMenu", buttonName, column)
+function displayFiltersMenu(buttonName: string) {
     if(displayedFiltersMenu.value === buttonName) displayedFiltersMenu.value = ''
     else displayedFiltersMenu.value = buttonName
 }
-function hideFiltersMenu(buttonName: string) {
-    // return
-    // console.log("hideFiltersMenu", buttonName, displayedFiltersMenu.value)
+function hideFiltersMenu() {
     displayedFiltersMenu.value = ""
 }
 

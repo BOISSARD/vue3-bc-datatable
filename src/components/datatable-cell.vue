@@ -32,7 +32,7 @@
             </div>
 
             <div :cols="cols">
-                <slot>
+                <slot :value="value">
                     <div :style="{ display: 'flex', alignItems: align, justifyContent: justify }">
                         <div v-if="prefix" :style="{ flex: '0 0 auto', marginRight: '2px' }" >{{ prefix }}</div>
                         <div :cols="cols">{{ value }}</div>
@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 // #region Imports
-import { computed, onMounted, onUpdated, watch } from 'vue'
+import { computed } from 'vue'
 import { DatatableCell, DatatableColumnCellOptions } from './types'
 import RerenderChecker from "./rerender-checker.vue"
 // #endregion Imports
