@@ -11,22 +11,22 @@
         <div :style="{ display: 'flex', alignItems: align, justifyContent: justify }">
             <div v-if="expandable && displayExpanse"
                 :style="{ flex: '0 0 auto' }"
-                class="table-expansion"
+                class="bcdatatable-expansion"
             >
                 <svg v-if="typeof expanded === 'number' ? expanded >= 0 : expanded" 
                     @click="$emit('update:expanded', true)"
-                    xmlns="http://www.w3.org/2000/svg" viewBox="4 4 16 16" role="img" aria-hidden="true" class="table-expansion-icon" style="transform: rotate(-180deg);">
+                    xmlns="http://www.w3.org/2000/svg" viewBox="4 4 16 16" role="img" aria-hidden="true" class="bcdatatable-expansion-icon" style="transform: rotate(-180deg);">
                     <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
                 </svg>
                 <svg v-if="typeof expanded === 'number' ? expanded <= 0 : !expanded" 
                     @click="$emit('update:expanded', false)"
-                    xmlns="http://www.w3.org/2000/svg" viewBox="4 4 16 16" role="img" aria-hidden="true" class="table-expansion-icon">
+                    xmlns="http://www.w3.org/2000/svg" viewBox="4 4 16 16" role="img" aria-hidden="true" class="bcdatatable-expansion-icon">
                     <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"></path>
                 </svg>
             </div>
 
             <div v-if="selectable && displaySelect" :style="{ flex: '0 0 auto' }">
-                <!-- class="table-selection"
+                <!-- class="bcdatatable-selection"
                 :class="[{ 'divider-left': column.dividerLeft,  'divider-right': column.dividerRight }]" -->
                 <input type="checkbox" :checked="selected" @change="emit('update:selected', $event )" >                    
             </div>
@@ -44,19 +44,19 @@
             <div v-if="sortable && displaySort" 
                 :style="{ flex: '0 0 auto' }" 
                 @click.stop="$emit('update:sorted', 'sort')" 
-                class="table-sort"
+                class="bcdatatable-sort"
             >
                 <span 
-                    class="table-sort-icon" 
+                    class="bcdatatable-sort-icon" 
                     style="font-size: 18px; height: 18px; width: 18px;"
                 >
-                    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" class="table-sort-icon-svg" style="font-size: 18px; height: 18px; width: 18px;">
+                    <svg viewBox="0 0 24 24" role="img" aria-hidden="true" class="bcdatatable-sort-icon-svg" style="font-size: 18px; height: 18px; width: 18px;">
                         <path d="M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z"></path>
                     </svg>
                 </span>
                 <span v-if="typeof sorted === 'object' && sorted?.position" 
                     @click.stop="$emit('update:sorted', 'position')"
-                    class="table-sort-badge"
+                    class="bcdatatable-sort-badge"
                 >{{ sorted?.position}}</span>
             </div>
             

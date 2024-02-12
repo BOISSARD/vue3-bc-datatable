@@ -1,7 +1,7 @@
 {
   "name": "vue3-bc-datatable",
   "private": false,
-  "version": "0.0.0",
+  "version": "0.0.0-4",
   "type": "module",
   "repository": {
     "type": "git",
@@ -22,6 +22,10 @@
     ".": {
       "import": "./dist/vue3-bc-datatable.js",
       "require": "./dist/vue3-bc-datatable.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   },
   "types": "./dist/index.d.ts",
@@ -32,7 +36,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "vue": "3.2.25"
+    "vue": "^3.2.25"
   },
   "peerDependencies": {
     "vue": "^3.0.0"

@@ -41,20 +41,20 @@
     <div style="max-width: 100%" :class="{
         'theme--light': !dark,
         'theme--dark': dark,
-        'pa-4 elevation-1 rounded table-wrapper': !nested,
+        'pa-4 elevation-1 rounded bcdatatable-wrapper': !nested,
     }">
-        <div v-if="$slots.title || title" class="table-container-top">
-            <slot name="title" v-bind="getThis"><span class="table-title">{{ title }}</span></slot>
+        <div v-if="$slots.title || title" class="bcdatatable-container-top">
+            <slot name="title" v-bind="getThis"><span class="bcdatatable-title">{{ title }}</span></slot>
         </div>
-        <div v-if="$slots.top" class="table-container-top">
+        <div v-if="$slots.top" class="bcdatatable-container-top">
             <slot name="top"></slot>
         </div>
 
-        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" class="table-parent" ref="tableWrapper" >
+        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" class="bcdatatable-parent" ref="tableWrapper" >
             <slot v-bind="getThis">
 
                 <table 
-                    style="table-layout: auto; min-width: 100%"
+                    style="bcdatatable-layout: auto; min-width: 100%"
                     :style="tableStyle"
                     :class="{ 
                         'density-comfortable': density === 'comfortable', 
@@ -81,10 +81,10 @@
                     </DatatableHeaders>
 
                     <template v-if="loading">
-                        <tr class="table-progress" :style="{ ...getSticky('thead') as object }">
+                        <tr class="bcdatatable-progress" :style="{ ...getSticky('thead') as object }">
                             <td :colspan="getColumns.length">
                                 <slot name="progress" :loading="loading" :dark="dark" :density="density">
-                                    <div class="table-progress-bar">
+                                    <div class="bcdatatable-progress-bar">
                                         <div />
                                     </div>
                                 </slot>
@@ -178,7 +178,7 @@
                                         .map((kv, _, arr) => { kv.length = arr.length; return kv; })
                                     " 
                                     :key="`${getId(row)}-expansion-${expansion}`" 
-                                    :class="{ 'table-expansion-row': !hasExpansion(expansion), 'table-expansion-nested-row': hasExpansion(expansion), }"
+                                    :class="{ 'bcdatatable-expansion-row': !hasExpansion(expansion), 'bcdatatable-expansion-nested-row': hasExpansion(expansion), }"
                                 >
 
                                     <slot :name="`row-${getId(row)}-expansion-${expansion}`" 
@@ -201,13 +201,13 @@
 
                                                 <td v-if="hasExpansion(expansion)" 
                                                     :colspan="getColumns.length" 
-                                                    :class="{ 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }" 
+                                                    :class="{ 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }" 
                                                     :style="{ ...getSticky(column) as object }"
                                                 >
-                                                    <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'table-nested')" ></RerenderChecker>
+                                                    <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'bcdatatable-nested')" ></RerenderChecker>
                                                     <Datatable 
                                                         nested 
-                                                        class="table-nested"
+                                                        class="bcdatatable-nested"
                                                         :identifiant="`${identifiant}_${expansion}-${getId(row)}`"
                                                         :columns="column.expansion.columns"
                                                         :rows="format(column, row, 'expansion')" 
@@ -222,7 +222,7 @@
                                                     :id="generateKey(`expansion-${identifiant}_${expansion}-${getId(row)}`, column)"
                                                     :colspan="getColumns.length" 
                                                     :class="[
-                                                        { 'table-expansion-first-row': i == 0 && length > 1, 'table-expansion-last-row': i == length - 1 && length > 1, 'table-expansion-only-row': length == 1, }, 
+                                                        { 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }, 
                                                         ...(row.class ?? [])
                                                     ]" 
                                                     :style="{ ...getSticky(column), ...getRowHeightFromDensity, }" 
@@ -241,7 +241,7 @@
                             </template>
 
                             <template v-else>
-                                <tr class="table-empty-row">
+                                <tr class="bcdatatable-empty-row">
                                     <slot name="no-data" 
                                         :filters="filters" 
                                         :loading="loading" 
@@ -249,7 +249,7 @@
                                         :displaying="getRows"
                                         :message="filters ? noResultsMessage : loading ? loadingMessage : noDataMessage"
                                     >
-                                        <td :colspan="getColumns.length" class="table-empty-row-cell font-weight-medium">
+                                        <td :colspan="getColumns.length" class="bcdatatable-empty-row-cell font-weight-medium">
                                             {{ filters ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
                                             <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}`,'messages')" />
                                         </td>
@@ -279,10 +279,10 @@
             </slot>
         </div>
 
-        <div v-if="$slots.pagination" class="table-container-bottom">
+        <div v-if="$slots.pagination" class="bcdatatable-container-bottom">
             <slot name="pagination"></slot>
         </div>
-        <div v-if="$slots.bottom" class="table-container-bottom">
+        <div v-if="$slots.bottom" class="bcdatatable-container-bottom">
             <slot name="bottom"></slot>
         </div>
     </div>
@@ -1065,730 +1065,3 @@ const getThis = computed(() => {
 });
 //#endregion    ###     THIS       ### */
 </script>
-
-<style lang="scss">
-:root {
-    --table-background-color-light: white;
-    --table-background-color-light-active: #e1e1e1;
-    --table-background-color-light-hover: #cccccc;
-    --table-background-color-dark: #1e1e1e;
-    --table-background-color-dark-active: #313131; // #444444; // #3c3c3c;
-    --table-background-color-dark-hover: #444444; // #313131; // #2e2e2e;
-
-    --table-text-color-light: black;
-    --table-text-color-dark: white;
-    --table-text-font-size: 0.9rem;
-
-    --table-button-color-light: lightgray;
-    --table-button-color-dark: gray;
-    --table-button-hover-color-light: gray;
-    --table-button-hover-color-dark: lightgray;
-
-    --table-border-options: thin solid;
-    --table-border-color-light: rgba(0, 0, 0, 0.12);
-    --table-border-color-dark: hsla(0, 0%, 100%, 0.12);
-
-    --table-expansion-shadow-light: rgb(50 50 50 / 50%);
-    --table-expansion-shadow-dark: rgb(200 200 200 / 50%);
-    --table-expansion-shadow-top: inset 0 4px 10px -8px;
-    --table-expansion-shadow-bottom: inset 0 -4px 10px -8px;
-
-    // --table-headers-background-color: rgb(246, 247, 250);
-    // --table-odd-background-color: #e0e6ed26;
-    // --table-even-background-color: #e0e6ed26;
-}
-
-.table-parent, .table-filter-menu {
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 10px;
-    }
-
-    &::-webkit-scrollbar-track {
-        // background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        // background: #888;
-        border-radius: 10px;
-    }
-}
-
-table {
-    border-radius: 4px;
-    max-width: 100%;
-    border-spacing: 0;
-
-    // border-collapse: collapse;
-    border-collapse: separate; // without, border on cells disappears with sticky
-
-    th {
-        font-weight: bold;
-        text-align: initial;
-    }
-
-    th,
-    td {
-        font-size: var(--table-text-font-size);
-        transition: padding 0.2s cubic-bezier(0.4, 0, 0.6, 1);
-        padding: 6px 16px;
-        // padding: 0 16px;
-        height: 38px;
-
-        box-sizing: border-box;
-
-        .table-filter-input {
-            height: 28px;
-        }
-
-        .table-filter-button > svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        &.table-empty-row-cell {
-            text-align: center;
-            // color: rgba(0,0,0,.38);
-        }
-
-        &:not(.divider).table-selection {
-            padding-right: 0;
-        }
-
-        .table-expansion {
-            padding-right: 4px !important;
-            // opacity: 0.5;
-            pointer-events: auto;
-            cursor: pointer;
-            outline: 0;
-
-            .table-expansion-icon {
-                display: block;
-                width: 16px;
-                height: 16px;
-                fill: currentColor;
-            }
-        }
-    }
-
-    &.density-compact {
-
-        th,
-        td {
-            padding: 2px 16px;
-            height: 26px;
-        }
-
-        .table-filter-input {
-            height: 24px;
-        }
-
-        .table-filter-button > svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .table-filter-menu li {
-            padding: 4px 20px;
-        }
-
-        .table-progress .table-progress-bar {
-            height: 3px;
-        }
-    }
-
-    &.density-comfortable {
-
-        th,
-        td {
-            padding: 10px 16px;
-            height: 62px;
-        }
-
-        .table-filter-input {
-            height: 40px;
-        }
-
-        .table-filter-button > svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .table-filter-menu li {
-            padding: 12px 20px;
-        }
-
-        .table-progress .table-progress-bar {
-            height: 8px;
-        }
-    }
-
-    .table-progress {
-
-        // height: 4px;
-        th,
-        td {
-            height: auto;
-            padding: 0;
-        }
-
-        .table-progress-bar {
-            height: 5px;
-            position: relative;
-
-            > div {
-                position: absolute;
-                border-radius: 10px;
-                top: 0;
-                right: 100%;
-                bottom: 0;
-                left: 0;
-                width: 0;
-                animation: progress_bar_loading 2s linear infinite;
-            }
-        }
-    }
-
-    thead,
-    tfoot {
-
-        tr:not(:last-child) {
-            th,
-            td {
-                padding-bottom: 0px;
-            }
-        }
-
-        tr:first-child:not(:last-child),
-        tr:last-child:not(:first-child) {
-            th, td {
-                height: inherit;
-            }
-        }
-
-        th,
-        td {
-
-            &.sortable .table-sort {
-                pointer-events: auto;
-                cursor: pointer;
-                outline: 0;
-            }
-
-            &.sortable,
-            &:not(.sortable) {
-                &:not(.table-selection) {
-                    .table-sort {
-                        opacity: 0.2;
-                        // color: green;
-                    }
-                }
-            }
-
-            &.sortable.active {
-                .table-sort {
-                    opacity: 0.6;
-                    // color: red;
-                }
-            }
-
-            &.sortable:not(.active) {
-                .table-sort {
-                    visibility: hidden;
-                    // display: none;
-                }
-
-                &:hover {
-                    .table-sort {
-                        visibility: visible;
-                        // display: initial;
-                    }
-                }
-            }
-
-            &.sortable:hover {
-                .table-sort {
-                    opacity: 1;
-                    // color: blue;
-                }
-            }
-
-            &.desc .table-sort-icon {
-                transform: rotate(-180deg);
-            }
-        }
-
-        .table-sort {
-            display: flex;
-            align-items: center;
-        }
-
-        .table-sort-icon {
-            display: block;
-            position: relative;
-            top: -0.08rem;
-            margin-left: 3px;
-            fill: currentColor;
-        }
-
-        .table-sort-badge {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            border: 0;
-            border-radius: 50%;
-            min-width: 18px;
-            min-height: 18px;
-            height: 18px;
-            width: 18px;
-        }
-    }
-
-    thead {
-        th, td {
-            z-index: 3;
-        }
-    }
-    tfoot {
-        th, td {
-            z-index: 2;
-        }
-    }
-
-    tbody {
-        .table-expansion-nested-row {
-
-            >th,
-            >td {
-                padding: 0;
-            }
-        }
-    }
-
-    .table-filter {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-        
-        > div {
-            width: 100%;
-            max-width: 100%;
-            display: flex;
-            position: relative;
-        }
-    }
-
-    .table-filter-input {
-        // min-width: 60px;
-        width: 100%;
-        // flex: 1 0 auto;
-
-        box-sizing: border-box;
-
-        // border: 1px solid var(--table-border-color-light);
-        border-right: 0 !important;
-        border-radius: 4px 0 0 4px;
-
-        outline: none;
-    }
-
-    .table-filter-button {
-
-        // width: 100%;
-        // flex: 0 0 auto;
-
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        
-        margin: 0;
-        padding: 2px 6px;
-
-        border-radius: 0 4px 4px 0;
-        // border: 1px solid var(--table-border-color-light);
-        background-color: buttonface;
-
-        &:hover { 
-            background-color: buttonface;
-
-            > svg {
-                color: black;
-            }
-        }
-
-        > svg {
-            color: grey;
-        }
-    }
-    
-    .table-filter-menu {
-        position: absolute;
-        right: 0;
-        border-radius: 4px;
-        opacity: 1;
-        z-index: 10;
-
-        overflow: auto;
-        padding: 10px 0;
-
-        ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        li {
-            margin: 0;
-            padding: 8px 20px;
-            cursor: pointer;
-        }
-    }
-
-    thead .table-filter-menu {
-        top: calc(100% + 1px);
-    }
-    tfoot .table-filter-menu {
-        bottom: calc(100% + 0px);
-    }
-}
-
-.table-container-top {
-    margin-bottom: 8px;
-    width: 100%;
-
-    .table-title {
-        font-size: 1.8rem;
-        margin-left: 12px;
-    }
-}
-
-.table-container-bottom {
-    margin-top: 8px;
-    width: 100%;
-}
-
-.table-wrapper.theme--light {
-
-    background-color: var(--table-background-color-light);
-    color: var(--table-text-color-light);
-
-    .table-parent, .table-filter-menu {
-        &::-webkit-scrollbar-track {
-            background: var(--table-background-color-light) ; // #f1f1f1;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: var(--table-background-color-light-active) ; // #888;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-            background: var(--table-background-color-light-hover) ; // #555;
-        }
-    }
-
-    table {
-        &.divider {
-            thead>tr:last-child {
-
-                >th,
-                >td {
-                    border-bottom: var(--table-border-options)  var(--table-border-color-light);
-                    // border-bottom: 3px solid red;
-                }
-            }
-
-            tfoot>tr:first-child {
-
-                >th,
-                >td {
-                    border-top: var(--table-border-options)  var(--table-border-color-light);
-                    // border-top: 3px solid green;
-                }
-            }
-
-            tbody>tr:not(:last-child) {
-
-                >th,
-                >td {
-                    border-bottom: var(--table-border-options)  var(--table-border-color-light);
-
-                    &.table-empty-row-cell {
-                        color: rgba(0, 0, 0, 0.38);
-                    }
-                }
-            }
-        }
-
-        .table-progress .table-progress-bar {
-            background: rgba(0, 0, 0, 0.12);
-
-            >div {
-                background: rgba(0, 0, 0, 0.25);
-            }
-        }
-
-        .table-sort-badge {
-            background-color: rgba(0, 0, 0, 0.12);
-        }
-   
-        thead.divider>tr:last-child, 
-        thead>tr.divider {
-            >th,
-            >td {
-                border-bottom: var(--table-border-options)  var(--table-border-color-light);
-            }
-        }
-        tfoot.divider>tr:first-child,
-        tfoot>tr.divider {
-            >th,
-            >td {
-                border-top: var(--table-border-options)  var(--table-border-color-light);
-                // border-top: 3px solid green;
-            }
-        }
-        tbody.divider>tr:not(:last-child), 
-        tbody>tr.divider:not(:last-child) {
-            >th,
-            >td {
-                border-bottom: var(--table-border-options)  var(--table-border-color-light);
-
-                &.table-empty-row-cell {
-                    color: rgba(0, 0, 0, 0.38);
-                }
-            }
-        }
-
-        th,
-        td {
-            background-color: var(--table-background-color-light);
-
-            &.divider-left {
-                border-left: var(--table-border-options)  var(--table-border-color-light);
-            }
-
-            &.divider-right {
-                border-right: var(--table-border-options)  var(--table-border-color-light);
-            }
-
-            &.divider-top {
-                border-top: var(--table-border-options)  var(--table-border-color-light);
-            }
-
-            &.divider-bottom {
-                border-bottom: var(--table-border-options)  var(--table-border-color-light);
-            }
-
-        }
-    
-        .table-expansion-row, .table-expansion-nested-row {
-            .table-expansion-only-row {
-                box-shadow: 
-                    var(--table-expansion-shadow-top) var(--table-expansion-shadow-light),
-                    var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-light);
-            }
-
-            .table-expansion-first-row {
-                box-shadow: var(--table-expansion-shadow-top) var(--table-expansion-shadow-light);
-            }
-
-            .table-expansion-last-row {
-                box-shadow: var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-light);
-            }
-        }
-    }
-
-    .table-filter-input, .table-filter-button, .table-filter-menu { 
-        border: 1px solid var(--table-border-color-light);
-    }
-    .table-filter-menu {
-        background-color: var(--table-background-color-light);
-
-        li.table-filter-active {
-            background-color: var(--table-background-color-light-active);
-        }
-        li:hover {
-            background-color: var(--table-background-color-light-hover);
-        }
-    }
-
-    .table-expansion-icon, .table-sort-icon {
-        fill: var(--table-text-color-light);
-    }
-
-}
-
-.table-wrapper.theme--dark {
-    background-color: var(--table-background-color-dark);
-    color: var(--table-text-color-dark);
-
-    .table-parent, .table-filter-menu {
-        &::-webkit-scrollbar-track {
-            background: var(--table-background-color-dark) ; 
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: var(--table-background-color-dark-active) ; 
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-            background: var(--table-background-color-dark-hover) ; 
-        }
-    }
-
-    table {
-        &.divider {
-            thead>tr:last-child {
-
-                >th,
-                >td {
-                    border-bottom: var(--table-border-options)  var(--table-border-color-dark);
-                }
-            }
-
-            tfoot>tr:first-child {
-
-                >th,
-                >td {
-                    border-top: var(--table-border-options)  var(--table-border-color-dark);
-                }
-            }
-
-            tbody>tr:not(:last-child) {
-                >th,
-                >td {
-                    border-bottom: var(--table-border-options)  var(--table-border-color-dark);
-
-                    &.table-empty-row-cell {
-                        color: rgba(255, 255, 255, 0.38);
-                    }
-                }
-            }
-        }
-
-        .table-progress .table-progress-bar {
-            background: hsla(0, 0%, 100%, 0.12);
-
-            >div {
-                background: hsla(0, 0%, 100%, 0.25);
-            }
-        }
-
-        .table-sort-badge {
-            background-color: hsla(0, 0%, 100%, 0.12);
-        }
-   
-        thead.divider>tr, 
-        thead>tr.divider {
-            >th,
-            >td {
-                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
-                // border-bottom: 3px solid red;
-            }
-        }
-        tfoot.divider>tr,
-        tfoot>tr.divider {
-            >th,
-            >td {
-                border-top: var(--table-border-options)  var(--table-border-color-dark);
-                // border-top: 3px solid green;
-            }
-        }
-        tbody.divider>tr:not(:last-child), 
-        tbody>tr.divider:not(:last-child) {
-            >th,
-            >td {
-                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
-
-                &.table-empty-row-cell {
-                    color: rgba(0, 0, 0, 0.38);
-                }
-            }
-        }
-
-        th,
-        td {
-            background-color: var(--table-background-color-dark);
-
-            &.divider-left {
-                border-left: var(--table-border-options)  var(--table-border-color-dark);
-            }
-
-            &.divider-right {
-                border-right: var(--table-border-options)  var(--table-border-color-dark);
-            }
-
-            &.divider-top {
-                border-top: var(--table-border-options)  var(--table-border-color-dark);
-            }
-
-            &.divider-bottom {
-                border-bottom: var(--table-border-options)  var(--table-border-color-dark);
-            }
-
-        }
-
-        .table-expansion-row, .table-expansion-nested-row {
-            .table-expansion-only-row {
-                box-shadow: 
-                    var(--table-expansion-shadow-top) var(--table-expansion-shadow-dark),
-                    var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-dark);
-            }
-
-            .table-expansion-first-row {
-                box-shadow: var(--table-expansion-shadow-top) var(--table-expansion-shadow-dark);
-            }
-
-            .table-expansion-last-row {
-                box-shadow: var(--table-expansion-shadow-bottom) var(--table-expansion-shadow-dark);
-            }
-        }
-
-    }
-
-    .table-filter-input, .table-filter-button, .table-filter-menu { 
-        border: 1px solid var(--table-border-color-dark);
-        // border: 1px solid var(--table-border-color-dark);
-    }
-    .table-filter-menu {
-        background-color: var(--table-background-color-dark);
-
-        li.table-filter-active {
-            background-color: var(--table-background-color-dark-active);
-        }
-        li:hover {
-            background-color: var(--table-background-color-dark-hover);
-        }
-    }
-
-    .table-expansion-icon, .table-sort-icon {
-        fill: var(--table-text-color-dark);
-    }
-
-}
-
-@keyframes progress_bar_loading {
-    0% {
-        left: 0%;
-        right: 100%;
-        width: 0%;
-    }
-
-    10% {
-        left: 0%;
-        right: 75%;
-        width: 25%;
-    }
-
-    90% {
-        right: 0%;
-        left: 75%;
-        width: 25%;
-    }
-
-    100% {
-        left: 100%;
-        right: 0%;
-        width: 0%;
-    }
-}
-</style>

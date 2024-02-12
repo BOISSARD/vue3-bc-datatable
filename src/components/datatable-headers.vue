@@ -14,7 +14,7 @@
                             <th v-if="!column.filter"></th>
                             <th v-else-if="true"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                class="table-filter"
+                                class="bcdatatable-filter"
                             >
                                 <div>
 
@@ -79,22 +79,22 @@
                             <th v-else-if="true"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
-                                class="table-filter"
+                                class="bcdatatable-filter"
                                 @mouseleave="hideFiltersMenu()"
                             >
                                 <div>
-                                    <input class="table-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', ($event.target as any).value)" >
-                                    <button class="table-filter-button" @click="displayFiltersMenu(table.generateKey(component, column))">
+                                    <input class="bcdatatable-filter-input" :value="table.filtering.value[column.id]?.value" @input="table.updateFilters(column, 'value', ($event.target as any).value)" >
+                                    <button class="bcdatatable-filter-button" @click="displayFiltersMenu(table.generateKey(component, column))">
                                         <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
                                     <!-- {{ displayedFiltersMenu || "nullish" }} {{ table.generateKey(component, column) || "nullish" }} -->
-                                    <div class="table-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
+                                    <div class="bcdatatable-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
                                             <ul>
                                             <li v-for="(method, label) in table.getFilters(table.valueTypeByColumn.value[column.id])" 
                                                 @click="table.updateFilters(column, 'method', {label, method})" 
-                                                :class="[ { 'table-filter-active': table.filtering.value[column.id]?.method === label } ]" 
+                                                :class="[ { 'bcdatatable-filter-active': table.filtering.value[column.id]?.method === label } ]" 
                                             >{{ label }}</li>
                                         </ul>
                                     </div>

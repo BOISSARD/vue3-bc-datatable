@@ -10,7 +10,8 @@ export default defineConfig({
 		lib: {
 			entry: path.resolve(__dirname, "src/index.ts"),
 			name: "Datatable",
-			fileName: "vue3-bc-datatable"
+			fileName: "vue3-bc-datatable",
+			formats: ['es', 'umd'], 
 		},
 		rollupOptions: {
 			external: ["vue"],

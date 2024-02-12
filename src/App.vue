@@ -56,13 +56,12 @@
 		<div :style="{ flex: '0 0 auto' }"> <button @click="addRow" >Add Row</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="update1stRow" >Update 1st row</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="removeRow" >Remove last row</button> </div>
-		<div :style="{ flex: '1 0 auto' }"> <label>Search : </label><input type="text" v-model="search" > </div>
 		<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="multiSort"><label>Multi sort</label> </div>
 		<div :style="{ flex: '0 0 auto' }" class="switch"> <input type="checkbox" v-model="hideCol"><label>Hide col name</label> </div>
 	</div>
 	<div :style="{ width: '100%' }">expanded : {{ expanded }}</div>
 	<div :style="{ width: '100%' }">sorted : {{ sorted }}</div>
-	<div :style="{ width: '100%' }">filters : {{ search }} {{ filters }}</div>
+	<div :style="{ width: '100%' }">filters : {{ filters }} {{ filters }}</div>
 	<div :style="{ width: '100%' }">selected : {{ selected }}</div>
 	<!-- <code>{{ headers }}</code> -->
 	<!-- <code>{{ items }}</code> -->
@@ -129,7 +128,6 @@
 	
 	v-model:select="selected"
 
-	:search="search"
 	v-model:filters="filters"
 	
 	v-model:expand="expanded"
@@ -138,9 +136,9 @@
 	<template #title="{ title, rows, displaying }">
 		<h3 :style="{ margin: '10px 25px', fontSize: '1.8rem', fontFamily: 'cursive' }">{{ title }} <span style="font-size: 1.1rem; padding-left: 20px">({{ displaying.length }}/{{ rows.length }} lignes affichées)</span></h3>
 	</template>
-	<template #top>
+	<!-- <template #top>
 		<input v-model="search" style="display: block; width: calc(100% - 50px); margin: auto;">
-	</template>
+	</template> -->
 	<!-- <template #progress="{ dense: densed, dark: darken }" class="px-1">
 		<v-progress-linear color="primary" :height="densed ? 3 : 6" :dark="darken" indeterminate rounded striped />
 	</template> -->
@@ -227,10 +225,10 @@ const loading = ref(false)
 const multiSort = ref(true)
 const hideCol = ref(false)
 
-const tabEmpty = ref(false)
-const tabMinimal = ref(false)
-const tabSimple = ref(false)
-const tabSloted = ref(false)
+const tabEmpty = ref(true)
+const tabMinimal = ref(true)
+const tabSimple = ref(true)
+const tabSloted = ref(true)
 const tabNested = ref(true)
 
 //#region		Table with desserts
@@ -407,9 +405,9 @@ const itemsCredit = computed<Array<DatatableRow>>(() => {
 
 <style lang="scss">
 :root {
-    // --table-border-options: thick solid;
-    // --table-border-color-light: red;
-    // --table-border-color-dark: hsla(0, 0%, 100%, 0.12);
+    // --bcdatatable-border-options: thick solid;
+    // --bcdatatable-border-color-light: red;
+    // --bcdatatable-border-color-dark: hsla(0, 0%, 100%, 0.12);
 }
 
 h2 {
