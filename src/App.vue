@@ -234,7 +234,6 @@ const tabSloted = ref(false)
 const tabNested = ref(true)
 
 //#region		Table with desserts
-const search = ref("")
 // const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
 const sorted = ref<DatatableSort>({ 'calories': { desc: true, position: 1 }, 'fat': { desc: true } })
 // const filters = ref<DatatableFilter>([{ column: "name", method: "Equals", value: "ea" }])

@@ -1,8 +1,30 @@
 {
   "name": "vue3-bc-datatable",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BOISSARD/vue3-bc-datatable"
+  },
+  "keywords": [
+    "vue3-bc-datatable",
+    "vue3",
+    "vue",
+    "vuejs",
+    "table",
+    "datatable"
+  ],
+  "files": ["dist", "src/components/", "src/utils/"],
+  "main": "./dist/vue3-bc-datatable.umd.cjs",
+  "module": "./dist/vue3-bc-datatable.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue3-bc-datatable.js",
+      "require": "./dist/vue3-bc-datatable.umd.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
@@ -11,6 +33,9 @@
   },
   "dependencies": {
     "vue": "3.2.25"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
