@@ -20,7 +20,8 @@ export default defineConfig({
 					vue: "Vue"
 				}
 			}
-		}
+		},
+		minify: true,
 	},
 	resolve: {
 		alias: {

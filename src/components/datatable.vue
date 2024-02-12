@@ -752,7 +752,7 @@ function hasExpansion(expanse) {
 
 function getExpandedValue(column, row) {
     // console.log(`${this.identifiant}`,"getExpandedValue", column?.id, row?.[this.whatPropId])
-    if (row) return getExpanded.value?.[column.id]?.[this.getId(row)];
+    if (row) return getExpanded.value?.[column.id]?.[getId(row)];
     if (!getExpanded.value?.[column.id]) return;
     let expandedRows = Object.values(getExpanded.value[column.id]).filter((r) => r);
     // console.log(`getExpandedValue ${this.identifiant}`, expandedRows, expandedRows.length, column?.id, Object.keys(this.getExpanded[column?.id]).length)
