@@ -4,5 +4,8 @@ export { default as DatatableCell } from "./datatable-cell.vue"
 
 export * from "./types"
 
-import "./style.scss"
-// import './dist/style.css'
+// try {
+//     import('./dist/style.css');
+// } catch (e) {
+    import('./style.scss');
+// }
