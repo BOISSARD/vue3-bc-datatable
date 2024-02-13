@@ -225,11 +225,11 @@ const loading = ref(false)
 const multiSort = ref(true)
 const hideCol = ref(false)
 
-const tabEmpty = ref(true)
-const tabMinimal = ref(true)
+const tabEmpty = ref(false)
+const tabMinimal = ref(false)
 const tabSimple = ref(true)
-const tabSloted = ref(true)
-const tabNested = ref(true)
+const tabSloted = ref(false)
+const tabNested = ref(false)
 
 //#region		Table with desserts
 // const sorted = ref<DatatableSort>([{ column: 'calories', desc: true }, { column: 'fat', desc: true }])
@@ -247,7 +247,8 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		body: { cols: "auto", justify: "center" }, 
 		footer : { cols: "auto", justify: "end", displayExpanse: true, displaySelect: true, displaySort: false }, 
 		dividerLeft: false, dividerRight: false, 
-		expansion: { global: true }, sticky: { position: "left", zIndex: 2 }, 
+		sticky: { position: "left" }, 
+		expansion: { global: true }, 
 	},
 	{
 		property: 'name',
@@ -258,7 +259,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		footerStyle: { color: "green", fontSize: '1.1rem', 'font-weight': '700' },
 		bodyStyle: { fontStyle: 'italic' },
 		sort: (a:string, b:string) => a.length - b.length,
-		sticky: { position: "left", zIndex: 2, distance: "50px" },                
+		sticky: { position: "left", distance: "50px" },                
 		dividerLeft: true, dividerRight: true, 
 		hidden: hideCol.value
 	},
@@ -287,7 +288,7 @@ function countBy(array, iteratee = val => val) {
 type Item = { name:string, calories:number, fat:number, carbs:number, protein:number, iron:number, category:string, dairy:boolean } | { [key:string]: any }
 const items = ref<Array<Item>>([
 	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" } // , date: new Date(1997, 11, 31, 22)
-	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true, date: new Date(1993, 3, 9, 12) },
+	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true, date: new Date(1993, 3, 9, 12)},
 	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false, date: new Date(2001, 2, 17, 17) },
 	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, date: new Date(2023, 8, 3, 4), dividerTop: true, dividerBottom: true },
 	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true, date: new Date(2021, 3, 13, 17) },

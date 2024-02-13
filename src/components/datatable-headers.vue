@@ -30,7 +30,7 @@
                         :name="`${slotPrefix}-${column.id}`" v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
-                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
+                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column) }"
                     >
                         <DatatableCell v-if="!column.hidden"
                             header 
@@ -41,7 +41,7 @@
                             v-bind="column[slotPrefix]"
 
                             :class="[...column.columnClass, column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                            :style="{...column.columnStyle as object, ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
+                            :style="{...column.columnStyle as object, ...column[`${slotPrefix}Style`], ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
                             
                             :debug="table.debug"
 
@@ -68,17 +68,17 @@
                         v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
-                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column), ...table.getRowHeightFromDensity.value }"
+                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value }"
                     >
                         <template v-if="!column.hidden"> 
                             <th v-if="!column.filter"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
+                                :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
                             >
                             </th>
                             <th v-else-if="true"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{ ...table.getSticky(column), ...table.getRowHeightFromDensity.value,  }" 
+                                :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="bcdatatable-filter"
                                 @mouseleave="hideFiltersMenu()"
                             >

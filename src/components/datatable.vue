@@ -98,7 +98,7 @@
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
 
-                                <tr :style="{ ...row.style as object }" :class="[ ...(row.class ?? []) ]">
+                                <tr :style="{ ...getSticky(row) as object, ...row.style as object }" :class="[ ...(row.class ?? []) ]">
                                     <slot :name="`row-${getId(row)}`" 
                                         :row="row" 
                                         :whatPropId="whatPropId"
@@ -149,7 +149,7 @@
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
                                                             :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
-                                                            :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(column), ...getRowHeightFromDensity }"
+                                                            :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
                                                             @update:selected="select(column, row, $event)"
@@ -178,7 +178,8 @@
                                         .map((kv, _, arr) => { kv.length = arr.length; return kv; })
                                     " 
                                     :key="`${getId(row)}-expansion-${expansion}`" 
-                                    :class="{ 'bcdatatable-expansion-row': !hasExpansion(expansion), 'bcdatatable-expansion-nested-row': hasExpansion(expansion), }"
+                                    :class="[{ 'bcdatatable-expansion-row': !hasExpansion(expansion), 'bcdatatable-expansion-nested-row': hasExpansion(expansion), }]"
+                                    :style="{ ...getSticky(row) as object }"
                                 >
 
                                     <slot :name="`row-${getId(row)}-expansion-${expansion}`" 
@@ -202,7 +203,7 @@
                                                 <td v-if="hasExpansion(expansion)" 
                                                     :colspan="getColumns.length" 
                                                     :class="{ 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }" 
-                                                    :style="{ ...getSticky(column) as object }"
+                                                    :style="{ ...getSticky(row, column) as object }"
                                                 >
                                                     <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'bcdatatable-nested')" ></RerenderChecker>
                                                     <Datatable 
@@ -225,7 +226,7 @@
                                                         { 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }, 
                                                         ...(row.class ?? [])
                                                     ]" 
-                                                    :style="{ ...getSticky(column), ...getRowHeightFromDensity, }" 
+                                                    :style="{ ...getSticky(row, column), ...getRowHeightFromDensity, }" 
                                                     :value="format(getColumns.find((col) => col.id == expansion), row, 'expansion')" 
                                                     :debug="debug" 
                                                 >
@@ -928,37 +929,46 @@ function select(column: Partial<DatatableColumn>, row: Partial<DatatableRow>, ev
 
 //#region       ###     DESIGN      ###
 function getSticky(
-    position: "tfoot" | "thead" | DatatableColumn,
-    zIndex: number | null = null
+    position: "tfoot" | "thead" | Partial<DatatableRow>,
+    column?: Partial<DatatableColumn>,
+    zIndex?: number
 ) {
     let retour: {
         position?: string
-        bottom?: number | string
         top?: number | string
+        bottom?: number | string
+        left?: number | string
+        right?: number | string
         zIndex?: number
     } = {}
-    // console.log(`getSticky ${identifiant}`, position)
-    if (position == "tfoot") {
-        retour.position = props.stick?.footer ? "sticky" : "relative"
-        if(props.stick?.footer) retour.bottom = "-1px"
-        retour.zIndex = zIndex ?? 4
-    } else if (position == "thead") {
-        retour.position = props.stick?.header ? "sticky" : "relative"
-        if(props.stick?.header) retour.top = 0
-        retour.zIndex = zIndex ?? 5
-    } else if (typeof position == "object" && position.sticky) {
+    // By default :
+    retour.position = "relative"
+
+    if (column && column.sticky) {
         retour.position = "sticky"
-        if (typeof position.sticky === "string") {
-            retour[position.sticky] = 0
-            retour.zIndex = zIndex ?? 1
-        } else if (typeof position.sticky === "object") {
-            if (position.sticky.position)
-                retour[position.sticky.position] = position.sticky.distance ?? 0
-            retour.zIndex = position.sticky.zIndex ?? 1
+        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 5 : 3
+
+        if (typeof column.sticky === "object" && column.sticky?.position) {
+            retour[column.sticky.position] = column.sticky.distance ?? 0
+            if (typeof column.sticky.zIndex === "number") retour.zIndex = column.sticky.zIndex
+         }else if (typeof column === "object" && typeof column.sticky === "string") {
+            retour[column.sticky] = 0
         }
     } else {
-        retour.position = "relative"
+        retour.position = "sticky"
+        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 4 : 2
+
+        if (typeof position === "object" && typeof position.sticky === "object" && position.sticky?.position) {
+            retour[position.sticky.position] = position.sticky.distance ?? 0
+            if (typeof position.sticky.zIndex === "number") retour.zIndex = position.sticky.zIndex
+        } else if (typeof position === "object" && typeof position.sticky === "string") {
+            retour[position.sticky] = 0
+        }
+        else if (position == "tfoot" &&  props.stick?.footer) retour.bottom = "-1px"
+        else if (position == "thead" &&  props.stick?.header) retour.top = 0
     }
+
+    // console.log(`getSticky ${props.identifiant}`, position?.name ?? position, column?.id, retour)
     return retour
 }
 
