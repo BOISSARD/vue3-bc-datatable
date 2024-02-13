@@ -28,6 +28,8 @@
     // --bcdatatable-headers-background-color: rgb(246, 247, 250);
     // --bcdatatable-odd-background-color: #e0e6ed26;
     // --bcdatatable-even-background-color: #e0e6ed26;
+
+    --bcdatatable-title-font-size: 1.8rem;
 }
 
 .bcdatatable-parent, .bcdatatable-filter-menu {
@@ -389,7 +391,7 @@
     width: 100%;
 
     .bcdatatable-title {
-        font-size: 1.8rem;
+        font-size: var(--bcdatatable-title-font-size);
         margin-left: 12px;
     }
 }

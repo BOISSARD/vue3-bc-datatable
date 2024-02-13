@@ -8,7 +8,7 @@
             <slot name="title" v-bind="getThis"><span class="bcdatatable-title">{{ title }}</span></slot>
         </div>
         <div v-if="$slots.top" class="bcdatatable-container-top">
-            <slot name="top"></slot>
+            <slot name="top" v-bind="getThis"></slot>
         </div>
 
         <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" class="bcdatatable-parent" ref="tableWrapper" >
@@ -205,11 +205,11 @@
                             <template v-else>
                                 <tr class="bcdatatable-empty-row">
                                     <slot name="no-data" 
-                                        :filters="filters" 
+                                        :filters="filtering" 
                                         :loading="loading" 
                                         :columns="getColumns"
                                         :displaying="getRows"
-                                        :message="filters ? noResultsMessage : loading ? loadingMessage : noDataMessage"
+                                        :message="filtering ? noResultsMessage : loading ? loadingMessage : noDataMessage"
                                     >
                                         <td :colspan="getColumns.length" class="bcdatatable-empty-row-cell font-weight-medium">
                                             {{ filters ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
@@ -242,10 +242,10 @@
         </div>
 
         <div v-if="$slots.pagination" class="bcdatatable-container-bottom">
-            <slot name="pagination"></slot>
+            <slot name="pagination" v-bind="getThis"></slot>
         </div>
         <div v-if="$slots.bottom" class="bcdatatable-container-bottom">
-            <slot name="bottom"></slot>
+            <slot name="bottom" v-bind="getThis"></slot>
         </div>
     </div>
 </template>
@@ -291,14 +291,14 @@ const props = withDefaults(
         identifier?: string;
         title?: string;
         // ** Définition des données
-        columns?: null | Partial<DatatableColumn>[]; // Definition des colonnes
-        rows?: null | Partial<DatatableRow>[]; // les Données du tableau
+        columns?: Partial<DatatableColumn>[]; // Definition des colonnes
+        rows?: Partial<DatatableRow>[]; // les Données du tableau
         propId?: DatatablePropertyId; // Colonne dont la valeur sert d'id
         // ** Gestion des données
         loading?: boolean; // Loading pour informer de la modification des données
         loadingMessage?: string; // Message lors du chargement des données (si aucune données à afficher)
-        noDataMessage?: string; // Message si aucune données à la fin du chargement
         noResultsMessage?: string; // Message si aucune données suite à une interaction (filter)
+        noDataMessage?: string; // Message si aucune données à la fin du chargement
         // ** Interaction avec le tableau
         sorts?: DatatableSort; // La manière dont est trié le tableau au départ
         multiSort?: boolean;
@@ -328,14 +328,14 @@ const props = withDefaults(
     }>(), //*
     {
         // ** Définition des données
-        columns: null,
-        rows: null,
+        columns: () => [],
+        rows: () => [],
         propId: "id",
         // ** Définition des données
         // ** Gestion des données
-        loadingMessage: "Chargement en cours...", // '$vuetify.dataIterator.loadingText'
-        noDataMessage: "Aucune données", // '$vuetify.noDataText'
-        noResultsMessage: "Aucune données trouvées", // '$vuetify.dataIterator.noResultsText'
+        loadingMessage: "Loading in progress...", // '$vuetify.dataIterator.loadingText'
+        noResultsMessage: "No results", // '$vuetify.dataIterator.noResultsText'
+        noDataMessage: "No data", // '$vuetify.noDataText'
         // ** Interaction avec le tableau
         multiSort: false,
         // ** headers to footers
@@ -356,6 +356,7 @@ const props = withDefaults(
 
 //#region       ###    Events       ###
 const emit = defineEmits<{
+    (e: "displaying", value: DatatableRow[]): void; // retourne l'ensemble des colonnes (en cas de modification avec draggable ou resizable)
     (e: "update:columns", value: DatatableColumn[]): void; // retourne l'ensemble des colonnes (en cas de modification avec draggable ou resizable)
     (e: "update:rows", value: DatatableRow[]): void; // retourne l'ensemble des rows (en cas de modification d'une données directement depuis le talbeau : ordre avec draggable, d'une valeur etc..)
     (e: "update:modelValue", value: DatatableRow[]): void; // retourne les rows affichées (incluant les interactions et la pagination etc)
@@ -484,6 +485,7 @@ const getRows = computed(() => {
       console.table(retour)
       console.groupEnd(); //*/
 
+    emit("displaying", retour)
     return retour;
 });
 //#endregion    ###     ROWS       ###

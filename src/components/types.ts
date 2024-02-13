@@ -25,12 +25,12 @@ export type DatatableColumnCellOptions = {
 }
 
 export class DatatableColumn {
-    id?: null | ID // l'id de la colonne
-    property?: null | string // la propriété de chaque row à utiliser dans la cellule
+    id?: null | ID // Column Id
+    property?: null | string // The property name of each row to use
     
-    header: DatatableColumnCellOptions = { displaySort: true, displayExpanse: true, displaySelect: true} // options de la cellule de la colonne dans le header
-    footer: DatatableColumnCellOptions = { displaySort: false, displayExpanse: false, displaySelect: false } // options de la cellule de la colonne dans le header
-    body: DatatableColumnCellOptions = { text: (val : string | number) => val, displaySelect: true, displayExpanse: true } // options des cellules de la colonne dans le body
+    header: DatatableColumnCellOptions = { displaySort: true, displayExpanse: true, displaySelect: true} // options 
+    footer: DatatableColumnCellOptions = { displaySort: false, displayExpanse: false, displaySelect: false }
+    body: DatatableColumnCellOptions = { text: (val : string | number) => val, displaySelect: true, displayExpanse: true } 
 
     columnStyle: StyleProps = {} // le style pour toute la colonne
     headerStyle: StyleProps = {} // le style pour le header de la colonne
@@ -141,7 +141,7 @@ export class DatatableColumnFilter {
     value?: any
     expansion?: null | DatatableFilter
 }
-export type DatatableFilter = Function |  { [column: string]: DatatableColumnFilter } // Array<DatatableColumnFilter>
+export type DatatableFilter = Function |  { [column: string]: Function | DatatableColumnFilter } // Array<DatatableColumnFilter>
 
 export type DatatableFilterValueType = null | "boolean" | "number" | "string" | "Date" | "object" | "Array"
 export const filtersFunctions = {
