@@ -17,7 +17,7 @@
 </div>
 
 <h2 id="tabEmpty">Empty datatable <input type="checkbox" v-model="tabEmpty"></h2>
-<Datatable identifiant="empty" v-if="tabEmpty" 
+<Datatable identifier="empty" v-if="tabEmpty" 
 	title="Tableau Vide"
 	:debug="debug"
 	:density="densities[density]"
@@ -29,7 +29,7 @@
 <h2 id="tabMinimal">Minimal datatable <input type="checkbox" v-model="tabMinimal"></h2>
 <div v-if="tabMinimal">
 	<Datatable v-if="true"
-		identifiant="tabMinimal"
+		identifier="tabMinimal"
 		title="Tableau Minimal"
 		
 		:columns="headers"
@@ -72,7 +72,7 @@
 	<Datatable v-if="true"
 		tableStyle="text-align: rightt; height: 450px;"
 
-		identifiant="tabSimple"
+		identifier="tabSimple"
 		title="Tableau Simple"
 		
 		:columns="headers"
@@ -106,7 +106,7 @@
 <Datatable v-if="true"
 	tableStyle="text-align: rightt; max-height: 400px;"
 
-	identifiant="tabSloted"
+	identifier="tabSloted"
 	title="Tableau Avec Slots"
 	
 	:columns="headers"
@@ -188,7 +188,7 @@
 <div v-if="tabNested">
 <!-- {{ itemsCredit[0].date.getFullYear() }} -->
 <Datatable v-if="tabNested"
-	identifiant="tabNested"
+	identifier="tabNested"
 
 	:columns="headersCredit"
 	:rows="itemsCredit"
@@ -271,8 +271,8 @@ const headers = ref<Partial<DatatableColumn>[]>([
 	{ property: 'protein', header: { text: 'Protein', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: average, suffix: "g", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { suffix: "g", cols: "auto", justify: "end" }, },
 	{ property: 'iron', header: { text: 'Iron', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: (irons:number[]) => Math.round(average(irons)*10000)/100, suffix: "%", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { text: (iron:number) => Math.round(iron*10000)/100, suffix: "%", cols: "auto", justify: "end" } },
 	{ property: 'category', header: { text: 'Category' }, footer: { text: (categories: string[]) => [...new Set(categories)].length, suffix: "catégories" }, footerStyle: { textAlign: "center" }, sticky: "right", dividerLeft: true },
-	// { header : { text: 'Actions' }, sort: false }
-])//)
+	// { header : { text: 'Actions' }, sticky: "right", sort: false }
+])
 watch(hideCol, () => {
 	if(headers.value.length > 2)
 		headers.value[1].hidden = hideCol.value

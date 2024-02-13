@@ -1,37 +1,19 @@
 <template>
     <component :is="component" :class="{ divider: table.hasDivider(component) }">
         <slot :name="slotPrefix" v-bind="table">
-            <!-- <tr v-if="table.displayFilters && component === 'tfoot'">
-                <slot :name="`${slotPrefix}-tr-filters`" v-bind="table">
-                    <slot v-if="table" v-for="column in headers" :key="`filter-${table.generateKey(component, column)}`"
-                        :name="`${slotPrefix}-${column.id}-filter`" 
-                        v-bind="table"
-                        :value="table.format(column, table.displaying, slotPrefix)"
-                        :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
-                        :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(column) }"
-                    >
-                        <template v-if="!column.hidden">
-                            <th v-if="!column.filter"></th>
-                            <th v-else-if="true"
-                                :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                class="bcdatatable-filter"
-                            >
-                                <div>
 
-                                </div>
-                            </th>
-                        </template>
-                    </slot>
-                </slot>
-            </tr> -->
             <tr>
                 <slot :name="`${slotPrefix}-tr`" v-bind="table">
-                    <slot v-if="table" v-for="column in headers" :key="table.generateKey(component, column)"
+
+                    <slot v-if="table" 
+                        v-for="column in headers" 
+                        :key="table.generateKey(component, column)"
                         :name="`${slotPrefix}-${column.id}`" v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column) }"
                     >
+
                         <DatatableCell v-show="!column.hidden"
                             header 
                         
@@ -56,29 +38,39 @@
                             :expandable="column.expansion?.global && !column.expansion?.single"
                             :expanded="table.getExpandedValue(column)" @update:expanded="table.expand($event, column)"
                         >
+                                <!-- {{ table.getSticky(component, column) }} -->
                         </DatatableCell>
+
                     </slot>
+
                 </slot>
             </tr>
+
             <!-- <tr v-if="table.displayFilters && component === 'thead'"> -->
             <tr v-if="table.displayFilters">
+
                 <slot :name="`${slotPrefix}-tr-filters`" v-bind="table">
-                    <slot v-if="table" v-for="column in headers" :key="`filter-${table.generateKey(component, column)}`"
+
+                    <slot v-for="column in headers" 
+                        :key="`filter-${table.generateKey(component, column)}`"
                         :name="`${slotPrefix}-${column.id}-filter`" 
                         v-bind="table"
                         :value="table.format(column, table.displaying, slotPrefix)"
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value }"
                     >
-                        <template v-show="!column.hidden"> 
-                            <th v-if="!column.filter"
+
+                        <slot :key="`filter-${table.generateKey(component, column)}`"
+                            :name="`${slotPrefix}-filters`" 
+                            v-bind="table"
+                            :value="table.format(column, table.displaying, slotPrefix)"
+                            :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
+                            :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value }"
+                        >
+
+                            <th v-if="column.filter" v-show="!column.hidden"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
-                            >
-                            </th>
-                            <th v-else
-                                :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
+                                :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column), }" 
                                 class="bcdatatable-filter"
                                 @mouseleave="hideFiltersMenu()"
                             >
@@ -99,7 +91,13 @@
                                     </div>
                                 </div>
                             </th>
-                        </template>
+                            <th v-else v-show="!column.hidden"
+                                :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
+                                :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
+                            >
+                            </th>
+
+                        </slot>
                     </slot>
                 </slot>
             </tr>
@@ -116,7 +114,7 @@ import RerenderChecker from "./rerender-checker.vue"
 
 const props = defineProps<{
     is?: "head" | "foot",
-    identifiant?: string,
+    identifier?: string,
 
     table?: any,
 
@@ -144,10 +142,10 @@ const slotPrefix = computed(() => {
 // #region  ###     GENERIC       ###
 if(props.debug) {
     onMounted(() => {
-        console.log("onMounted headers", component.value, props.identifiant)
+        console.log("onMounted headers", component.value, props.identifier)
     })
-    watch(() => props.identifiant, () => {
-        console.log("watch headers", component.value, props.identifiant)
+    watch(() => props.identifier, () => {
+        console.log("watch headers", component.value, props.identifier)
     }, { immediate: true, deep: true })
 }
 // #endregion  ###     GENERIC       ###

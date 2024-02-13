@@ -1,47 +1,8 @@
-<!-- 
-    Définition des slots : ✔ ✖
-
-    slot pour la partie loading ✔
-
-    slot pour le title
-    slot pour le top
-    slot pour la pagination
-    slot pour le bottom
-
-    slot par défaut pour le table entier (passer tous les bindings utiles)
-        slot pour des colgroups
-            slot pour l'unique colgroup
-                slot pour chaque col
-        slot pour le theader
-            slot pour la ligne d'en-tête du tableau
-                slot pour une colonne (cellule) du header 
-        slot pour le tfooter
-            slot pour la ligne de pied du tableau
-                slot pour une colonne (cellule) du footer 
-        slot pour le tbody
-            slot pour toutes les lignes
-                slot pour une ligne en particulier (par whatPropId)
-                slot pour une colonne (toutes les cellules des lignes d'une même colonne)
-            slot pour l'expansion
-                slot pour les expansions d'une colonne
-                slot pour les expansions d'une ligne
-            slot pour le cas des rows vide (message nodata/noresult/loading)
-        
-        slot pour la selection :
-            pour les lignes
-            pour le header/footer
-
-        slot pour l'expansion (à transmettre dans datatable-cell ?) :
-            pour les cellules avec expansion
-            pour le global header/footer
-    
--->
-
 <template>
     <div style="max-width: 100%" :class="{
         'theme--light': !dark,
         'theme--dark': dark,
-        'pa-4 elevation-1 rounded bcdatatable-wrapper': !nested,
+        'pa-4 bcdatatable-wrapper': !nested,
     }">
         <div v-if="$slots.title || title" class="bcdatatable-container-top">
             <slot name="title" v-bind="getThis"><span class="bcdatatable-title">{{ title }}</span></slot>
@@ -67,7 +28,7 @@
 
                     <DatatableHeaders v-if="!hideHeader" 
                         is="head" 
-                        :identifiant="identifiant"
+                        :identifier="identifier"
                         :headers="getColumns" 
                         :displaying="getRows" 
                         :select="selecting"
@@ -205,11 +166,11 @@
                                                     :class="{ 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }" 
                                                     :style="{ ...getSticky(row, column) as object }"
                                                 >
-                                                    <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}_${expansion}-${getId(row)}`,'bcdatatable-nested')" ></RerenderChecker>
+                                                    <RerenderChecker v-if="debug" :id="generateKey(`${identifier}_${expansion}-${getId(row)}`,'bcdatatable-nested')" ></RerenderChecker>
                                                     <Datatable 
                                                         nested 
                                                         class="bcdatatable-nested"
-                                                        :identifiant="`${identifiant}_${expansion}-${getId(row)}`"
+                                                        :identifier="`${identifier}_${expansion}-${getId(row)}`"
                                                         :columns="column.expansion.columns"
                                                         :rows="format(column, row, 'expansion')" 
                                                         :density="density" 
@@ -220,7 +181,7 @@
                                                     />
                                                 </td>
                                                 <DatatableCell v-else 
-                                                    :id="generateKey(`expansion-${identifiant}_${expansion}-${getId(row)}`, column)"
+                                                    :id="generateKey(`expansion-${identifier}_${expansion}-${getId(row)}`, column)"
                                                     :colspan="getColumns.length" 
                                                     :class="[
                                                         { 'bcdatatable-expansion-first-row': i == 0 && length > 1, 'bcdatatable-expansion-last-row': i == length - 1 && length > 1, 'bcdatatable-expansion-only-row': length == 1, }, 
@@ -252,7 +213,7 @@
                                     >
                                         <td :colspan="getColumns.length" class="bcdatatable-empty-row-cell font-weight-medium">
                                             {{ filters ? noResultsMessage : loading ? loadingMessage : noDataMessage }}
-                                            <RerenderChecker v-if="debug" :id="generateKey(`${identifiant}`,'messages')" />
+                                            <RerenderChecker v-if="debug" :id="generateKey(`${identifier}`,'messages')" />
                                         </td>
                                     </slot>
                                 </tr>
@@ -262,7 +223,7 @@
 
                     <DatatableHeaders v-if="displayFooter" 
                         is="foot" 
-                        :identifiant="identifiant"
+                        :identifier="identifier"
                         :headers="getColumns" 
                         :displaying="getRows" 
                         :select="selecting"
@@ -327,7 +288,7 @@ import RerenderChecker from "./rerender-checker.vue"
 const props = withDefaults(
     defineProps<{
         // ** Identification
-        identifiant?: string;
+        identifier?: string;
         title?: string;
         // ** Définition des données
         columns?: null | Partial<DatatableColumn>[]; // Definition des colonnes
@@ -414,7 +375,7 @@ const columns = ref<Array<Partial<DatatableColumn>>>([]);
 watch(
     () => props.columns, 
     () => {
-        // console.info(`${props.identifiant} watch props.columns :`, props.columns)
+        // console.info(`${props.identifier} watch props.columns :`, props.columns)
         if (Array.isArray(props.columns)) {
             columns.value = cloneDeep(props.columns);
         } else {
@@ -425,7 +386,7 @@ watch(
 );
 
 const getColumns = computed<DatatableColumn[]>(() => {
-    // console.log(`====================================\n${props.identifiant} getColumns :`, columns.value);
+    // console.log(`====================================\n${props.identifier} getColumns :`, columns.value);
     if (!columns.value) return [];
     let retour = [];
 
@@ -443,7 +404,7 @@ const getColumns = computed<DatatableColumn[]>(() => {
     }
 
     /* Log Columns
-    console.groupCollapsed(`${props.identifiant} getColumns :`);
+    console.groupCollapsed(`${props.identifier} getColumns :`);
     console.table(columns.value )
     console.groupEnd(); //*/
 
@@ -458,7 +419,7 @@ let rows = ref<Array<Partial<DatatableRow>>>([]);
 watch(
     () => props.rows, 
     () => {
-        // console.info(`${props.identifiant} watch props.rows :`, props.rows)
+        // console.info(`${props.identifier} watch props.rows :`, props.rows)
         if (Array.isArray(props.rows)) {
             rows.value = cloneDeep(props.rows);
         } else {
@@ -519,7 +480,7 @@ const getRows = computed(() => {
     }); // */
 
     /* Log Rows
-      console.groupCollapsed(`${props.identifiant} getRows :`);
+      console.groupCollapsed(`${props.identifier} getRows :`);
       console.table(retour)
       console.groupEnd(); //*/
 
@@ -534,8 +495,8 @@ function format(
     position: "body" | "header" | "footer" | "expansion" = "body"
 ) {
     let formating = column[position];
-    // console.log(`${props.identifiant} format :`, column, position, formating)
-    // if(position !== "body") console.log(`format ${props.identifiant} :`, position, column, formating, rowOrRows)
+    // console.log(`${props.identifier} format :`, column, position, formating)
+    // if(position !== "body") console.log(`format ${props.identifier} :`, position, column, formating, rowOrRows)
     if (typeof formating?.text !== "function") return formating?.text;
     // return "format ERROR"
 
@@ -546,18 +507,18 @@ function format(
         case "body":
         case "expansion":
             // if (position == "expansion")  console.log(column, rowOrRows, position, formating)
-            // console.log(`${props.identifiant} format :`, position, data)
+            // console.log(`${props.identifier} format :`, position, data)
             args.push(data[(formating as any)?.property ?? column?.property]);
             args.push(data);
             break;
         default:
             // if (position == "footer")  console.log(column, rowOrRows, position, formating)
-            // console.log(`${props.identifiant} format :`, position, rowOrRows )
+            // console.log(`${props.identifier} format :`, position, rowOrRows )
             args.push(data.map?.((row: DatatableRow) => row[column?.property]));
             args.push(data);
     }
 
-    // console.log(`${props.identifiant} format :`, column.id, position, args, formating?.text(...args))
+    // console.log(`${props.identifier} format :`, column.id, position, args, formating?.text(...args))
     return formating?.text(...args);
 }
 //#endregion    ###     CELLS       ###
@@ -568,7 +529,7 @@ const valueTypeByColumn = computed<{ [col: string]: any }>(() => Object.fromEntr
 const filtering = ref<DatatableFilter>({});
 
 watch(() => props.filters, () => {
-    // console.log(`${props.identifiant} watch filters`, props.filters)
+    // console.log(`${props.identifier} watch filters`, props.filters)
     // filtering.value = props.filters ? cloneDeep(props.filters) : {}
     let filters = props.filters ? cloneDeep(props.filters) : {}
     for(let col of getColumns.value) {
@@ -639,7 +600,7 @@ watch(
         [_, newMultiSort]: [DatatableSort, boolean],
         [__, oldMultiSort]: [DatatableSort, boolean]
     ) => {
-        // console.log(`${props.identifiant} watch sorts & multisort`, props.sorts, props.multiSort, [newSort, newMultiSort], [oldSort, oldMultiSort])
+        // console.log(`${props.identifier} watch sorts & multisort`, props.sorts, props.multiSort, [newSort, newMultiSort], [oldSort, oldMultiSort])
         watchSortAndMultiSort();
         if (oldMultiSort !== undefined && oldMultiSort !== newMultiSort) {
             emit("update:sorts", sorting.value);
@@ -659,20 +620,20 @@ function findColumnSort(column: DatatableColumn) {
         }
     });
 
-    // console.log(`${this.identifiant} findColumnSort :`, found, position)
+    // console.log(`${this.identifier} findColumnSort :`, found, position)
     if (!found) return;
     return { ...found, position: props.multiSort ? position + 1 : undefined };
 }
 
 function updateSorts(column: DatatableColumn, action: string) {
-    // console.log(`${props.identifiant}`,"updateSorts", sorting.value, action, column)
+    // console.log(`${props.identifier}`,"updateSorts", sorting.value, action, column)
     if (!sorting.value) return;
 
     if (action == "position") {
         let foundIndex = Object.keys(sorting.value).indexOf(column.id)
         // Si on souhaite changer la position de la colonne dans le sort
 
-        // console.log(`${props.identifiant}`,"change position", foundIndex, Object.keys(sorting.value).length)
+        // console.log(`${props.identifier}`,"change position", foundIndex, Object.keys(sorting.value).length)
         
         let newOrder = Object.keys(sorting.value)
         newOrder.splice(
@@ -685,7 +646,7 @@ function updateSorts(column: DatatableColumn, action: string) {
     } else {
         let found = sorting.value[column.id];
         // Si on souhaite modifier l'utilisation de la colonne dans le sort
-        // console.log(`${props.identifiant}`,"change sort", found)
+        // console.log(`${props.identifier}`,"change sort", found)
         if (!found) {
             // Si La colonne n'est pas utilisée
             if (props.multiSort) {
@@ -703,7 +664,7 @@ function updateSorts(column: DatatableColumn, action: string) {
         }
     }
 
-    // console.log(`${props.identifiant} updateSorts :`, sorting.value)
+    // console.log(`${props.identifier} updateSorts :`, sorting.value)
     emit("update:sorts", sorting.value);
 }
 //#endregion    ###     SORT    ###
@@ -715,7 +676,7 @@ let isExpanding = ref<boolean>(false);
 watch(
     () => props.expand,
     () => {
-        // console.log(`watch expanded ${props.identifiant} :`, props.expand)
+        // console.log(`watch expanded ${props.identifier} :`, props.expand)
         if (!props.expand) return;
         for (let [colId, rowsId] of Object.entries(props.expand)) {
             if (Array.isArray(rowsId))
@@ -723,9 +684,9 @@ watch(
                     let id = `col-${colId}--row-${rowId}`;
                     if (!expand.value.includes(id)) expand.value.push(id);
                 }
-            else console.log(`watch expanded ${props.identifiant} :`, props.expand, rowsId);
+            else console.log(`watch expanded ${props.identifier} :`, props.expand, rowsId);
         }
-        // console.log(`watch expanded ${props.identifiant} :`, props.expand, expand.value)
+        // console.log(`watch expanded ${props.identifier} :`, props.expand, expand.value)
     },
     { deep: true, immediate: true }
 );
@@ -737,12 +698,12 @@ const getExpanded = computed(() => {
             retour[column.id] = {};
             for (let row of getRows.value) {
                 let id = `col-${column.id}--row-${getId(row)}`;
-                // console.log(`${this.identifiant}`,retour, id)
+                // console.log(`${this.identifier}`,retour, id)
                 retour[column.id][getId(row)] = expand.value.includes(id);
             }
         }
     }
-    // console.log(`getExpanded ${props.identifiant} : `,"retour", retour)
+    // console.log(`getExpanded ${props.identifier} : `,"retour", retour)
     return retour;
 });
 
@@ -752,11 +713,11 @@ function hasExpansion(expanse) {
 }
 
 function getExpandedValue(column, row) {
-    // console.log(`${this.identifiant}`,"getExpandedValue", column?.id, row?.[this.whatPropId])
+    // console.log(`${this.identifier}`,"getExpandedValue", column?.id, row?.[this.whatPropId])
     if (row) return getExpanded.value?.[column.id]?.[getId(row)];
     if (!getExpanded.value?.[column.id]) return;
     let expandedRows = Object.values(getExpanded.value[column.id]).filter((r) => r);
-    // console.log(`getExpandedValue ${this.identifiant}`, expandedRows, expandedRows.length, column?.id, Object.keys(this.getExpanded[column?.id]).length)
+    // console.log(`getExpandedValue ${this.identifier}`, expandedRows, expandedRows.length, column?.id, Object.keys(this.getExpanded[column?.id]).length)
     return expandedRows.length == 0
         ? -1
         : expandedRows.length == Object.keys(getExpanded.value[column?.id]).length
@@ -820,7 +781,7 @@ function emitExpanded() {
         if (!retour[colId]) retour[colId] = new Array<string>();
         retour[colId].push(rowId);
     }
-    // console.log(`emitExpanded ${props.identifiant} après :\n`, JSON.stringify(retour))
+    // console.log(`emitExpanded ${props.identifier} après :\n`, JSON.stringify(retour))
     emit("update:expand", retour);
 }
 //#endregion    ###     EXPANSE     ###
@@ -863,7 +824,7 @@ function getSelect(column: DatatableColumn) {
 }
 
 function selectAll(column: DatatableColumn, event: Event) {
-    // console.log(`${props.identifiant} selectAll`, column.id)
+    // console.log(`${props.identifier} selectAll`, column.id)
     let retour: DatatableSelection = cloneDeep(selecting.value);
     if (selectIsOnlyOfStrings(selecting.value)) {
         retour = (event.target as HTMLInputElement).checked
@@ -889,13 +850,13 @@ function selectAll(column: DatatableColumn, event: Event) {
             selection
         );
     }
-    // console.log(`${props.identifiant} selectAll`, column.id, retour)
+    // console.log(`${props.identifier} selectAll`, column.id, retour)
     selecting.value = retour;
     emit("update:select", selecting.value);
 }
 
 function select(column: Partial<DatatableColumn>, row: Partial<DatatableRow>, event: Event) {
-    console.log(`${props.identifiant} select`, column.id, getId(row), event);
+    console.log(`${props.identifier} select`, column.id, getId(row), event);
     if (selectIsOnlyOfStrings(selecting.value)) {
         let index = selecting.value.indexOf(getId(row));
         if (index < 0) selecting.value.push(getId(row));
@@ -968,7 +929,7 @@ function getSticky(
         else if (position == "thead" &&  props.stick?.header) retour.top = 0
     }
 
-    // console.log(`getSticky ${props.identifiant}`, position?.name ?? position, column?.id, retour)
+    // console.log(`getSticky ${props.identifier}`, position?.name ?? position, column?.id, retour)
     return retour
 }
 
@@ -996,7 +957,7 @@ const getRowHeightFromDensity = computed(() => {
     } else if(props.density === null) {
         retour["height"] = 'inherit'
     }
-    // console.log(`${props.identifiant} getRowHeightFromDensity`, retour, props.density)
+    // console.log(`${props.identifier} getRowHeightFromDensity`, retour, props.density)
     return retour
 })
 
@@ -1018,16 +979,16 @@ function getId(row: DatatableRow | Partial<DatatableRow>) {
 }
 
 function generateKey(row: string | Partial<DatatableRow>, column: string | Partial<DatatableColumn>) {
-    // console.log(`${props.identifiant} generateKey :`, row, column)
+    // console.log(`${props.identifier} generateKey :`, row, column)
     // if(typeof row === "string")
     let id = typeof row === "string" ? row : getId(row)
     // if(typeof row !== "string") {
-    //     console.log(`${this.identifiant}`,row, this.whatPropId, column)
-    //     console.log(`${this.identifiant}`,"column id", column.id)
+    //     console.log(`${this.identifier}`,row, this.whatPropId, column)
+    //     console.log(`${this.identifier}`,"column id", column.id)
     // }
-    // console.log(`${this.identifiant}`,"id", id)
+    // console.log(`${this.identifier}`,"id", id)
     id = id.replace(" ", "_")
-    // console.log(`${this.identifiant}`,`${id}-${column.id}`, row, this.whatPropId)
+    // console.log(`${this.identifier}`,`${id}-${column.id}`, row, this.whatPropId)
     return `${id}-${typeof column === "string" ? column : column.id}`
 }
 //#endregion    ###     GENERIC       ### */
@@ -1070,7 +1031,7 @@ const getThis = computed(() => {
         el: table,
         wrapper: tableWrapper,
     };
-    // console.log(`${props.identifiant} getThis`, retour)
+    // console.log(`${props.identifier} getThis`, retour)
     return retour;
 });
 //#endregion    ###     THIS       ### */
