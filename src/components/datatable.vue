@@ -485,7 +485,7 @@ const getRows = computed(() => {
       console.table(retour)
       console.groupEnd(); //*/
 
-    emit("displaying", retour)
+    emit("displaying", retour as DatatableRow[])
     return retour;
 });
 //#endregion    ###     ROWS       ###
@@ -545,7 +545,7 @@ watch(() => props.filters, () => {
 
 function getFilters(type) {
     // console.log("getFilters", type, filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]) )
-    return Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]))
+    return filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : []
 }
 function getDefault(type): DatatableFilterLabel {
     // console.log("getDefault", type, defaultFilterForType[type], defaultFilterForType[type] ?? "No filter")
