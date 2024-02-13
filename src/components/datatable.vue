@@ -144,7 +144,7 @@
                                                         :value="format(column, row)"
                                                     >
 
-                                                        <DatatableCell v-if="!column.hidden"
+                                                        <DatatableCell v-show="!column.hidden"
                                                             :id="generateKey(row, column)"
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
@@ -946,7 +946,7 @@ function getSticky(
 
     if (column && column.sticky) {
         retour.position = "sticky"
-        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 5 : 3
+        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 6 : 3
 
         if (typeof column.sticky === "object" && column.sticky?.position) {
             retour[column.sticky.position] = column.sticky.distance ?? 0
@@ -956,7 +956,7 @@ function getSticky(
         }
     } else {
         retour.position = "sticky"
-        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 4 : 2
+        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 5 : 2
 
         if (typeof position === "object" && typeof position.sticky === "object" && position.sticky?.position) {
             retour[position.sticky.position] = position.sticky.distance ?? 0

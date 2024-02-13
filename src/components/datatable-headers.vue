@@ -32,7 +32,7 @@
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column) }"
                     >
-                        <DatatableCell v-if="!column.hidden"
+                        <DatatableCell v-show="!column.hidden"
                             header 
                         
                             :id="table.generateKey(component, column)"
@@ -70,13 +70,13 @@
                         :class="[column[`${slotPrefix}Class`], { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }]"
                         :style="{ ...column[`${slotPrefix}Style`], ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value }"
                     >
-                        <template v-if="!column.hidden"> 
+                        <template v-show="!column.hidden"> 
                             <th v-if="!column.filter"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
                             >
                             </th>
-                            <th v-else-if="true"
+                            <th v-else
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
                                 :style="{ ...table.getSticky(component, column), ...table.getRowHeightFromDensity.value,  }" 
                                 class="bcdatatable-filter"
@@ -89,7 +89,6 @@
                                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                                         </svg>
                                     </button>
-                                    <!-- {{ displayedFiltersMenu || "nullish" }} {{ table.generateKey(component, column) || "nullish" }} -->
                                     <div class="bcdatatable-filter-menu" v-if="displayedFiltersMenu === table.generateKey(component, column)" style="" :style="{ 'max-height': filterMenuHeight+'px' }" >
                                             <ul>
                                             <li v-for="(method, label) in table.getFilters(table.valueTypeByColumn.value[column.id])" 

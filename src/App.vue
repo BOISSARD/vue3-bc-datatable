@@ -211,7 +211,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import moment from "moment"
 
 import { Datatable, DatatableColumn, DatatableFilter, DatatableRow, DatatableSelection, DatatableSort } from "./components"
@@ -259,7 +259,7 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		footerStyle: { color: "green", fontSize: '1.1rem', 'font-weight': '700' },
 		bodyStyle: { fontStyle: 'italic' },
 		sort: (a:string, b:string) => a.length - b.length,
-		sticky: { position: "left", distance: "50px" },                
+		sticky: { position: "left", distance: "50px" },
 		dividerLeft: true, dividerRight: true, 
 		hidden: hideCol.value
 	},
@@ -273,6 +273,10 @@ const headers = ref<Partial<DatatableColumn>[]>([
 	{ property: 'category', header: { text: 'Category' }, footer: { text: (categories: string[]) => [...new Set(categories)].length, suffix: "catégories" }, footerStyle: { textAlign: "center" }, sticky: "right", dividerLeft: true },
 	// { header : { text: 'Actions' }, sort: false }
 ])//)
+watch(hideCol, () => {
+	if(headers.value.length > 2)
+		headers.value[1].hidden = hideCol.value
+})
 function average(vals) {
     return Math.round((vals.reduce((a, b) => a + b, 0)/vals.length || 0)*100)/100
 }
