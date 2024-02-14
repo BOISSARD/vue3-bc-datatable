@@ -544,7 +544,7 @@ watch(() => props.filters, () => {
 }, { deep: true, immediate: true })
 
 function getFilters(type) {
-    console.log("getFilters", type, filtersLabelsForTypes[type], filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : [])
+    // console.log("getFilters", type, filtersLabelsForTypes[type], filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : [])
     return type && filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : []
 }
 function getDefault(type): DatatableFilterLabel {
@@ -917,9 +917,9 @@ function getSticky(
          }else if (typeof column === "object" && typeof column.sticky === "string") {
             retour[column.sticky] = 0
         }
-    } else {
+    } else if (typeof position === "object" && position.sticky) {
         retour.position = "sticky"
-        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 5 : 2
+        retour.zIndex = zIndex ?? 2
 
         if (typeof position === "object" && typeof position.sticky === "object" && position.sticky?.position) {
             retour[position.sticky.position] = position.sticky.distance ?? 0
@@ -927,7 +927,10 @@ function getSticky(
         } else if (typeof position === "object" && typeof position.sticky === "string") {
             retour[position.sticky] = 0
         }
-        else if (position == "tfoot" &&  props.stick?.footer) retour.bottom = "-1px"
+    } else if (typeof position === "string") {
+        retour.position = "sticky"
+        retour.zIndex = zIndex ?? (position == "thead" || position == "tfoot") ? 5 : 2
+        if (position == "tfoot" &&  props.stick?.footer) retour.bottom = "-1px"
         else if (position == "thead" &&  props.stick?.header) retour.top = 0
     }
 
