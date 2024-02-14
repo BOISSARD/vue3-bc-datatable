@@ -169,7 +169,7 @@
 	<template #row-Lollipop="{ row, columns }"><td colspan="2" style="text-align: center;" :style="{ fontSize: '1.2rem' }">la ligne de Lollipop</td><td :colspan="columns.length -2" style="text-align: center;" >{{ row }}</td></template>
 
 	<template #cell-iron="{ row, value, column }"><td style="text-align: right;" :style="{backgroundColor: row[column.property] > 0.25 ? 'rgba(210, 0, 0, 0.25)' : row[column.property] > 0.1 ? 'rgba(255, 150, 20, 0.25)' :'rgba(0, 220, 10, 0.25)' }" >{{ value }} %</td></template>
-	<template v-slot:[`cell-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand }"><th style="text-align: right; cursor: pointer" @click="expand(expanded, column, row)">{{ value }} g</th></template>
+	<template v-slot:[`col-carbs-row-Jelly_bean`]="{ column, row, value, expanded, expand }"><th style="text-align: right; cursor: pointer" @click="expand(expanded, column, row)">{{ value }} g</th></template>
 
 	<template #rows-expansions="{ column, columns }"><td colspan="1">Expansion :</td><td :colspan="columns.length -1" style="text-align: right;" > {{ column }}</td></template>
 	<template #rows-expansion-carbs="{ columns }"><td :colspan="columns.length" style="text-align: center; background-color: lightcyan;" >expansion CARBS</td></template>
@@ -227,8 +227,8 @@ const hideCol = ref(false)
 
 const tabEmpty = ref(false)
 const tabMinimal = ref(false)
-const tabSimple = ref(true)
-const tabSloted = ref(false)
+const tabSimple = ref(false)
+const tabSloted = ref(true)
 const tabNested = ref(false)
 
 //#region		Table with desserts

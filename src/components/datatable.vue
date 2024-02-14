@@ -67,6 +67,7 @@
                                         :displaying="getRows" 
                                         :format="format" 
                                         :expand="expanse"
+                                        v-bind="getThis"
                                     >
                                         <slot :name="`rows`" 
                                             :row="row" 
@@ -75,11 +76,12 @@
                                             :displaying="getRows"
                                             :format="format" 
                                             :expand="expanse"
+                                            v-bind="getThis"
                                         >
 
                                             <template v-for="column in getColumns" :key="generateKey(row, column)">
 
-                                                <slot :name="`cell-${column.id}-row-${getId(row)}`" 
+                                                <slot :name="`col-${column.id}-row-${getId(row)}`" 
                                                     :row="row"
                                                     :whatPropId="whatPropId" 
                                                     :displaying="getRows" 
@@ -90,9 +92,11 @@
                                                     :expandable="!!column.expansion"
                                                     :expanded="getExpandedValue(column, row)" 
                                                     :value="format(column, row)"
+                                                    :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
+                                                    :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                 >
 
-                                                    <slot :name="`cells-${column.id}`" 
+                                                    <slot :name="`cols-${column.id}`" 
                                                         :row="row" 
                                                         :whatPropId="whatPropId"
                                                         :displaying="getRows" 
@@ -103,6 +107,8 @@
                                                         :expandable="!!column.expansion"
                                                         :expanded="getExpandedValue(column, row)"
                                                         :value="format(column, row)"
+                                                        :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
+                                                        :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                     >
 
                                                         <DatatableCell v-show="!column.hidden"
@@ -119,6 +125,26 @@
                                                             @update:expanded="expanse($event, column, row)"
                                                             :debug="debug" 
                                                         >
+                                                            <template #default="{ value }">
+                                                                <slot :name="`cell-${column.id}-row-${getId(row)}`" 
+                                                                    :row="row"
+                                                                    :displaying="getRows" 
+                                                                    :column="column"
+                                                                    :columns="getColumns" 
+                                                                    :format="format" 
+                                                                    :value="value"
+                                                                >
+                                                                    <slot :name="`cells-${column.id}`" 
+                                                                        :row="row" 
+                                                                        :displaying="getRows" 
+                                                                        :column="column" 
+                                                                        :columns="getColumns"
+                                                                        :format="format" 
+                                                                        :value="value"
+                                                                    >
+                                                                    </slot>
+                                                                </slot>
+                                                            </template>
                                                         </DatatableCell>
 
                                                     </slot>

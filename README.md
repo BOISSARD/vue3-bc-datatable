@@ -113,8 +113,10 @@ import 'vue3-bc-datatable/dist/style.css';
 | <td colspan=1 style="text-align: center; font-weight: bold; text-decoration: underline;">Content</td>
 | row-\<rowId> | | Content of a specfif row |
 | rows | | Content of all rows |
+| col-\<columnId>-row-\<rowId> | | Content of a cell (specific column) for a specific row (use th/td)|
+| cols-\<columnId> |  | Content of a cell (specific column) for all rows (use th/td) |
 | cell-\<columnId>-row-\<rowId> | | Content of a cell (specific column) for a specific row |
-| cells-\<columnId> | | Content of a cell (specific column) for all rows |
+| cells-\<columnId> |  | Content of a cell (specific column) for all rows |
 | <td colspan=1 style="text-align: center; font-weight: bold; text-decoration: underline;">Expansion</td>
 | row-\<rowId>-expansion-\<expansion> | | Content of a specific expansion of a specific row |
 | rows-expansion-\<expansion> | | Content of a specific expansion of all rows |
