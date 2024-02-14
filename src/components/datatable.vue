@@ -92,7 +92,7 @@
                                                     :value="format(column, row)"
                                                 >
 
-                                                    <slot :name="`cell-${column.id}-body`" 
+                                                    <slot :name="`cells-${column.id}`" 
                                                         :row="row" 
                                                         :whatPropId="whatPropId"
                                                         :displaying="getRows" 
@@ -544,8 +544,8 @@ watch(() => props.filters, () => {
 }, { deep: true, immediate: true })
 
 function getFilters(type) {
-    // console.log("getFilters", type, filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]]) )
-    return filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : []
+    console.log("getFilters", type, filtersLabelsForTypes[type], filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : [])
+    return type && filtersLabelsForTypes[type] ? Object.fromEntries(filtersLabelsForTypes[type].map(label => [label, filtersLabels[label]])) : []
 }
 function getDefault(type): DatatableFilterLabel {
     // console.log("getDefault", type, defaultFilterForType[type], defaultFilterForType[type] ?? "No filter")

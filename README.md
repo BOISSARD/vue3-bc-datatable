@@ -111,13 +111,13 @@ import 'vue3-bc-datatable/dist/style.css';
 | footer-\<columnId>-filter |  | To set the content of a cell (column) of the footer tr |
 | filters |  | To use a custom filters cell (use th/td) for every filters of the table |
 | <td colspan=1 style="text-align: center; font-weight: bold; text-decoration: underline;">Content</td>
-| row-<rowId> | | Content of a specfif row |
+| row-\<rowId> | | Content of a specfif row |
 | rows | | Content of all rows |
-| cell-<columnId>-row-<rowId> | | Content of a cell (specific column) for a specific row |
-| cell-<columnId>-body | | Content of a cell (specific column) for all rows |
+| cell-\<columnId>-row-\<rowId> | | Content of a cell (specific column) for a specific row |
+| cells-\<columnId> | | Content of a cell (specific column) for all rows |
 | <td colspan=1 style="text-align: center; font-weight: bold; text-decoration: underline;">Expansion</td>
-| row-<rowId>-expansion-<expansion> | | Content of a specific expansion of a specific row |
-| rows-expansion-<expansion> | | Content of a specific expansion of all rows |
+| row-\<rowId>-expansion-\<expansion> | | Content of a specific expansion of a specific row |
+| rows-expansion-\<expansion> | | Content of a specific expansion of all rows |
 | rows-expansions | | content of all expansions |
 | | | |
 
