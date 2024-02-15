@@ -32,7 +32,8 @@
     --bcdatatable-title-font-size: 1.8rem;
 }
 
-.bcdatatable-parent, .bcdatatable-filter-menu {
+// .bcdatatable-parent, .bcdatatable-filter-menu {
+.bcdatatable-parent, .bcdatatable-parent * {
     &::-webkit-scrollbar {
         width: 8px;
         height: 10px;

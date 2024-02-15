@@ -60,7 +60,8 @@
                         :filterChoices="table.getFilters(table.valueTypeByColumn.value[column.id])"
                         :chooseFilter="choice => table.updateFilters(column, 'method', choice)"
                         :class="['bcdatatable-filter', { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                        :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column), }" 
+                        :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column) }" 
+                        :filterMenuHeight="filterMenuHeight"
                     >
 
                         <slot :key="`filter-${table.generateKey(component, column)}`"
@@ -71,12 +72,13 @@
                             :filterChoices="table.getFilters(table.valueTypeByColumn.value[column.id])"
                             :chooseFilter="choice => table.updateFilters(column, 'method', choice)"
                             :class="['bcdatatable-filter', { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                            :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column), }"     
+                            :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column) }"
+                            :filterMenuHeight="filterMenuHeight"
                         >
 
                             <th v-if="column.filter" v-show="!column.hidden"
                                 :class="[ { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight }, ]"
-                                :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column), }" 
+                                :style="{ ...table.getRowHeightFromDensity.value, ...table.getSticky(component, column) }" 
                                 class="bcdatatable-filter"
                                 @mouseleave="hideFiltersMenu()"
                             >
@@ -167,7 +169,12 @@ function hideFiltersMenu() {
 
 
 const filterMenuHeight = computed(() => {
-    return props.table.wrapper.value?.clientHeight * 0.75
+    const table = props.table.el.value
+    const headHeight = table?.querySelector('thead')?.getBoundingClientRect().height ?? 0
+    const footHeight = table?.querySelector('tfoot')?.getBoundingClientRect().height ?? 0
+    const menuHeight = (props.table.wrapper.value?.clientHeight - headHeight - footHeight) * (!footHeight || !headHeight ? 0.75 : 1)
+    // console.log("filterMenuHeight", table, props.table.el.value?.querySelector('thead'), headHeight, props.table.el.value?.querySelector('tfoot'), footHeight, menuHeight)
+    return menuHeight
 })
 </script>
         

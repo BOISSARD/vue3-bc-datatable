@@ -48,7 +48,7 @@
 </div>
 
 
-	<template v-if="tabSimple || tabSloted">
+	<template v-if="tabSimple || tabSloted ||tabFew">
 	<div :style="{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-around', margin: '60px 0 15px' }">
 		<div :style="{ flex: '0 0 auto' }"> <button @click="addCol" >Add Col</button> </div>
 		<div :style="{ flex: '0 0 auto' }"> <button @click="update2ndCol" >Update 2nd col</button> </div>
@@ -98,6 +98,20 @@
 		:displayFilters="true"
 		
 		v-model:expand="expanded"
+	/>
+</div>
+
+<h2 id="tabFew">Few lines datatable <input type="checkbox" v-model="tabFew"></h2>
+<div v-if="tabFew">
+	<Datatable v-if="true"
+		identifier="tabFew"
+		title="Tableau peu de lignes"
+		
+		:columns="headers"
+		:rows="empty ? [] : items.splice(0,2)"
+		propId="name"
+		
+		displayFilters
 	/>
 </div>
 
@@ -227,8 +241,9 @@ const hideCol = ref(false)
 
 const tabEmpty = ref(false)
 const tabMinimal = ref(false)
-const tabSimple = ref(false)
-const tabSloted = ref(true)
+const tabFew = ref(false)
+const tabSimple = ref(true)
+const tabSloted = ref(false)
 const tabNested = ref(false)
 
 //#region		Table with desserts

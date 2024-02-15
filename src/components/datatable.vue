@@ -11,7 +11,7 @@
             <slot name="top" v-bind="getThis"></slot>
         </div>
 
-        <div style="overflow: auto; width: 100%" :style="tableStyle" :class="tableClass" class="bcdatatable-parent" ref="tableWrapper" >
+        <div style="overflow-x: auto; width: 100%" :style="tableStyle" :class="tableClass" class="bcdatatable-parent" ref="tableWrapper" >
             <slot v-bind="getThis">
 
                 <table 
