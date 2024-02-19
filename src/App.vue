@@ -106,6 +106,8 @@
 	<Datatable v-if="true"
 		identifier="tabFew"
 		title="Tableau peu de lignes"
+
+		style="height: 400px;"
 		
 		:columns="headers"
 		:rows="empty ? [] : items.splice(0,2)"
@@ -241,8 +243,8 @@ const hideCol = ref(false)
 
 const tabEmpty = ref(false)
 const tabMinimal = ref(false)
-const tabFew = ref(false)
-const tabSimple = ref(true)
+const tabFew = ref(true)
+const tabSimple = ref(false)
 const tabSloted = ref(false)
 const tabNested = ref(false)
 
