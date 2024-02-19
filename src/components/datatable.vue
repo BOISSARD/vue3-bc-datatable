@@ -463,17 +463,16 @@ const getRows = computed(() => {
 
     // /***   Filtre les élements suivant les filtres
     retour = retour
-        .filter((r) => { 
-            // console.log("==================", r.name, "\n", r)
-            let retour = Object
-            .entries(filtering.value)
-            .every(([col, filter]: [string, DatatableColumnFilter]) => {
-                // console.log(col, filter, filtersLabels[filter.method], filter.value, filtersLabels[filter.method]?.(r[col], filter.value), filtersLabels[filter.method]?.(r[col], filter.value) ?? true)
-                return filtersLabels[filter.method]?.(r[col], filter.value) ?? true
-            })
-            // console.log(r.name, ":", retour)
-            return retour
-        })
+        .filter((r) => typeof filtering.value == "function" 
+            ? filtering.value(r, retour, getColumns.value) 
+            : Object
+                .entries(filtering.value)
+                .every(([col, filter]: [string, DatatableColumnFilter]) => {
+                    // console.log(col, filter, filtersLabels[filter.method], filter.value, filtersLabels[filter.method]?.(r[col], filter.value), filtersLabels[filter.method]?.(r[col], filter.value) ?? true)
+                    if(typeof filter === "function") return (filter as any)(r[col], r, getColumns)
+                    return filtersLabels[filter.method]?.(r[col], filter.value) ?? true
+                })
+        )
     // */
 
     // /***   Trie les élements dans l'ordre
