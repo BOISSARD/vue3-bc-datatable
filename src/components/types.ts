@@ -160,24 +160,26 @@ export const filtersFunctions = {
             return normalizeString(value) == normalizeString(comparison)
 
         // if (typeof value === "number") 
-            return value == comparison
+        return value == comparison
 
-        throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        throw new Error(`"Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
 
     gt(value: unknown, comparison: any) {
         // if (filtersFunctions.in(comparison) || comparison === "") return true
 
         if (typeof value === "number") return value > comparison
-        
-        throw new Error(`"Greate Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+
+        return false
+        throw new Error(`"Greate Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
     ge(value: unknown, comparison: any) {
         // if (filtersFunctions.in(comparison) || comparison === "") return true
 
         if (typeof value === "number") return value >= comparison
         
-        throw new Error(`"Greater Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        return false
+        throw new Error(`"Greater Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
 
     lt(value: unknown, comparison: any) {
@@ -185,20 +187,24 @@ export const filtersFunctions = {
 
         if (typeof value === "number") return value < comparison
         
-        throw new Error(`"Less Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        return false
+        throw new Error(`"Less Than" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
     le(value: unknown, comparison: any) {
         // if (filtersFunctions.in(comparison) || comparison === "") return true
 
         if (typeof value === "number") return value <= comparison
         
-        throw new Error(`"Less Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        return false
+        throw new Error(`"Less Than or Equals" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
 
     be(value: unknown, min: number, max: number) {
         // if (filtersFunctions.in(min) || min === "" || filtersFunctions.in(max) || max === "") return true
 
-        return filtersFunctions.ge(value, min) && filtersFunctions.le(value, max)
+        if (typeof value === "number") return filtersFunctions.ge(value, min) && filtersFunctions.le(value, max)
+
+        return false
     },
 
     includes(value: unknown, comparison: unknown) {
@@ -207,7 +213,9 @@ export const filtersFunctions = {
         if (typeof value === "string" && typeof comparison === "string")
             return normalizeString(value).includes(normalizeString(comparison))
 
-        throw new Error(`"Includes"/"Contains" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+
+        return false
+        throw new Error(`"Includes"/"Contains" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
 
     sw(value: unknown, comparison: string) {
@@ -216,7 +224,8 @@ export const filtersFunctions = {
         if (typeof value === "string" && typeof comparison === "string")
             return normalizeString(value).startsWith(normalizeString(comparison))
     
-        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        return false
+        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },
     ew(value: unknown, comparison: string) {
         // if (filtersFunctions.in(comparison) || comparison === "") return true
@@ -224,14 +233,21 @@ export const filtersFunctions = {
         if (typeof value === "string" && typeof comparison === "string")
             return normalizeString(value).endsWith(normalizeString(comparison))
 
-        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value.constructor.name : typeof value}`)
+        return false
+        throw new Error(`"Starts Width" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
     },    
 
     match(value: unknown, comparison: string) {
-        // if (filtersFunctions.in(comparison) || comparison === "") return true
+        if (filtersFunctions.in(comparison) || comparison === "") return true
 
-        throw new Error("Match Regex not implemented")
-        console.log("ct", value, comparison)
+        try {
+            const regex = new RegExp(comparison);
+            const stringValue = String(value);
+            return regex.test(stringValue);
+        } catch (error) {
+            return false
+            throw new Error("Match Regex not implemented")
+        }
     },
 
 }

@@ -469,7 +469,7 @@ const getRows = computed(() => {
                 .entries(filtering.value)
                 .every(([col, filter]: [string, DatatableColumnFilter]) => {
                     // console.log(col, filter, filtersLabels[filter.method], filter.value, filtersLabels[filter.method]?.(r[col], filter.value), filtersLabels[filter.method]?.(r[col], filter.value) ?? true)
-                    if(typeof filter === "function") return (filter as any)(r[col], r, getColumns)
+                    if(typeof filter === "function") return (filter as any)(r[col], r, getColumns.value)
                     return filtersLabels[filter.method]?.(r[col], filter.value) ?? true
                 })
         )
