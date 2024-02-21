@@ -321,7 +321,6 @@
         box-sizing: border-box;
 
         // border: 1px solid var(--bcdatatable-border-color-light);
-        border-right: 0 !important;
         border-radius: 4px 0 0 4px;
 
         outline: none;
@@ -340,6 +339,8 @@
         padding: 2px 6px;
 
         border-radius: 0 4px 4px 0;
+        border-left: 0 !important;
+
         // border: 1px solid var(--bcdatatable-border-color-light);
         background-color: buttonface;
 
