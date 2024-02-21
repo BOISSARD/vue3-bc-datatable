@@ -212,7 +212,8 @@ export const filtersFunctions = {
 
         if (typeof value === "string" && typeof comparison === "string")
             return normalizeString(value).includes(normalizeString(comparison))
-
+        if (typeof value === "number" && typeof comparison === "string")
+            return normalizeString(String(value)).includes(normalizeString(comparison))
 
         return false
         throw new Error(`"Includes"/"Contains" filter not implemented for ${value} typeof ${typeof value === "object" ? value?.constructor?.name : typeof value}`)
@@ -287,7 +288,7 @@ export const filtersLabels = {
 export type DatatableFilterLabel = keyof typeof filtersLabels
 export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: DatatableFilterLabel[] } = {
     "boolean": ["No filter", "True", "False", ],
-    "number": ["No filter", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
+    "number": ["No filter", "Contains", "Doesn't Contain", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
     "string": ["No filter", "Contains", "Doesn't Contain", "Equals", "Not equals", "Starts With", "Doesn't start With", "Ends With", "Doesn't end With", "Corresponds Regex",  "True", "False" ],
     "object": ["No filter", "True", "False", "Is Null", "Not Null", ],
     "Date": ["No filter", "Is Null", "Not Null", "Equals", "Not equals", "Greater Than", "Greater Than or Equal", "Less Than", "Less Than or Equal", ],
@@ -295,7 +296,7 @@ export const filtersLabelsForTypes: { [key in DatatableFilterValueType]: Datatab
 }
 export const defaultFilterForType: { [key in DatatableFilterValueType]?: DatatableFilterLabel } = {
     // "boolean": "No filter",
-    "number": "Equals",
+    "number": "Contains",
     "string": "Contains",
     // "object": "No filter",
     // "Date": "Equals"
