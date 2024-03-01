@@ -243,8 +243,8 @@ const hideCol = ref(false)
 
 const tabEmpty = ref(false)
 const tabMinimal = ref(false)
-const tabFew = ref(true)
-const tabSimple = ref(false)
+const tabFew = ref(false)
+const tabSimple = ref(true)
 const tabSloted = ref(false)
 const tabNested = ref(false)
 
@@ -280,7 +280,9 @@ const headers = ref<Partial<DatatableColumn>[]>([
 		dividerLeft: true, dividerRight: true, 
 		hidden: hideCol.value
 	},
-	{ property: 'dairy', header: { text: 'Dairy', }, body: { text: (val:boolean) => val ? "Yes" : "No" }, bodyStyle: { textAlign: 'right' }, footer: { text: (dairies:boolean[]) => `${countBy(dairies)['true'] ?? 0}/${dairies.length}` }, footerStyle: { textAlign: 'center' } },
+	{ property: 'dairy', header: { text: 'Dairy', }, body: { text: (val:boolean) => val ? "Yes" : "No" }, 
+		bodyStyle: (val) => { console.log("dairy bodyStyle", val); return { textAlign: 'right', backgroundColor: val ? 'green !important' : 'red !important' } }, 
+		footer: { text: (dairies:boolean[]) => `${countBy(dairies)['true'] ?? 0}/${dairies.length}` }, footerStyle: { textAlign: 'center' } },
 	{ property: 'date', header: { text: 'Date', }, body: { text: (val: Date) => val?.toLocaleDateString() }, bodyStyle: { textAlign: 'center' }, footer: { text: 'Date' }, footerStyle: { textAlign: 'center' } },
 	{ property: 'calories', header: { text: 'Calories' }, footer: { text: average, /*cols: "auto", justify: "end"*/ }, footerStyle: { textAlign: "center" }, bodyStyle: { fontStyle: 'italic', textAlign: "center" }, expansion: { text: "La calorie c'est cool", global: false, single: true } },
 	{ property: 'fat', header: { text: 'Fat', justify: "end" }, headerStyle: { textAlign: "center" }, footer: { text: average, suffix: "g", cols: "auto", justify: "end" }, footerStyle: { textAlign: "center" }, body: { suffix: "g", cols: "auto", justify: "space-between" }, expansion: { text: "Le gras c'est pas cool" }, },
@@ -311,7 +313,7 @@ const items = ref<Array<Item>>([
 	{ name: 'Lollipop', calories: 392, fat: 0.2, carbs: 98, protein: 0, iron: 0.02, category: 'Candy', dairy: false }, // , style: { height: "100px", border: "thin solid red" } // , date: new Date(1997, 11, 31, 22)
 	{ name: 'Cupcake', calories: 575, fat: 3.7, carbs: 167, protein: 4.3, iron: 0.08, category: 'Pastry', dairy: true, date: new Date(1993, 3, 9, 12)},
 	{ name: 'Jelly bean', calories: 575, fat: 8.0, carbs: 84, protein: 0.0, iron: 0, category: 'Candy', dairy: false, date: new Date(2001, 2, 17, 17) },
-	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, date: new Date(2023, 8, 3, 4), dividerTop: true, dividerBottom: true },
+	{ name: 'KitKat', calories: 518, fat: 26.0, carbs: 65, protein: 7, iron: 0.06, category: 'Candy', dairy: true, date: new Date(2023, 8, 3, 4), dividerTop: true, dividerBottom: true, class: () =>  ('test') },
 	{ name: 'Donut', calories: 452, fat: 25.0, carbs: 51, protein: 4.9, iron: 0.22, category: 'Pastry', dairy: true, date: new Date(2021, 3, 13, 17) },
 	{ name: 'Honeycomb', calories: 408, fat: 3.2, carbs: 87, protein: 6.5, iron: 0.45, category: 'Toffee', dairy: false, date: new Date(2023, 6, 24, 6) , dividerBottom: true, },
 	{ name: 'Frozen Yogurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0, iron: 0.01, category: 'Ice cream', dairy: true, date: new Date(2021, 3, 21, 7), },
@@ -472,6 +474,10 @@ select {
 	flex: 0 0 auto;
 	display: flex;
 	align-items: center;
+}
+
+.test td {
+	background-color: lightcoral !important;
 }
 
 </style>

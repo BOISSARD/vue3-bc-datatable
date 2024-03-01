@@ -32,15 +32,15 @@ export class DatatableColumn {
     footer: DatatableColumnCellOptions = { displaySort: false, displayExpanse: false, displaySelect: false }
     body: DatatableColumnCellOptions = { text: (val : string | number) => val, displaySelect: true, displayExpanse: true } 
 
-    columnStyle: StyleProps = {} // le style pour toute la colonne
-    headerStyle: StyleProps = {} // le style pour le header de la colonne
-    footerStyle: StyleProps = {} // le style pour le footer de la colonne
-    bodyStyle: StyleProps = {} // le style pour les cellules de la colonne
+    columnStyle: StyleProps | Function = {} // le style pour toute la colonne
+    headerStyle: StyleProps | Function = {} // le style pour le header de la colonne
+    footerStyle: StyleProps | Function = {} // le style pour le footer de la colonne
+    bodyStyle: StyleProps | Function = {} // le style pour les cellules de la colonne
 
-    columnClass:  ClassProps = [] // les class pour toute la colonne
-    headerClass: ClassProps = [] // les class pour le header de la colonne
-    footerClass: ClassProps = [] // les class pour le footer de la colonne
-    bodyClass: ClassProps = [] // les class pour les cellules de la colonne
+    columnClass:  ClassProps | Function = [] // les class pour toute la colonne
+    headerClass: ClassProps | Function = [] // les class pour le header de la colonne
+    footerClass: ClassProps | Function = [] // les class pour le footer de la colonne
+    bodyClass: ClassProps | Function = [] // les class pour les cellules de la colonne
     
     draggable: boolean = false
     resizable: boolean = false
@@ -74,7 +74,9 @@ export class DatatableColumn {
         text?: null | string | Function, // le contenu de l'extension (si pas de datatable imbriqué)
         property?: string, // la propriété contenant le sous-datatable
         columns?: null | Partial<DatatableColumn>[], // de la même forme que ce header si c'est un sous-datable
-        props?: object  // l'ensemble des props à passer au sous-datatable (à voir comment gérer avec $attrs)  | anciennement "options"
+        props?: object,  // l'ensemble des props à passer au sous-datatable (à voir comment gérer avec $attrs)  | anciennement "options",
+        style?: StyleProps | Function,
+        class?: ClassProps | Function,
     }> | null = null 
 
     // divider: boolean | null = false // pour ajouter une barre de séparation avec la colonne de droite
@@ -102,8 +104,8 @@ export class DatatableRow {
         value: DatatableCell,
         rows: Array<DatatableRow>
     }
-    style: StyleProps = {}
-    class: ClassProps = []
+    style: StyleProps | Function = {}
+    class: ClassProps | Function = []
     sticky: "top" | "bottom" | null | { 
         position: "top" | "bottom" | null, 
         zIndex?: number | undefined, 

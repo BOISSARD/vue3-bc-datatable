@@ -2,7 +2,7 @@
     <div style="max-width: 100%" :class="{
         'theme--light': !dark,
         'theme--dark': dark,
-        'pa-4 bcdatatable-wrapper': !nested,
+        'bcdatatable-wrapper': !nested,
     }">
         <div v-if="$slots.title || title" class="bcdatatable-container-top">
             <slot name="title" v-bind="getThis"><span class="bcdatatable-title">{{ title }}</span></slot>
@@ -59,7 +59,7 @@
 
                             <template v-if="getRows.length" v-for="row in getRows" :key="getId(row)">
 
-                                <tr :style="{ ...getSticky(row) as object, ...row.style as object }" :class="[ ...(row.class ?? []) ]">
+                                <tr :style="{ ...getSticky(row) as object, ...row.style as object }" :class="[ ...returnClass(row.class, row) ]">
                                     <slot :name="`row-${getId(row)}`" 
                                         :row="row" 
                                         :whatPropId="whatPropId"
@@ -92,8 +92,8 @@
                                                     :expandable="!!column.expansion"
                                                     :expanded="getExpandedValue(column, row)" 
                                                     :value="format(column, row)"
-                                                    :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
-                                                    :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
+                                                    :class="[ ...returnClass(column.columnClass, row, column), ...returnClass(column.bodyClass, row, column), { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
+                                                    :style="{ ...returnStyle(column.columnStyle, row, column), ...returnStyle(column.bodyStyle, row, column), ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                 >
 
                                                     <slot :name="`cols-${column.id}`" 
@@ -107,16 +107,16 @@
                                                         :expandable="!!column.expansion"
                                                         :expanded="getExpandedValue(column, row)"
                                                         :value="format(column, row)"
-                                                        :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
-                                                        :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
+                                                        :class="[ ...returnClass(column.columnClass, row, column), ...returnClass(column.bodyClass, row, column), { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
+                                                        :style="{ ...returnStyle(column.columnStyle, row, column), ...returnStyle(column.bodyStyle, row, column), ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                     >
 
                                                         <DatatableCell v-show="!column.hidden"
                                                             :id="generateKey(row, column)"
                                                             :value="format(column, row)" 
                                                             v-bind="column.body"
-                                                            :class="[...column.columnClass, column.bodyClass, { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
-                                                            :style="{ ...column.columnStyle as object, ...column.bodyStyle as object, ...getSticky(row, column), ...getRowHeightFromDensity }"
+                                                            :class="[ ...returnClass(column.columnClass, row, column), ...returnClass(column.bodyClass, row, column), { 'divider-left': column.dividerLeft, 'divider-right': column.dividerRight, 'divider-top': row.dividerTop, 'divider-bottom': row.dividerBottom }, ]" 
+                                                            :style="{ ...returnStyle(column.columnStyle, row, column), ...returnStyle(column.bodyStyle, row, column), ...getSticky(row, column), ...getRowHeightFromDensity }"
                                                             :selectable="!!column.selection"
                                                             :selected="getSelect(column)?.includes(getId(row))"
                                                             @update:selected="select(column, row, $event)"
@@ -165,8 +165,8 @@
                                         .map((kv, _, arr) => { kv.length = arr.length; return kv; })
                                     " 
                                     :key="`${getId(row)}-expansion-${expansion}`" 
-                                    :class="[{ 'bcdatatable-expansion-row': !hasExpansion(expansion), 'bcdatatable-expansion-nested-row': hasExpansion(expansion), }]"
-                                    :style="{ ...getSticky(row) as object }"
+                                    :class="[ ...returnClass(null, row), { 'bcdatatable-expansion-row': !hasExpansion(expansion), 'bcdatatable-expansion-nested-row': hasExpansion(expansion), }]"
+                                    :style="{ ...returnStyle(null, row), ...getSticky(row) as object }"
                                 >
 
                                     <slot :name="`row-${getId(row)}-expansion-${expansion}`" 
@@ -990,6 +990,42 @@ const getRowHeightFromDensity = computed(() => {
     // console.log(`${props.identifier} getRowHeightFromDensity`, retour, props.density)
     return retour
 })
+
+function returnClass(classProps: ClassProps | Function | null, row: Partial<DatatableRow>, column?: Partial<DatatableColumn> ) {
+    let retour
+    // console.log("returnClass", classProps, typeof classProps, row, column)
+    if(typeof classProps == "function") {
+        retour = classProps(row[column?.property], row, column)
+        // console.log("returnClass", classProps, row, column, retour)
+    } else if (classProps) {
+        retour = classProps
+    } else {
+        retour = []
+    }
+
+    if(typeof retour !== "object") {
+        retour = [retour]
+    }
+
+    return retour
+}
+
+function returnStyle(styleProps: StyleProps | Function | null, row: Partial<DatatableRow>, column?: Partial<DatatableColumn> ) {
+    let retour //= styleProps ?? {}
+    if(typeof styleProps == "function") {
+        retour = styleProps(row[column?.property], row, column)
+    } else if (styleProps) {
+        retour = styleProps
+    } else {
+        retour = {}
+    }
+
+    if(typeof retour !== "object") {
+        retour = {}
+    }
+
+    return retour
+}
 
 const table = ref()
 const tableWrapper = ref()
